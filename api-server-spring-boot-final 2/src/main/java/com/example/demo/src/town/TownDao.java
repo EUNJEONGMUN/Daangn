@@ -31,7 +31,6 @@ public class TownDao {
 
 
     public List<GetTownRes> getTown(int categoryId) {
-
         String getTownQuery = "select * from TownPost where townPostCategoryId = ?";
         int getTownParams = categoryId;
         return this.jdbcTemplate.query(
