@@ -14,7 +14,7 @@ public class PostTownNewReq {
 
     private int userId;
     private int townPostCategoryId;
-    private int townPostLocationId;
+    private int townPostLocation;
     private String content;
 
     public PostTownNewReq(){

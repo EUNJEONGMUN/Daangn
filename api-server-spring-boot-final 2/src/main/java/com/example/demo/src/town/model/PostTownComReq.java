@@ -4,18 +4,18 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.sql.Timestamp;
-
-
 @Getter
 @Setter
 @AllArgsConstructor
-public class GetTownRes {
-    private String categoryName;
+
+// 동네 생활 댓글 작성 시 필요한 것들
+public class PostTownComReq {
     private int townPostId;
+    private int userId;
     private String content;
-    private String userName;
-//    private Timestamp uploadTime;
-    private int comCount;
-    private int likeCount;
+    private int refId;
+
+    public PostTownComReq(){
+
+    }
 }

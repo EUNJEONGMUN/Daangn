@@ -2,10 +2,6 @@ package com.example.demo.src.town;
 
 import com.example.demo.config.BaseException;
 import com.example.demo.src.town.model.GetTownRes;
-import com.example.demo.src.user.UserDao;
-import com.example.demo.src.user.UserProvider;
-import com.example.demo.src.user.model.GetUserRes;
-import com.example.demo.utils.JwtService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,4 +43,33 @@ public class TownProvider {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
+    public int checkLiked(int postId, int userId) throws BaseException {
+        try{
+            return townDao.checkLiked(postId, userId);
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public int checkComLiked(int postId, int comId, int userId) throws BaseException {
+        try{
+            return townDao.checkComLiked(postId, comId, userId);
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+
+
+    /*
+    public int checkEmail(String email) throws BaseException{
+        try{
+            return userDao.checkEmail(email);
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+     */
+
 }

@@ -30,10 +30,15 @@ public enum BaseResponseStatus {
     POST_USERS_INVALID_EMAIL(false, 2016, "이메일 형식을 확인해주세요."),
     POST_USERS_EXISTS_EMAIL(false,2017,"중복된 이메일입니다."),
 
+    // towns
+    TOWNS_CATEGORY_ERROR(false, 210, "올바른 카테고리 범위를 벗어났습니다."),
+    
     // [POST] /towns
     POST_TOWNS_EMPTY_CATEGORY(false, 215, "카테고리를 선택해주세요."),
     POST_TOWNS_EMPTY_CONTENT(false, 216, "내용을 입력해주세요."),
 
+
+    
 
     /**
      * 3000 : Response 오류
@@ -57,7 +62,13 @@ public enum BaseResponseStatus {
     MODIFY_FAIL_USERNAME(false,4014,"유저네임 수정 실패"),
 
     PASSWORD_ENCRYPTION_ERROR(false, 4011, "비밀번호 암호화에 실패하였습니다."),
-    PASSWORD_DECRYPTION_ERROR(false, 4012, "비밀번호 복호화에 실패하였습니다.");
+    PASSWORD_DECRYPTION_ERROR(false, 4012, "비밀번호 복호화에 실패하였습니다."),
+
+    // [PUT] /towns
+    MODIFY_FAIL_TOWNPOSTLIKED(false, 410, "동네 생활 글 좋아요 실패"),
+    MODIFY_FAIL_TOWNCOMLIKED(false, 411, "동네 생활 댓글 좋아요 실패");
+
+
 
 
     // 5000 : 필요시 만들어서 쓰세요
