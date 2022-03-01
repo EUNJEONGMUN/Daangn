@@ -65,7 +65,7 @@ public class UserController {
      * [GET] /users/:userIdx
      * @return BaseResponse<GetUserRes>
      */
-    // Path-variable
+    // Path-variable -> path 에서 변수 받아올 때 사용
     @ResponseBody
     @GetMapping("/{userIdx}") // (GET) 127.0.0.1:9000/app/users/:userIdx
     public BaseResponse<GetUserRes> getUser(@PathVariable("userIdx") int userIdx) {

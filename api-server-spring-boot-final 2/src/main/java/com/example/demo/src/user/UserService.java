@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import static com.example.demo.config.BaseResponseStatus.*;
 
 // Service Create, Update, Delete 의 로직 처리
-@Service
+@Service // 서비스로 선언
 public class UserService {
     final Logger logger = LoggerFactory.getLogger(this.getClass());
 
