@@ -90,7 +90,7 @@ public class TownService {
 
         try {
             if (townProvider.checkComLiked(postId, comId, putTownComLikedReq.getUserId()) == 0) {
-                // 좋아요 하지 않은 게시글일 때
+                // 좋아요 하지 않은 댓글일 때
                 try {
                     int likeListId = townDao.createTownComLiked(postId, comId, putTownComLikedReq);
                 } catch (Exception exception) {
@@ -99,7 +99,7 @@ public class TownService {
 
 
             } else {
-                // 좋아요 한 게시글일 때
+                // 좋아요 한 댓글일 때
                 try {
                     int result = townDao.modifyTownComLiked(postId, comId, putTownComLikedReq);
                     if (result == 0) {

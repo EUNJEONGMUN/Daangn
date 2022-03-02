@@ -31,14 +31,28 @@ public enum BaseResponseStatus {
     POST_USERS_EXISTS_EMAIL(false,2017,"중복된 이메일입니다."),
 
     // towns
-    TOWNS_CATEGORY_ERROR(false, 210, "올바른 카테고리 범위를 벗어났습니다."),
+    TOWNS_CATEGORY_ERROR(false, 210, "올바른 카테고리 범위를 벗어났습니다.-동네생활"),
     
     // [POST] /towns
-    POST_TOWNS_EMPTY_CATEGORY(false, 215, "카테고리를 선택해주세요."),
+    POST_TOWNS_EMPTY_CATEGORY(false, 215, "카테고리를 선택해주세요.-동네생활"),
     POST_TOWNS_EMPTY_CONTENT(false, 216, "내용을 입력해주세요."),
 
+    // [POST] /around
+    POST_AROUND_CHAT_EMPTY_CONTENT(false, 220, "내용을 입력해주세요."),
+    POST_FAIL_AROUND_CHAT_SELF(false, 221, "자신에게 채팅을 보낼 수 없습니다."),
 
-    
+    // products
+    PRODUCTS_CATEGORY_ERROR(false, 230, "올바른 카테고리 범위를 벗어났습니다.-중고거래"),
+
+    // [POST] /products
+    POST_PRODUCTS_EMPTY_CATEGORY(false, 235, "카테고리를 선택해주세요.-중고거래"),
+    POST_PRODUCTS_EMPTY_CONTENT(false, 236, "내용을 입력해주세요."),
+    POST_PRODUCTS_EMPTY_TITLE(false, 236, "제목을 입력해주세요."),
+
+    // [POST] /deals
+    POST_DEALS_EMPTY_USERID(false, 240, "유저 아이디를 입력해주세요."),
+
+
 
     /**
      * 3000 : Response 오류
@@ -66,11 +80,18 @@ public enum BaseResponseStatus {
 
     // [PUT] /towns
     MODIFY_FAIL_TOWNPOSTLIKED(false, 410, "동네 생활 글 좋아요 실패"),
-    MODIFY_FAIL_TOWNCOMLIKED(false, 411, "동네 생활 댓글 좋아요 실패");
+    MODIFY_FAIL_TOWNCOMLIKED(false, 411, "동네 생활 댓글 좋아요 실패"),
+
+    // [POST] /aourd
+    POST_FAIL_AROUND_CHATLIST(false, 420, "내 근처 글 채팅 방 생성 실패"),
+    POST_FAIL_AROUND_CHAT(false, 421, "내 근처 글 채팅 전송 실패"),
+
+    // [GET] /around
+    FIND_FAIL_AROUND_POST_USER(false, 430, "내 근처 글을 작성한 사용자가 없습니다"),
 
 
-
-
+    // [PUT] /products
+    MODIFY_FAIL_PRODUCT_ATTENTION(false, 440, "중고거래 관심 등록 실패");
     // 5000 : 필요시 만들어서 쓰세요
     // 6000 : 필요시 만들어서 쓰세요
 

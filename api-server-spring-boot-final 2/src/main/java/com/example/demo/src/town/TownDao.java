@@ -31,7 +31,8 @@ public class TownDao {
                 "                from TownPost TP\n" +
                 "                left join TownPostLike TPlike on TP.townPostId = TPlike.postId\n" +
                 "                group by TP.townPostId) as likecount on likecount.townPostId = TP.townPostId\n" +
-                "group by TP.townPostId) as ComLike on ComLike.townPostId = TP.townPostId";
+                "group by TP.townPostId) as ComLike on ComLike.townPostId = TP.townPostId\n" +
+                "order by TP.createdAt desc";
 
 
         return this.jdbcTemplate.query(
@@ -64,7 +65,8 @@ public class TownDao {
                 "                left join TownPostLike TPlike on TP.townPostId = TPlike.postId\n" +
                 "                group by TP.townPostId) as likecount on likecount.townPostId = TP.townPostId\n" +
                 "group by TP.townPostId) as ComLike on ComLike.townPostId = TP.townPostId\n" +
-                "where townPostCategoryId = ?";
+                "where townPostCategoryId = ?\n" +
+                "order by TP.createdAt desc";
 
         int getTownParams = categoryId;
         return this.jdbcTemplate.query(

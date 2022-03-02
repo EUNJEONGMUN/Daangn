@@ -1,0 +1,19 @@
+package com.example.demo.src.around.model;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+@AllArgsConstructor
+public class PostAroundChatReq {
+    private int userId;
+    private String content;
+    private String emotion;
+    private int chatRoomId;
+
+    public PostAroundChatReq(){
+
+    }
+}

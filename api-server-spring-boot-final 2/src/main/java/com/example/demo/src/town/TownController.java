@@ -21,7 +21,6 @@ public class TownController {
     private final TownProvider townProvider;
     @Autowired
     private final TownService townService;
-    @Autowired
 
 
     public TownController(TownProvider townProvider, TownService townService){
