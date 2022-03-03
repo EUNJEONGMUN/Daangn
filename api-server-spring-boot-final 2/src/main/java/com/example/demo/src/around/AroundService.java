@@ -3,6 +3,8 @@ package com.example.demo.src.around;
 import com.example.demo.config.BaseException;
 import com.example.demo.src.around.model.PostAroundChatReq;
 import com.example.demo.src.around.model.PostAroundChatRes;
+import com.example.demo.src.around.model.PostAroundNewReq;
+import com.example.demo.src.around.model.PostAroundNewRes;
 import com.example.demo.src.town.model.PostTownNewRes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +65,15 @@ public class AroundService {
                 throw new BaseException(POST_FAIL_AROUND_CHAT);
                 }
 
-
-
     }
+
+    public PostAroundNewRes createAround(PostAroundNewReq postAroundNewReq) throws BaseException {
+        try {
+            int aroundPostId = aroundDao.createAround(postAroundNewReq);
+            return new PostAroundNewRes(aroundPostId);
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
 }

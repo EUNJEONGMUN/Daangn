@@ -45,7 +45,7 @@ public class TownController {
     public BaseResponse<List<GetTownRes>> getTown(@PathVariable("categoryId") int categoryId){
         try{
             if (categoryId<=21 || categoryId>=39){
-                return new BaseResponse<>(TOWNS_CATEGORY_ERROR);
+                return new BaseResponse<>(CATEGORY_RANGE_ERROR);
             }
             List<GetTownRes> getTownRes = townProvider.getTown(categoryId);
             return new BaseResponse<>(getTownRes);
@@ -59,7 +59,7 @@ public class TownController {
     public BaseResponse<PostTownNewRes> createTown(@RequestBody PostTownNewReq postTownNewReq){
 
         if (postTownNewReq.getTownPostCategoryId() == 0){
-            return new BaseResponse<>(POST_TOWNS_EMPTY_CATEGORY);
+            return new BaseResponse<>(EMPTY_CATEGORY);
         }
         if (postTownNewReq.getContent() == null){
             return new BaseResponse<>(POST_TOWNS_EMPTY_CONTENT);
@@ -71,8 +71,6 @@ public class TownController {
         } catch (BaseException exception){
             return new BaseResponse<>((exception.getStatus()));
         }
-
-
     }
 
     @ResponseBody

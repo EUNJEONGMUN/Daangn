@@ -1,4 +1,5 @@
-package com.example.demo.src.user.model;
+package com.example.demo.src.member.model;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,9 +8,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class PostUserReq {
-    private String UserName;
-    private String id;
+public class GetMemberRes {
+    private int userIdx;
+    private String userName;
+    private String ID;
     private String email;
     private String password;
 }

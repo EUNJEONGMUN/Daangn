@@ -81,4 +81,19 @@ public class ProductService {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
+    public void deleteDeal(int postId, PostDealReq postDealReq) throws BaseException {
+        try{
+            if(productProvider.checkDeal(postId, postDealReq.getUserId()) == 0){
+                throw new BaseException(FIND_FAIL_DEAL_USER);
+            }
+            int result = productDao.deleteDeal(postId, postDealReq.getUserId());
+            if (result == 0) {
+                throw new BaseException(DELETE_FAIL_DEAL);
+            }
+
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 }

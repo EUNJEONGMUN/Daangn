@@ -21,7 +21,8 @@ public enum BaseResponseStatus {
     EMPTY_JWT(false, 2001, "JWT를 입력해주세요."),
     INVALID_JWT(false, 2002, "유효하지 않은 JWT입니다."),
     INVALID_USER_JWT(false,2003,"권한이 없는 유저의 접근입니다."),
-
+    CATEGORY_RANGE_ERROR(false, 2004, "올바른 카테고리 범위를 벗어났습니다."),
+    EMPTY_CATEGORY(false, 2005, "카테고리를 선택해주세요."),
     // users
     USERS_EMPTY_USER_ID(false, 2010, "유저 아이디 값을 확인해주세요."),
 
@@ -30,29 +31,27 @@ public enum BaseResponseStatus {
     POST_USERS_INVALID_EMAIL(false, 2016, "이메일 형식을 확인해주세요."),
     POST_USERS_EXISTS_EMAIL(false,2017,"중복된 이메일입니다."),
 
-    // towns
-    TOWNS_CATEGORY_ERROR(false, 210, "올바른 카테고리 범위를 벗어났습니다.-동네생활"),
-    
     // [POST] /towns
-    POST_TOWNS_EMPTY_CATEGORY(false, 215, "카테고리를 선택해주세요.-동네생활"),
+
     POST_TOWNS_EMPTY_CONTENT(false, 216, "내용을 입력해주세요."),
 
     // [POST] /around
-    POST_AROUND_CHAT_EMPTY_CONTENT(false, 220, "내용을 입력해주세요."),
-    POST_FAIL_AROUND_CHAT_SELF(false, 221, "자신에게 채팅을 보낼 수 없습니다."),
+    POST_AROUND_EMPTY_TITLE(false, 220, "제목을 입력해주세요."),
+    POST_AROUND_EMPTY_CONTENT(false, 221, "내용을 입력해주세요."),
+    POST_AROUND_CHAT_EMPTY_CONTENT(false, 222, "내용을 입력해주세요."),
+    POST_FAIL_AROUND_CHAT_SELF(false, 223, "자신에게 채팅을 보낼 수 없습니다."),
 
-    // products
-    PRODUCTS_CATEGORY_ERROR(false, 230, "올바른 카테고리 범위를 벗어났습니다.-중고거래"),
 
     // [POST] /products
-    POST_PRODUCTS_EMPTY_CATEGORY(false, 235, "카테고리를 선택해주세요.-중고거래"),
     POST_PRODUCTS_EMPTY_CONTENT(false, 236, "내용을 입력해주세요."),
     POST_PRODUCTS_EMPTY_TITLE(false, 236, "제목을 입력해주세요."),
 
     // [POST] /deals
     POST_DEALS_EMPTY_USERID(false, 240, "유저 아이디를 입력해주세요."),
 
-
+    // [post] /stores
+    POST_STORE_EMPTY_STORENAME(false, 250, "가게 이름을 입력해주세요"),
+    POST_STORE_NUMBER_EXCEEDED(false, 251, "비즈 프로필은 3개까지 생성 가능합니다."),
 
     /**
      * 3000 : Response 오류
@@ -91,7 +90,12 @@ public enum BaseResponseStatus {
 
 
     // [PUT] /products
-    MODIFY_FAIL_PRODUCT_ATTENTION(false, 440, "중고거래 관심 등록 실패");
+    MODIFY_FAIL_PRODUCT_ATTENTION(false, 440, "중고거래 관심 등록 실패"),
+
+    // [GET] /deals
+    FIND_FAIL_DEAL_USER(false, 450, "중고 거래 기록이 없습니다."),
+    DELETE_FAIL_DEAL(false, 451, "중고 거래 기록 삭제 실패");
+
     // 5000 : 필요시 만들어서 쓰세요
     // 6000 : 필요시 만들어서 쓰세요
 

@@ -1,8 +1,8 @@
 package com.example.demo.src.user;
 
-
-import com.example.demo.src.user.model.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.demo.src.user.model.GetUserBadgeRes;
+import com.example.demo.src.user.model.GetUserLikeStoreRes;
+import org.springframework.beans.factory.annotation.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -11,7 +11,6 @@ import java.util.List;
 
 @Repository
 public class UserDao {
-
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
@@ -19,85 +18,49 @@ public class UserDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public List<GetUserRes> getUsers(){
-        String getUsersQuery = "select * from UserInfo";
-        return this.jdbcTemplate.query(getUsersQuery,
-                (rs,rowNum) -> new GetUserRes(
-                        rs.getInt("userIdx"),
-                        rs.getString("userName"),
-                        rs.getString("ID"),
-                        rs.getString("Email"),
-                        rs.getString("password"))
-                );
+    public List<GetUserBadgeRes> getUserBadges(int userId) {
+        String getUserBadgesQuery = "select Badge.badgeName, Badge.badgeImageUrl as badgeImage\n" +
+                "from UserBadge U join Badge on Badge.badgeId = U.badgeId\n" +
+                "where UserId = ?";
+        int getUserBadgeParam = userId;
+        return this.jdbcTemplate.query(getUserBadgesQuery,
+                (rs, rowNum) -> new GetUserBadgeRes(
+                        rs.getString("badgeName"),
+                        rs.getString("badgeImage")),
+                getUserBadgeParam);
     }
 
-    public List<GetUserRes> getUsersByEmail(String email){
-        String getUsersByEmailQuery = "select * from UserInfo where email =?";
-        String getUsersByEmailParams = email;
-        return this.jdbcTemplate.query(getUsersByEmailQuery,
-                (rs, rowNum) -> new GetUserRes(
-                        rs.getInt("userIdx"),
-                        rs.getString("userName"),
-                        rs.getString("ID"),
-                        rs.getString("Email"),
-                        rs.getString("password")),
-                getUsersByEmailParams);
-    }
+    public List<GetUserLikeStoreRes> getUserLikeStores(int userId) {
+        String getUserLikeStoresQuery = "select S.storeId, S.storeProfileImage as storeImage, S.storeName, S.storeInfo, categoryName.categoryName, RC.reviewCount, LU.likeUserCount\n" +
+                "from Store S\n" +
+                "    join LikeStoreList LSL on S.storeId = LSL.storeId\n" +
+                "    join (\n" +
+                "        select S.storeId, S.storeName, C.categoryName\n" +
+                "        from Store S join Category C on S.storeCategoryId = C.categoryId\n" +
+                "    ) categoryName on categoryName.storeId = S.storeId\n" +
+                "    left join (\n" +
+                "        select storeId, count(*) as reviewCount\n" +
+                "        from StoreReview\n" +
+                "        group by storeId\n" +
+                "    ) RC on RC.storeId = S.storeId\n" +
+                "    left join (\n" +
+                "        select storeId, count(*) as likeUserCount\n" +
+                "        from LikeStoreList\n" +
+                "        group by storeId\n" +
+                "    ) LU on LU.storeId = S.storeId\n" +
+                "where LSL.userId = ?";
 
-    public GetUserRes getUser(int userIdx){
-        String getUserQuery = "select * from UserInfo where userIdx = ?";
-        int getUserParams = userIdx;
-        return this.jdbcTemplate.queryForObject(getUserQuery,
-                (rs, rowNum) -> new GetUserRes(
-                        rs.getInt("userIdx"),
-                        rs.getString("userName"),
-                        rs.getString("ID"),
-                        rs.getString("Email"),
-                        rs.getString("password")),
-                getUserParams);
-    }
-    
-
-    public int createUser(PostUserReq postUserReq){
-        String createUserQuery = "insert into UserInfo (userName, ID, password, email) VALUES (?,?,?,?)";
-        Object[] createUserParams = new Object[]{postUserReq.getUserName(), postUserReq.getId(), postUserReq.getPassword(), postUserReq.getEmail()};
-        this.jdbcTemplate.update(createUserQuery, createUserParams);
-
-        String lastInserIdQuery = "select last_insert_id()";
-        return this.jdbcTemplate.queryForObject(lastInserIdQuery,int.class);
-    }
-
-    public int checkEmail(String email){
-        String checkEmailQuery = "select exists(select email from UserInfo where email = ?)";
-        String checkEmailParams = email;
-        return this.jdbcTemplate.queryForObject(checkEmailQuery,
-                int.class,
-                checkEmailParams);
-
-    }
-
-    public int modifyUserName(PatchUserReq patchUserReq){
-        String modifyUserNameQuery = "update UserInfo set userName = ? where userIdx = ? ";
-        Object[] modifyUserNameParams = new Object[]{patchUserReq.getUserName(), patchUserReq.getUserIdx()};
-
-        return this.jdbcTemplate.update(modifyUserNameQuery,modifyUserNameParams);
-    }
-
-    public User getPwd(PostLoginReq postLoginReq){
-        String getPwdQuery = "select userIdx, password,email,userName,ID from UserInfo where ID = ?";
-        String getPwdParams = postLoginReq.getId();
-
-        return this.jdbcTemplate.queryForObject(getPwdQuery,
-                (rs,rowNum)-> new User(
-                        rs.getInt("userIdx"),
-                        rs.getString("ID"),
-                        rs.getString("userName"),
-                        rs.getString("password"),
-                        rs.getString("email")
-                ),
-                getPwdParams
-                );
-
+        int getUserLikeStoresParams = userId;
+        return this.jdbcTemplate.query(getUserLikeStoresQuery,
+                (rs, rowNum) -> new GetUserLikeStoreRes(
+                        rs.getInt("storeId"),
+                        rs.getString("storeImage"),
+                        rs.getString("storeName"),
+                        rs.getString("storeInfo"),
+                        rs.getString("categoryName"),
+                        rs.getInt("reviewCount"),
+                        rs.getInt("likeUserCount")),
+                getUserLikeStoresParams);
     }
 
 

@@ -192,4 +192,16 @@ public class ProductDao {
         Object[] createDealParams = new Object[]{postDealReq.getUserId(), postId};
         return this.jdbcTemplate.update(createDealQuery, createDealParams);
     }
+
+    public int checkDeal(int postId, int userId) {
+        String checkDealQuery = "select exists(select * from Deal where productPostId=? and buyUserId=?);";
+        Object[] checkDealParams = new Object[]{postId, userId};
+        return this.jdbcTemplate.update(checkDealQuery, checkDealParams);
+    }
+
+    public int deleteDeal(int postId, int userId) {
+        String deleteDealQuery = "delete from Deal where productPostId=? and buyUserId=?";
+        Object[] deleteDealParams = new Object[]{postId, userId};
+        return this.jdbcTemplate.update(deleteDealQuery, deleteDealParams);
+    }
 }

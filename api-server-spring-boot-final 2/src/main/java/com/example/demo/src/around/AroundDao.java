@@ -1,6 +1,7 @@
 package com.example.demo.src.around;
 
 import com.example.demo.src.around.model.PostAroundChatReq;
+import com.example.demo.src.around.model.PostAroundNewReq;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -11,20 +12,21 @@ import javax.sql.DataSource;
 public class AroundDao {
 
     private JdbcTemplate jdbcTemplate;
+
     @Autowired
-    public void setDataSource(DataSource dataSource){
+    public void setDataSource(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     public int checkChat(int postId, int userId) {
-         String checkChatQuery = "select exists (select * " +
-                 "from AroundPostChatList" +
-                 "where postId = ? and  userId =?)";
+        String checkChatQuery = "select exists (select * " +
+                "from AroundPostChatList" +
+                "where postId = ? and  userId =?)";
 
-         Object[] checkChatParams = new Object[]{postId, userId};
-         return this.jdbcTemplate.queryForObject(checkChatQuery,
-                 int.class,
-                 checkChatParams);
+        Object[] checkChatParams = new Object[]{postId, userId};
+        return this.jdbcTemplate.queryForObject(checkChatQuery,
+                int.class,
+                checkChatParams);
     }
 
     public int createChatList(int postId, PostAroundChatReq postAroundChatReq) {
@@ -34,7 +36,7 @@ public class AroundDao {
                 int.class, createChatParams);
 
         String lastInsertIdQuery = "select last_insert_id()";
-        return this.jdbcTemplate.queryForObject(lastInsertIdQuery,int.class);
+        return this.jdbcTemplate.queryForObject(lastInsertIdQuery, int.class);
 
     }
 
@@ -56,7 +58,7 @@ public class AroundDao {
                 postChatParams);
 
         String lastInsertIdQuery = "select last_insert_id()";
-        return this.jdbcTemplate.queryForObject(lastInsertIdQuery,int.class);
+        return this.jdbcTemplate.queryForObject(lastInsertIdQuery, int.class);
     }
 
     public int postChatEmotion(int chatListIdx, PostAroundChatReq postAroundChatReq) {
@@ -67,7 +69,7 @@ public class AroundDao {
                 postChatParams);
 
         String lastInsertIdQuery = "select last_insert_id()";
-        return this.jdbcTemplate.queryForObject(lastInsertIdQuery,int.class);
+        return this.jdbcTemplate.queryForObject(lastInsertIdQuery, int.class);
     }
 
     public int findChatListId(int postId, int userId) {
@@ -76,5 +78,18 @@ public class AroundDao {
         return this.jdbcTemplate.queryForObject(findChatListIdQuery,
                 int.class,
                 findChatListIdParams);
+    }
+
+    public int createAround(PostAroundNewReq postAroundNewReq) {
+        String createAroundQuery = "insert into AroundPost (userId, title, price, phoneNumber, content, aroundPostCategoryId) values(?,?,?,?,?,?)";
+        Object[] createAroundParams = new Object[]{postAroundNewReq.getUserId(), postAroundNewReq.getTitle(), postAroundNewReq.getPrice(),
+                postAroundNewReq.getPhoneNumber(), postAroundNewReq.getContent(),postAroundNewReq.getAroundPostCategoryId()};
+
+
+        this.jdbcTemplate.update(createAroundQuery, createAroundParams);
+
+        String aroundPostId = "select last_insert_id()";
+        return this.jdbcTemplate.queryForObject(aroundPostId, int.class);
+
     }
 }

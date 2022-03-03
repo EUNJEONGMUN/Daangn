@@ -2,10 +2,10 @@ package com.example.demo.src.around;
 
 import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponse;
-import com.example.demo.src.around.model.Around;
-import com.example.demo.src.around.model.PostAroundChatReq;
-import com.example.demo.src.around.model.PostAroundChatRes;
-import com.example.demo.src.town.model.PostTownComRes;
+
+import com.example.demo.src.around.model.*;
+
+import com.fasterxml.jackson.databind.ser.Serializers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +29,23 @@ public class AroundController {
         this.aroundService = aroundService;
     }
 
+    @ResponseBody
+    @PostMapping("/new")  // (POST) 127.0.0.1:9000/around/new
+    public BaseResponse<PostAroundNewRes> createAround(@RequestBody PostAroundNewReq postAroundNewReq){
+        if (postAroundNewReq.getTitle() == null){
+            return new BaseResponse<>(POST_AROUND_EMPTY_TITLE);
+        }
+        if(postAroundNewReq.getContent() == null){
+            return new BaseResponse<>(POST_AROUND_EMPTY_CONTENT);
+        }
+
+        try{
+            PostAroundNewRes postAroundNewRes = aroundService.createAround(postAroundNewReq);
+            return new BaseResponse<>(postAroundNewRes);
+        } catch (BaseException exception){
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
 
     @ResponseBody
     @PostMapping("/{postId}/chat")

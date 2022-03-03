@@ -2,6 +2,7 @@ package com.example.demo.src.product;
 
 import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponse;
+import com.example.demo.config.BaseResponseStatus;
 import com.example.demo.src.product.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +46,7 @@ public class ProductController {
     public BaseResponse<List<GetProductRes>> getProduct(@PathVariable("categoryId") int categoryId){
         try{
             if (categoryId<=4 || categoryId>=22){
-                return new BaseResponse<>(PRODUCTS_CATEGORY_ERROR);
+                return new BaseResponse<>(BaseResponseStatus.CATEGORY_RANGE_ERROR);
             }
             List<GetProductRes> getProductsRes = productProvider.getProduct(categoryId);
             return new BaseResponse<>(getProductsRes);
@@ -61,7 +62,7 @@ public class ProductController {
         }
 
         if (postProductNewReq.getProductPostCategoryId() == 0){
-            return new BaseResponse<>(POST_PRODUCTS_EMPTY_CATEGORY);
+            return new BaseResponse<>(BaseResponseStatus.EMPTY_CATEGORY);
         }
         if (postProductNewReq.getContent() == null){
             return new BaseResponse<>(POST_PRODUCTS_EMPTY_CONTENT);
@@ -96,7 +97,7 @@ public class ProductController {
     }
 
     @ResponseBody
-    @PostMapping("/deals/{postId}")
+    @PostMapping ("/{postId}/deals")
     public BaseResponse<PostDealRes> createDeal(@PathVariable int postId, @RequestBody PostDealReq postDealReq) {
         try {
             if (postDealReq.getUserId() == 0) {
@@ -112,4 +113,22 @@ public class ProductController {
 
 
     }
+
+//    @ResponseBody
+//    @DeleteMapping("/{postId}/deals")
+//    public BaseResponse<String> deleteDeal(@PathVariable int postId, @RequestBody PostDealReq postDealReq){
+//        try{
+//            if (postDealReq.getUserId() == 0) {
+//                return new BaseResponse<>(POST_DEALS_EMPTY_USERID);
+//            }
+//            productService.deleteDeal(postId, postDealReq);
+//            String result = "";
+//            return new BaseResponse<>(result);
+//        } catch(BaseException exception){
+//            return new BaseResponse<>((exception.getStatus()));
+//        }
+//    }
+
+
+
 }

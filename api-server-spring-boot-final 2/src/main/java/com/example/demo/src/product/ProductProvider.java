@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.yaml.snakeyaml.tokens.ScalarToken;
 
 import java.util.List;
 
@@ -34,7 +35,6 @@ public class ProductProvider {
     }
 
     public List<GetProductRes> getProduct(int categoryId) throws BaseException {
-
         try {
             List<GetProductRes> getProductRes = productDao.getProduct(categoryId);
             return getProductRes;
@@ -51,5 +51,13 @@ public class ProductProvider {
             throw new BaseException(DATABASE_ERROR);
         }
 
+    }
+
+    public int checkDeal(int postId, int userId) throws BaseException {
+        try{
+            return productDao.checkDeal(postId, userId);
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
     }
 }
