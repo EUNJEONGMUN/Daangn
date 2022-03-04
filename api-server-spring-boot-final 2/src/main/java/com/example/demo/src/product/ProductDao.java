@@ -22,6 +22,61 @@ public class ProductDao {
 
 
 
+//    public List<GetProductRes> getProducts() {
+//        String getProductsQuery = "select P.productPostId as postId,P.title as title, JusoCode.읍면동명 as juso, P.price as price,\n" +
+//                "       postImg.firstImage as firstImg,chatAtten.attCount as attCount,chatAtten.chatCount as chatCount,\n" +
+//                "       case\n" +
+//                "       when P.status = 'B'\n" +
+//                "           then '예약중'\n" +
+//                "        when P.status = 'C'\n" +
+//                "            then '거래완료'\n" +
+//                "        else '미선택'\n" +
+//                "            end as status\n" +
+//                "from ProductPost P\n" +
+//                "    left join JusoCode on P.jusoCodeId = JusoCode.jusoCodeId\n" +
+//                "    join (\n" +
+//                "        select P.productPostId, imageSelect.firstImage\n" +
+//                "        from ProductPost P\n" +
+//                "            left join(\n" +
+//                "                    select Img.productPostId, min(Img.productImageId), Img.imageUrl as firstImage\n" +
+//                "                    from ProductImage Img\n" +
+//                "                    group by Img.productPostId\n" +
+//                "            ) imageSelect on imageSelect.productPostId = P.productPostId\n" +
+//                "        ) postImg on postImg.productPostId = P.productPostId\n" +
+//                "    join (\n" +
+//                "        select P.productPostId, count(ChatList.postId) div 2 as chatCount, attention.attCount\n" +
+//                "        from ProductPost P\n" +
+//                "            left join ProductChatList ChatList on ChatList.postId = P.productPostId\n" +
+//                "            join (\n" +
+//                "                select P.productPostId, count(PA.postId) as attCount\n" +
+//                "                from ProductPost P\n" +
+//                "                    left join ProductAttention PA on PA.postId = P.productPostId\n" +
+//                "                group by P.productPostId\n" +
+//                "            ) attention on attention.productPostId = P.productPostId\n" +
+//                "        group by P.productPostId\n" +
+//                "        ) chatAtten on chatAtten.productPostId = P.productPostId\n" +
+//                "where P.isHidden = 'N'\n" +
+//                "order by P.createdAt desc";
+//
+//        return this.jdbcTemplate.query(
+//                getProductsQuery,
+//                (rs, rowNum) -> new GetProductRes(
+//                        rs.getInt("postId"),
+//                        rs.getString("title"),
+//                        rs.getString("juso"),
+//                        rs.getInt("price"),
+//                        rs.getString("firstImg"),
+//                        rs.getInt("attCount"),
+//                        rs.getInt("chatCount"),
+//                        rs.getString("status")
+//                        )
+//                );
+//
+//
+//
+//
+//    }
+
     public List<GetProductRes> getProducts() {
         String getProductsQuery = "select P.productPostId as postId,P.title as title, JusoCode.읍면동명 as juso, P.price as price,\n" +
                 "       postImg.firstImage as firstImg,chatAtten.attCount as attCount,chatAtten.chatCount as chatCount,\n" +
@@ -69,8 +124,8 @@ public class ProductDao {
                         rs.getInt("attCount"),
                         rs.getInt("chatCount"),
                         rs.getString("status")
-                        )
-                );
+                )
+        );
 
 
 
@@ -204,4 +259,6 @@ public class ProductDao {
         Object[] deleteDealParams = new Object[]{postId, userId};
         return this.jdbcTemplate.update(deleteDealQuery, deleteDealParams);
     }
+
+
 }

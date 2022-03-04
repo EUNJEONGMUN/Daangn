@@ -14,9 +14,10 @@ public class PostStoreReq {
     private String storeInfo;
     private String storePhoneNumber;
     private int storeCategoryId;
-    private int storeLocationId;
+//    private int storeLocationId;
     private String storeSiteUrl;
     private String storeProfileImage;
+    private String juso;
 
     public PostStoreReq(){
 

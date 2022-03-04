@@ -3,9 +3,11 @@ package com.example.demo.src.store;
 import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponse;
 import com.example.demo.src.store.model.*;
+import com.example.demo.src.user.model.PutUserKeywordsReq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import static com.example.demo.config.BaseResponseStatus.*;
@@ -27,6 +29,11 @@ public class StoreController {
         this.storeService = storeService;
     }
 
+    /**
+     * 비즈 프로필 생성 API
+     * [POST] /stores/account
+     * @return BaseResponse<PostStoreRes>
+     */
     @ResponseBody
     @PostMapping("/account")
     public BaseResponse<PostStoreRes> createStore(@RequestBody PostStoreReq postStoreReq){
@@ -45,4 +52,123 @@ public class StoreController {
             return new BaseResponse<>((exception.getStatus()));
         }
     }
+
+    /**
+     * 비즈 프로필 수정 API
+     * [PATCH] /stores/:storeId/account
+     * @return BaseResponse<String>
+     */
+    //Query String
+    @ResponseBody
+    @PatchMapping("/{storeId}/account")
+    public BaseResponse<String> modifyStore(@PathVariable int storeId, @RequestBody PostStoreReq postStoreReq){
+
+        try{
+            storeService.modifyStore(storeId, postStoreReq);
+            String result = "";
+            return new BaseResponse<>(result);
+
+        } catch (BaseException exception){
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
+    /**
+     * 비즈 프로필 삭제 API
+     * [DELETE] /stores/account
+     * [DELETE] /account? StoreId =? & UserId =?
+     * @return BaseResponse<String>
+     */
+    @ResponseBody
+    @DeleteMapping("/account")
+    public BaseResponse<String> deleteStore(@RequestParam("StoreId") int StoreId,
+                                            @RequestParam("UserId") int UserId) {
+
+        try{
+            storeService.deleteStore(StoreId, UserId);
+            String result = "";
+            return new BaseResponse<>(result);
+
+        } catch (BaseException exception){
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
+    /**
+     * 가게 소식 작성 API
+     * [POST] /stores/news/new
+     * @return BaseResponse<PostNewsRes>
+     */
+    @ResponseBody
+    @PostMapping("/news/new")
+    public BaseResponse<PostNewsRes> createNews(@RequestBody PostNewsReq postNewsReq){
+        if (postNewsReq.getStoreId() == 0){
+            return new BaseResponse<>(POST_NEWS_EMPTY_STOREID);
+        }
+        if (postNewsReq.getTitle() == null){
+            return new BaseResponse<>(POST_NEWS_EMPTY_TITLE);
+        }
+        if (postNewsReq.getContent() == null){
+            return new BaseResponse<>(POST_NEWS_EMPTY_CONTENT);
+        }
+        try{
+
+            PostNewsRes postNewsRes = storeService.createNews(postNewsReq);
+            return new BaseResponse<>(postNewsRes);
+        } catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+    /**
+     * 가게 소식 수정 API
+     * [PATCH] /stores/news
+     * [PATCH] /news?StoreNewsId =
+     * @return BaseResponse<String>
+     */
+    @ResponseBody
+    @PatchMapping("/news/{storeNewsId}")
+    public BaseResponse<String> modifyNews(@PathVariable int StoreNewsId, @RequestBody PostNewsReq postNewsReq) {
+        if (postNewsReq.getStoreId() == 0) {
+            return new BaseResponse<>(POST_NEWS_EMPTY_STOREID);
+        }
+        if (postNewsReq.getTitle() == null) {
+            return new BaseResponse<>(POST_NEWS_EMPTY_TITLE);
+        }
+        if (postNewsReq.getContent() == null) {
+            return new BaseResponse<>(POST_NEWS_EMPTY_CONTENT);
+        }
+
+        try {
+            storeService.modifyNews(StoreNewsId, postNewsReq);
+            String result = "";
+            return new BaseResponse<>(result);
+
+        } catch (BaseException exception) {
+            return new BaseResponse<>((exception.getStatus()));
+        }
+
+    }
+
+//    @ResponseBody
+//    @PutMapping("/news")
+//    public BaseResponse<String> modifyNews(@RequestParam("PostId") int PostId, PostNewsReq postNewsReq) {
+//
+//        if (postNewsReq.getTitle() == null) {
+//            return new BaseResponse<>(POST_NEWS_EMPTY_TITLE);
+//        }
+//        if (postNewsReq.getContent() == null) {
+//            return new BaseResponse<>(POST_NEWS_EMPTY_CONTENT);
+//        }
+//
+//        try {
+//            storeService.modifyNews(PostId, postNewsReq);
+//            String result = "";
+//            return new BaseResponse<>(result);
+//
+//        } catch (BaseException exception) {
+//            return new BaseResponse<>((exception.getStatus()));
+//        }
+//
+//    }
 }
+

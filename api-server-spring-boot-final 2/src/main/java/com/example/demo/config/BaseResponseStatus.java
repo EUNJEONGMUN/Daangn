@@ -50,9 +50,18 @@ public enum BaseResponseStatus {
     POST_DEALS_EMPTY_USERID(false, 240, "유저 아이디를 입력해주세요."),
 
     // [post] /stores
-    POST_STORE_EMPTY_STORENAME(false, 250, "가게 이름을 입력해주세요"),
-    POST_STORE_NUMBER_EXCEEDED(false, 251, "비즈 프로필은 3개까지 생성 가능합니다."),
+    POST_STORE_EMPTY_STORENAME(false, 2500, "가게 이름을 입력해주세요"),
+    POST_STORE_NUMBER_EXCEEDED(false, 2501, "비즈 프로필은 3개까지 생성 가능합니다."),
+    POST_NEWS_EMPTY_STOREID(false, 2510, "가게 아이디를 입력해주세요."),
+    POST_NEWS_EMPTY_TITLE(false, 2511, "가게 소식 제목을 입력해주세요."),
+    POST_NEWS_EMPTY_CONTENT(false, 2512, "가게 소식 내용을 입력해주세요."),
 
+    // [patch] /stores
+    PATCH_STORE_EMPTY_USER(false, 2510, "비즈프로필이 존재하지 않습니다."),
+    PATCH_NEWS_NOT_CORRECT_USER(false, 2320, "자신에 가게에 글을 쓸 수 있습니다."),
+
+    // [PUT] /users
+    EMPTY_KEYWORD(false, 270, "키워드를 입력해주세요."),
     /**
      * 3000 : Response 오류
      */
@@ -94,7 +103,15 @@ public enum BaseResponseStatus {
 
     // [GET] /deals
     FIND_FAIL_DEAL_USER(false, 450, "중고 거래 기록이 없습니다."),
-    DELETE_FAIL_DEAL(false, 451, "중고 거래 기록 삭제 실패");
+    DELETE_FAIL_DEAL(false, 451, "중고 거래 기록 삭제 실패"),
+
+    // [PUT] / users
+    SET_FAIL_KEYWORDS(false, 460, "키워드 설정에 실패했습니다."),
+
+    // [patch] /stores
+    FAIL_TO_STORE_MODIFY(false, 4700, "가게 정보를 수정하는 데 실패했습니다."),
+    FAIL_TO_STORE_DELETE(false, 4701, "가게 정보를 삭제하는 데 실패했습니다."),
+    FAIL_TO_NEWS_MODIFY(false, 4710, "가게 소식을 수정하는 데 실패했습니다.");
 
     // 5000 : 필요시 만들어서 쓰세요
     // 6000 : 필요시 만들어서 쓰세요

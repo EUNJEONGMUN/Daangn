@@ -3,6 +3,8 @@ package com.example.demo.src.user;
 import com.example.demo.config.BaseException;
 import com.example.demo.src.user.model.GetUserBadgeRes;
 import com.example.demo.src.user.model.GetUserLikeStoreRes;
+import com.example.demo.src.user.model.GetUserMannerRes;
+import com.example.demo.src.user.model.GetUserSalesListRes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,4 +42,32 @@ public class UserProvider {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
+    public int checkKeyword(int userId, String keyword) throws BaseException {
+        try{
+            return userDao.checkKeyword(userId, keyword);
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public List<GetUserMannerRes> getUserManner(int userId) throws BaseException {
+        try{
+            List<GetUserMannerRes> getUserMannerRes = userDao.getUserManner(userId);
+            return getUserMannerRes;
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+
+//    public List<GetUserSalesListRes> getUserSalesList(String state) throws BaseException {
+//        try{
+//            List<GetUserSalesListRes> getUserSalesListRes = userDao.getUserSalesList(state){
+//            return getUserSalesListRes;
+//            }
+//        } catch (Exception exception){
+//            throw new BaseException(DATABASE_ERROR);
+//        }
+//    }
 }

@@ -1,6 +1,8 @@
 package com.example.demo.src.store;
 
 import com.example.demo.config.BaseException;
+import com.example.demo.src.store.model.PostNewsReq;
+import com.example.demo.src.store.model.PostNewsRes;
 import com.example.demo.src.store.model.PostStoreReq;
 import com.example.demo.src.store.model.PostStoreRes;
 import org.slf4j.Logger;
@@ -45,4 +47,80 @@ public class StoreService {
 
 
     }
+
+    public void modifyStore(int storeId, PostStoreReq postStoreReq) throws BaseException {
+        if (storeProvider.checkStoreUser(storeId, postStoreReq.getUserId()) == 0){
+            throw new BaseException(PATCH_STORE_EMPTY_USER);
+        }
+
+        if(storeProvider.checkTopCategory(postStoreReq.getStoreCategoryId()) != 4){
+            // 가게 카테고리는 refId = 4
+            throw new BaseException(CATEGORY_RANGE_ERROR);
+        }
+
+        try {
+            int result = storeDao.modifyStore(storeId, postStoreReq);
+            if (result==0){
+                throw new BaseException(FAIL_TO_STORE_MODIFY);
+            }
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public void deleteStore(int storeId, int userId) throws BaseException {
+        if (storeProvider.checkStoreUser(storeId, userId) == 0){
+            throw new BaseException(PATCH_STORE_EMPTY_USER);
+        }
+
+        try {
+            int result = storeDao.deleteStore(storeId, userId);
+            if (result==0){
+                throw new BaseException(FAIL_TO_STORE_DELETE);
+            }
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+
+    }
+
+    public PostNewsRes createNews(PostNewsReq postNewsReq) throws BaseException {
+        try {
+            int newsId = storeDao.createNews(postNewsReq);
+            return new PostNewsRes(newsId);
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public void modifyNews(int storeNewsId, PostNewsReq postNewsReq) throws BaseException  {
+        // 전달받은 postId의 storeId와 body의 storeId와 같아야함
+
+        if (storeProvider.checkNewsUser(storeNewsId, postNewsReq.getStoreId())==0){
+            throw new BaseException(PATCH_NEWS_NOT_CORRECT_USER);
+        }
+        try {
+            int result = storeDao.modifyNews(storeNewsId, postNewsReq);
+            if (result==0){
+                throw new BaseException(FAIL_TO_NEWS_MODIFY);
+            }
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+
+    }
+
+//    public void modifyNews(int storeNewsId, PostNewsReq postNewsReq) throws BaseException  {
+//
+//        try {
+//            int result = storeDao.modifyNews(storeNewsId, postNewsReq);
+//            if (result==0){
+//                throw new BaseException(FAIL_TO_NEWS_MODIFY);
+//            }
+//        } catch (Exception exception) {
+//            throw new BaseException(DATABASE_ERROR);
+//        }
+//
+//    }
+
 }

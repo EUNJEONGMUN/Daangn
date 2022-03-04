@@ -34,6 +34,7 @@ public class ProductProvider {
         }
     }
 
+
     public List<GetProductRes> getProduct(int categoryId) throws BaseException {
         try {
             List<GetProductRes> getProductRes = productDao.getProduct(categoryId);
@@ -60,4 +61,6 @@ public class ProductProvider {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
+
 }
