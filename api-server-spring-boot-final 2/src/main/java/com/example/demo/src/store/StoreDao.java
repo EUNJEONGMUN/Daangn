@@ -107,12 +107,12 @@ public class StoreDao {
 //
 //        return this.jdbcTemplate.update(Query, Params);
 //
+////    }
+//    public int checkNewsUser(int postId, int storeId) {
+//        // 전달받은 postId의 storeId와 body의 storeId와 같아야함
+//        String Query = "select exists(select * from StoreNews SN where SN.storeNewsId =? and SN.storeId=?);";
+//        Object[] Params = new Object[]{postId, storeId};
+//        return this.jdbcTemplate.update(Query, Params);
 //    }
-    public int checkNewsUser(int postId, int storeId) {
-        // 전달받은 postId의 storeId와 body의 storeId와 같아야함
-        String Query = "select exists(select * from StoreNews SN where SN.storeNewsId =? and SN.storeId=?);";
-        Object[] Params = new Object[]{postId, storeId};
-        return this.jdbcTemplate.update(Query, Params);
-    }
 }
 

@@ -6,9 +6,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 
+import static com.example.demo.config.BaseResponseStatus.CATEGORY_RANGE_ERROR;
 import static com.example.demo.config.BaseResponseStatus.DATABASE_ERROR;
 
 @Service
@@ -23,7 +25,11 @@ public class TownProvider {
         this.townDao = townDao;
     }
 
-
+    /**
+     * 동네 생활 전체 글 조회 API
+     * [GET] /towns/home
+     * @return BaseResponse<List<GetTownRes>>
+     */
     public List<GetTownRes> getTowns() throws BaseException{
 
         try{
@@ -34,9 +40,19 @@ public class TownProvider {
         }
     }
 
+    /**
+     * 동네 생활 카테고리별 조회 API
+     * [GET] /towns/home/:categoryId
+     * @return BaseResponse<List<GetTownRes>>
+     */
+    @ResponseBody
     public List<GetTownRes> getTown(int categoryId) throws BaseException {
-
         try {
+            if (townDao.checkTopCategory(categoryId) != 2){
+                // 중고거래 카테고리는 refId = 1
+                throw new BaseException(CATEGORY_RANGE_ERROR);
+            }
+
             List<GetTownRes> getTownRes = townDao.getTown(categoryId);
             return getTownRes;
         } catch (Exception exception){

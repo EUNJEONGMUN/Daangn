@@ -8,9 +8,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class PostDealReq {
-    private int userId;
-    private char status;
-
+    private String status;
     public PostDealReq(){
 
     }

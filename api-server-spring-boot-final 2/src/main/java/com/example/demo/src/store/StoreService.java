@@ -93,25 +93,12 @@ public class StoreService {
         }
     }
 
-    public void modifyNews(int storeNewsId, PostNewsReq postNewsReq) throws BaseException  {
-        // 전달받은 postId의 storeId와 body의 storeId와 같아야함
-
-        if (storeProvider.checkNewsUser(storeNewsId, postNewsReq.getStoreId())==0){
-            throw new BaseException(PATCH_NEWS_NOT_CORRECT_USER);
-        }
-        try {
-            int result = storeDao.modifyNews(storeNewsId, postNewsReq);
-            if (result==0){
-                throw new BaseException(FAIL_TO_NEWS_MODIFY);
-            }
-        } catch (Exception exception) {
-            throw new BaseException(DATABASE_ERROR);
-        }
-
-    }
-
 //    public void modifyNews(int storeNewsId, PostNewsReq postNewsReq) throws BaseException  {
+//        // 전달받은 postId의 storeId와 body의 storeId와 같아야함
 //
+//        if (storeProvider.checkNewsUser(storeNewsId, postNewsReq.getStoreId())==0){
+//            throw new BaseException(PATCH_NEWS_NOT_CORRECT_USER);
+//        }
 //        try {
 //            int result = storeDao.modifyNews(storeNewsId, postNewsReq);
 //            if (result==0){
@@ -122,5 +109,18 @@ public class StoreService {
 //        }
 //
 //    }
+
+    public void modifyNews(int storeNewsId, PostNewsReq postNewsReq) throws BaseException  {
+
+        try {
+            int result = storeDao.modifyNews(storeNewsId, postNewsReq);
+            if (result==0){
+                throw new BaseException(FAIL_TO_NEWS_MODIFY);
+            }
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+
+    }
 
 }

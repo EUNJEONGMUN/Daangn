@@ -12,7 +12,6 @@ import java.sql.Timestamp;
 // 동네 생활 글을 쓸 때 필요한 것들.
 public class PostTownNewReq {
 
-    private int userId;
     private int townPostCategoryId;
     private int townPostLocation;
     private String content;

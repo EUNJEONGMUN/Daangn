@@ -18,171 +18,146 @@ public class ProductDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-
-
-
-
-//    public List<GetProductRes> getProducts() {
-//        String getProductsQuery = "select P.productPostId as postId,P.title as title, JusoCode.읍면동명 as juso, P.price as price,\n" +
-//                "       postImg.firstImage as firstImg,chatAtten.attCount as attCount,chatAtten.chatCount as chatCount,\n" +
-//                "       case\n" +
-//                "       when P.status = 'B'\n" +
-//                "           then '예약중'\n" +
-//                "        when P.status = 'C'\n" +
-//                "            then '거래완료'\n" +
-//                "        else '미선택'\n" +
-//                "            end as status\n" +
-//                "from ProductPost P\n" +
-//                "    left join JusoCode on P.jusoCodeId = JusoCode.jusoCodeId\n" +
-//                "    join (\n" +
-//                "        select P.productPostId, imageSelect.firstImage\n" +
-//                "        from ProductPost P\n" +
-//                "            left join(\n" +
-//                "                    select Img.productPostId, min(Img.productImageId), Img.imageUrl as firstImage\n" +
-//                "                    from ProductImage Img\n" +
-//                "                    group by Img.productPostId\n" +
-//                "            ) imageSelect on imageSelect.productPostId = P.productPostId\n" +
-//                "        ) postImg on postImg.productPostId = P.productPostId\n" +
-//                "    join (\n" +
-//                "        select P.productPostId, count(ChatList.postId) div 2 as chatCount, attention.attCount\n" +
-//                "        from ProductPost P\n" +
-//                "            left join ProductChatList ChatList on ChatList.postId = P.productPostId\n" +
-//                "            join (\n" +
-//                "                select P.productPostId, count(PA.postId) as attCount\n" +
-//                "                from ProductPost P\n" +
-//                "                    left join ProductAttention PA on PA.postId = P.productPostId\n" +
-//                "                group by P.productPostId\n" +
-//                "            ) attention on attention.productPostId = P.productPostId\n" +
-//                "        group by P.productPostId\n" +
-//                "        ) chatAtten on chatAtten.productPostId = P.productPostId\n" +
-//                "where P.isHidden = 'N'\n" +
-//                "order by P.createdAt desc";
-//
-//        return this.jdbcTemplate.query(
-//                getProductsQuery,
-//                (rs, rowNum) -> new GetProductRes(
-//                        rs.getInt("postId"),
-//                        rs.getString("title"),
-//                        rs.getString("juso"),
-//                        rs.getInt("price"),
-//                        rs.getString("firstImg"),
-//                        rs.getInt("attCount"),
-//                        rs.getInt("chatCount"),
-//                        rs.getString("status")
-//                        )
-//                );
-//
-//
-//
-//
-//    }
-
+    /**
+     * 홈 화면 조회 API
+     * [GET] /products/home
+     * @return BaseResponse<GetProductRes>
+     */
     public List<GetProductRes> getProducts() {
-        String getProductsQuery = "select P.productPostId as postId,P.title as title, JusoCode.읍면동명 as juso, P.price as price,\n" +
-                "       postImg.firstImage as firstImg,chatAtten.attCount as attCount,chatAtten.chatCount as chatCount,\n" +
+
+        String Query = "select P.productPostId, img.firstImg, P.title, JusoCode.jusoName, P.price,\n" +
+                "       case\n" +
+                "           when TIMESTAMPDIFF(SECOND, P.createdAt, current_timestamp())<60\n" +
+                "            then concat(TIMESTAMPDIFF(SECOND, P.createdAt, current_timestamp()),'초 전')\n" +
+                "           when TIMESTAMPDIFF(MINUTE, P.createdAt, current_timestamp())<60\n" +
+                "            then concat(TIMESTAMPDIFF(MINUTE, P.createdAt, current_timestamp()),'분 전')\n" +
+                "            when TIMESTAMPDIFF(HOUR, P.createdAt, current_timestamp())<24\n" +
+                "            then concat(TIMESTAMPDIFF(HOUR, P.createdAt, current_timestamp()), '시간 전')\n" +
+                "            else concat(TIMESTAMPDIFF(DAY, P.createdAt, current_timestamp()), '일 전')\n" +
+                "        end as uploadTime\n" +
+                "       ,\n" +
                 "       case\n" +
                 "       when P.status = 'B'\n" +
                 "           then '예약중'\n" +
                 "        when P.status = 'C'\n" +
                 "            then '거래완료'\n" +
-                "        else '미선택'\n" +
-                "            end as status\n" +
+                "        else '판매중'\n" +
+                "            end as state, attChat.chatCount, attChat.attCount\n" +
                 "from ProductPost P\n" +
                 "    left join JusoCode on P.jusoCodeId = JusoCode.jusoCodeId\n" +
-                "    join (\n" +
-                "        select P.productPostId, imageSelect.firstImage\n" +
+                "    left join (\n" +
+                "            select P.productPostId, count(PA.postId) as attCount, chat.chatCount\n" +
+                "            from ProductPost P\n" +
+                "                left join ProductAttention PA on PA.postId = P.productPostId\n" +
+                "                left join (\n" +
+                "                    select P.productPostId, count(PC.postId) div 2 as chatCount\n" +
+                "                    from ProductPost P\n" +
+                "                        left join ProductChatList PC on PC.postId = P.productPostId\n" +
+                "                group by P.productPostId) chat on chat.productPostId = P.productPostId where PA.status = 'Y'\n" +
+                "            group by P.productPostId) attChat on attChat.productPostId = P.productPostId\n" +
+                "    left join(\n" +
+                "        select P.productPostId, imageSelect.firstImg\n" +
                 "        from ProductPost P\n" +
                 "            left join(\n" +
-                "                    select Img.productPostId, min(Img.productImageId), Img.imageUrl as firstImage\n" +
-                "                    from ProductImage Img\n" +
-                "                    group by Img.productPostId\n" +
-                "            ) imageSelect on imageSelect.productPostId = P.productPostId\n" +
-                "        ) postImg on postImg.productPostId = P.productPostId\n" +
-                "    join (\n" +
-                "        select P.productPostId, count(ChatList.postId) div 2 as chatCount, attention.attCount\n" +
-                "        from ProductPost P\n" +
-                "            left join ProductChatList ChatList on ChatList.postId = P.productPostId\n" +
-                "            join (\n" +
-                "                select P.productPostId, count(PA.postId) as attCount\n" +
-                "                from ProductPost P\n" +
-                "                    left join ProductAttention PA on PA.postId = P.productPostId\n" +
-                "                group by P.productPostId\n" +
-                "            ) attention on attention.productPostId = P.productPostId\n" +
-                "        group by P.productPostId\n" +
-                "        ) chatAtten on chatAtten.productPostId = P.productPostId\n" +
-                "where P.isHidden = 'N'\n" +
-                "order by P.createdAt desc";
+                "                select Img.productPostId, min(Img.productImageId), Img.imageUrl as firstImg\n" +
+                "                from ProductImage Img\n" +
+                "                group by Img.productPostId) imageSelect on imageSelect.productPostId = P.productPostId\n" +
+                "        ) img on img.productPostId = P.productPostId\n" +
+                "where P.isHidden = 'N' and P.isExistence = 'Y'\n" +
+                "order by P.createdAt DESC;";
 
-        return this.jdbcTemplate.query(
-                getProductsQuery,
-                (rs, rowNum) -> new GetProductRes(
-                        rs.getInt("postId"),
-                        rs.getString("title"),
-                        rs.getString("juso"),
-                        rs.getInt("price"),
+
+        return this.jdbcTemplate.query(Query,
+                (rs,rowNum) -> new GetProductRes(
                         rs.getString("firstImg"),
-                        rs.getInt("attCount"),
+                        rs.getInt("productPostId"),
+                        rs.getString("title"),
+                        rs.getString("jusoName"),
+                        rs.getInt("price"),
+                        rs.getString("state"),
                         rs.getInt("chatCount"),
-                        rs.getString("status")
-                )
-        );
-
-
-
+                        rs.getInt("attCount"),
+                        rs.getString("uploadTime"))
+                );
 
     }
 
+    /**
+     * 홈 화면 카테고리별 조회 API
+     * [GET] /products/home/:categoryId
+     * @return BaseResponse<GetProductRes>
+     */
     public List<GetProductRes> getProduct(int categoryId) {
-        String getProductQuery = "select P.productPostId as postId,P.title as title, JusoCode.읍면동명 as juso, P.price as price,\n" +
-                "       postImg.firstImage as firstImg,chatAtten.attCount as attCount,chatAtten.chatCount as chatCount,\n" +
+        String Query = "select P.productPostId, img.firstImg, P.title, JusoCode.jusoName, P.price,\n" +
+                "       case\n" +
+                "           when TIMESTAMPDIFF(SECOND, P.createdAt, current_timestamp())<60\n" +
+                "            then concat(TIMESTAMPDIFF(SECOND, P.createdAt, current_timestamp()),'초 전')\n" +
+                "           when TIMESTAMPDIFF(MINUTE, P.createdAt, current_timestamp())<60\n" +
+                "            then concat(TIMESTAMPDIFF(MINUTE, P.createdAt, current_timestamp()),'분 전')\n" +
+                "            when TIMESTAMPDIFF(HOUR, P.createdAt, current_timestamp())<24\n" +
+                "            then concat(TIMESTAMPDIFF(HOUR, P.createdAt, current_timestamp()), '시간 전')\n" +
+                "            else concat(TIMESTAMPDIFF(DAY, P.createdAt, current_timestamp()), '일 전')\n" +
+                "        end as uploadTime\n" +
+                "       ,\n" +
                 "       case\n" +
                 "       when P.status = 'B'\n" +
                 "           then '예약중'\n" +
                 "        when P.status = 'C'\n" +
                 "            then '거래완료'\n" +
-                "        else '미선택'\n" +
-                "            end as status\n" +
+                "        else '판매중'\n" +
+                "            end as state, attChat.chatCount, attChat.attCount\n" +
                 "from ProductPost P\n" +
                 "    left join JusoCode on P.jusoCodeId = JusoCode.jusoCodeId\n" +
-                "    join (\n" +
-                "        select P.productPostId, imageSelect.firstImage\n" +
+                "    left join (\n" +
+                "            select P.productPostId, count(PA.postId) as attCount, chat.chatCount\n" +
+                "            from ProductPost P\n" +
+                "                left join ProductAttention PA on PA.postId = P.productPostId\n" +
+                "                left join (\n" +
+                "                    select P.productPostId, count(PC.postId) div 2 as chatCount\n" +
+                "                    from ProductPost P\n" +
+                "                        left join ProductChatList PC on PC.postId = P.productPostId\n" +
+                "                group by P.productPostId) chat on chat.productPostId = P.productPostId where PA.status = 'Y'\n" +
+                "            group by P.productPostId) attChat on attChat.productPostId = P.productPostId\n" +
+                "    left join(\n" +
+                "        select P.productPostId, imageSelect.firstImg\n" +
                 "        from ProductPost P\n" +
                 "            left join(\n" +
-                "                    select Img.productPostId, min(Img.productImageId), Img.imageUrl as firstImage\n" +
-                "                    from ProductImage Img\n" +
-                "                    group by Img.productPostId\n" +
-                "            ) imageSelect on imageSelect.productPostId = P.productPostId\n" +
-                "        ) postImg on postImg.productPostId = P.productPostId\n" +
-                "    join (\n" +
-                "        select P.productPostId, count(ChatList.postId) div 2 as chatCount, attention.attCount\n" +
-                "        from ProductPost P\n" +
-                "            left join ProductChatList ChatList on ChatList.postId = P.productPostId\n" +
-                "            join (\n" +
-                "                select P.productPostId, count(PA.postId) as attCount\n" +
-                "                from ProductPost P\n" +
-                "                    left join ProductAttention PA on PA.postId = P.productPostId\n" +
-                "                group by P.productPostId\n" +
-                "            ) attention on attention.productPostId = P.productPostId\n" +
-                "        group by P.productPostId\n" +
-                "        ) chatAtten on chatAtten.productPostId = P.productPostId\n" +
-                "where P.isHidden = 'N' and P.productPostCategoryId = ?\n" +
-                "order by P.createdAt desc";
-        int getProductParams = categoryId;
-        return this.jdbcTemplate.query(
-                getProductQuery,
-                (rs, rowNum) -> new GetProductRes(
-                        rs.getInt("postId"),
-                        rs.getString("title"),
-                        rs.getString("juso"),
-                        rs.getInt("price"),
+                "                select Img.productPostId, min(Img.productImageId), Img.imageUrl as firstImg\n" +
+                "                from ProductImage Img\n" +
+                "                group by Img.productPostId) imageSelect on imageSelect.productPostId = P.productPostId\n" +
+                "        ) img on img.productPostId = P.productPostId\n" +
+                "where P.isHidden = 'N' and P.isExistence = 'Y' and P.productPostCategoryId = ?\n" +
+                "order by P.createdAt DESC;";
+
+        int Params = categoryId;
+        return this.jdbcTemplate.query(Query,
+                (rs,rowNum) -> new GetProductRes(
                         rs.getString("firstImg"),
-                        rs.getInt("attCount"),
+                        rs.getInt("productPostId"),
+                        rs.getString("title"),
+                        rs.getString("jusoName"),
+                        rs.getInt("price"),
+                        rs.getString("state"),
                         rs.getInt("chatCount"),
-                        rs.getString("status")
-                ),
-                getProductParams);
+                        rs.getInt("attCount"),
+                        rs.getString("uploadTime")),
+                Params);
     }
 
+    // 카테고리 범위 체크
+    public int checkTopCategory(int categoryId) {
+        String checkTopCategoryQuery = "select refId from Category where categoryId=?";
+        int checkTopCategoryParam = categoryId;
+        return this.jdbcTemplate.queryForObject(checkTopCategoryQuery,
+                int.class,
+                checkTopCategoryParam);
+    }
+
+    /**
+     * 중고 거래 글 작성 API
+     * [POST] /products/new
+     * @return BaseResponse<PostProductNewRes>
+     */
     public int createProduct(PostProductNewReq postProductNewReq) {
         String createProductQuery = "insert into ProductPost (userId, title, productPostCategoryId, price,content) VALUES(?,?,?,?,?)";
         Object[] createProductParams = new Object[]{postProductNewReq.getUserId(), postProductNewReq.getTitle(), postProductNewReq.getProductPostCategoryId(),
@@ -194,71 +169,118 @@ public class ProductDao {
 
     }
 
-    public int createProductFree(PostProductNewReq postProductNewReq) {
-        String createProductQuery = "insert into ProductPost (userId, title, productPostCategoryId,content) VALUES(?,?,?,?)";
-        Object[] createProductParams = new Object[]{postProductNewReq.getUserId(), postProductNewReq.getTitle(), postProductNewReq.getProductPostCategoryId(),
-                postProductNewReq.getContent()};
-        this.jdbcTemplate.update(createProductQuery, createProductParams);
+    /**
+     * 중고 거래 글 수정 API
+     * [PATCH] /products/:postId/:userId
+     * @return BaseResponse<String>
+     */
+    public int modifyProduct(PatchPostReq patchPostReq) {
+        String Query = "update ProductPost P " +
+                "set P.title=?, P.productPostCategoryId=?, P.jusoCodeId=?, P.isProposal=?, P.content=?," +
+                "P.price=?, P.status=? where P.userId=? and P.productPostId=?;";
+        Object[] Params = new Object[]{patchPostReq.getTitle(), patchPostReq.getProductPostCategoryId(),
+                patchPostReq.getProductPostLocation(), patchPostReq.getIsProposal(), patchPostReq.getContent(),
+                patchPostReq.getPrice(), patchPostReq.getState(), patchPostReq.getUserId(), patchPostReq.getPostId()};
 
-        String lastInsertIdQuery = "select last_insert_id()";
-        return this.jdbcTemplate.queryForObject(lastInsertIdQuery,int.class);
-
+        return this.jdbcTemplate.update(Query, Params);
     }
 
+    /**
+     * 중고 거래 글 삭제 API
+     * [PATCH] /products/:postId/:userId/status
+     * @return BaseResponse<String>
+     */
+    public int deleteProduct(PatchPostStatusReq patchPostStatusReq) {
+        String Query = "update ProductPost P " +
+                "set P.isExistence=?" +
+                "where P.userId=? and P.productPostId=?;";
+        Object[] Params = new Object[]{patchPostStatusReq.getIsExistence(), patchPostStatusReq.getUserId(), patchPostStatusReq.getPostId()};
+        return this.jdbcTemplate.update(Query, Params);
+    }
+
+    // 중고 거래 관심 등록 확인
     public int checkAtt(int postId, int userId) {
         String checkAttQuery = "select exists(select * from ProductAttention where postId=? and userId=?)";
         Object[] checkAttParams = new Object[]{postId, userId};
 
-        int result = this.jdbcTemplate.queryForObject(checkAttQuery,
+        return this.jdbcTemplate.queryForObject(checkAttQuery,
                 int.class,
                 checkAttParams);
-
-        if (result == 0){
-            return result; // 0 -> 존재하지 않음
-        } else {
-            String checkAttStatusQuery = "select status from ProductAttention where postId=? and userId=?";
-            Object[] checkAttStatusParams = new Object[]{postId, userId};
-            return this.jdbcTemplate.queryForObject(checkAttStatusQuery,
-                    char.class,
-                    checkAttStatusParams);
-        }
-
     }
 
-    public int createProductAtt(int postId, PutProductAttReq putProductAttReq) {
+    /**
+     * 중고 거래 글 관심 등록 API
+     * [POST] /products/:postId/:userId/attention
+     * @return BaseResponse<String>
+     */
+    public int createProductAtt(int postId, int userId, PostProductAttReq postProductAttReq) {
 
-        String createProductAttQuery = "insert into ProductAttention (postId, userId) VALUES (?, ?)";
-        Object[] createProductAttParams = new Object[]{postId, putProductAttReq.getUserId()};
+        String createProductAttQuery = "insert into ProductAttention (postId, userId, status) VALUES (?, ?, ?)";
+        Object[] createProductAttParams = new Object[]{postId, userId, postProductAttReq.getStatus()};
         return this.jdbcTemplate.update(createProductAttQuery, createProductAttParams);
+    }
 
+    /**
+     * 중고 거래 글 관심 변경 API
+     * [PATCH] /products/:postId/:userId/attention
+     * @return BaseResponse<String>
+     */
+    public int modifyProductAtt(PatchProductAttReq patchProductAttReq) {
+        String Query = "UPDATE ProductAttention PA " +
+                "set status=? " +
+                "where postId=? and userId=?;";
+        Object[] Params = new Object[]{patchProductAttReq.getStatus(), patchProductAttReq.getPostId(), patchProductAttReq.getUserId()};
+
+        // toggle 형태
+//        String Query = "UPDATE ProductAttention PA " +
+//                "SET status = IF(status='Y', 'N', 'Y') " +
+//                "where postId=? and userId=?;";
+//        Object[] Params = new Object[]{patchProductAttReq.getPostId(), patchProductAttReq.getUserId()};
+
+        return this.jdbcTemplate.update(Query, Params);
 
     }
 
-    public int modifyProductAtt(int postId, PutProductAttReq putProductAttReq) {
-
-        String modifyProductAttQuery = "UPDATE ProductAttention SET status = IF(status='Y', 'N', 'Y') where postId=? and userId=?";
-        Object[] modifyProductAttParams = new Object[]{postId, putProductAttReq.getUserId()};
-        return this.jdbcTemplate.update(modifyProductAttQuery, modifyProductAttParams);
-
-    }
-
-    public int createDeal(int postId, PostDealReq postDealReq) {
-        String createDealQuery = "insert into Deal (buyUserId, productPostId) VALUES (?, ?)";
-        Object[] createDealParams = new Object[]{postDealReq.getUserId(), postId};
-        return this.jdbcTemplate.update(createDealQuery, createDealParams);
-    }
-
+    // 거래 기록 확인
     public int checkDeal(int postId, int userId) {
         String checkDealQuery = "select exists(select * from Deal where productPostId=? and buyUserId=?);";
         Object[] checkDealParams = new Object[]{postId, userId};
         return this.jdbcTemplate.update(checkDealQuery, checkDealParams);
     }
 
-    public int deleteDeal(int postId, int userId) {
-        String deleteDealQuery = "delete from Deal where productPostId=? and buyUserId=?";
-        Object[] deleteDealParams = new Object[]{postId, userId};
-        return this.jdbcTemplate.update(deleteDealQuery, deleteDealParams);
+    /**
+     * 중고 거래 성사 API
+     * [POST] /products/:postId/:userId/deals
+     * @return BaseResponse<PostDealRes>
+     */
+    public int createDeal(int postId, int userId, PostDealReq postDealReq) {
+        String createDealQuery = "insert into Deal (productPostId, buyUserId, status) VALUES (?, ?, ?);";
+        Object[] createDealParams = new Object[]{postId, userId, postDealReq.getStatus()};
+        this.jdbcTemplate.update(createDealQuery, createDealParams);
+
+        String lastInsertIdQuery = "select last_insert_id()";
+        return this.jdbcTemplate.queryForObject(lastInsertIdQuery,int.class);
+
     }
 
+    /**
+     * 중고 거래 삭제 API
+     * [PATCH] /products/:postId/:userId/status
+     * @return BaseResponse<String>
+     */
+    public int deleteDeal(PatchDealReq patchDealReq) {
+//        String Query = "update Deal " +
+//                "set Deal.status=? " +
+//                "where Deal.productPostId=? and Deal.buyUserId=?;";
+//        Object[] Params = new Object[]{patchDealReq.getStatus(), patchDealReq.getPostId(), patchDealReq.getUserId()};
 
+         //toggle 형태
+        String Query = "UPDATE Deal " +
+                "SET status = IF(status='Y', 'N', 'Y') " +
+                "where productPostId=? and buyUserId=?;";
+        Object[] Params = new Object[]{patchDealReq.getPostId(), patchDealReq.getUserId()};
+
+        return this.jdbcTemplate.update(Query, Params);
+
+    }
 }

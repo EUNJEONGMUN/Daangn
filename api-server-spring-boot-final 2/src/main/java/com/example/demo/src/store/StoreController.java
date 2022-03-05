@@ -127,7 +127,7 @@ public class StoreController {
      */
     @ResponseBody
     @PatchMapping("/news/{storeNewsId}")
-    public BaseResponse<String> modifyNews(@PathVariable int StoreNewsId, @RequestBody PostNewsReq postNewsReq) {
+    public BaseResponse<String> modifyNews(@PathVariable int storeNewsId, @RequestBody PostNewsReq postNewsReq) {
         if (postNewsReq.getStoreId() == 0) {
             return new BaseResponse<>(POST_NEWS_EMPTY_STOREID);
         }
@@ -139,7 +139,7 @@ public class StoreController {
         }
 
         try {
-            storeService.modifyNews(StoreNewsId, postNewsReq);
+            storeService.modifyNews(storeNewsId, postNewsReq);
             String result = "";
             return new BaseResponse<>(result);
 

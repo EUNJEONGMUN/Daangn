@@ -8,15 +8,14 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class GetProductRes {
-    private int postId;
-    private String title;
-    private String juso;
-    private int price;
     private String firstImg;
-    private int attCount;
+    private int productPostId;
+    private String title;
+    private String jusoName;
+    private int price;
+    private String state;
     private int chatCount;
-    private String status;
-    //    private Timestamp uploadTime;
-
+    private int attCount;
+    private String uploadTime;
 
 }

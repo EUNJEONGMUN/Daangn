@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
-import java.util.prefs.BackingStoreException;
 
 import static com.example.demo.config.BaseResponseStatus.EMPTY_KEYWORD;
 
@@ -83,6 +82,11 @@ public class UserController {
 //        }
 //    }
 
+    /**
+     * 받은 매너 평가 조회 API
+     * [GET] /users/:userIdx/manner
+     * @return BaseResponse<List<GetUserMannerRes>>
+     */
     @ResponseBody
     @GetMapping("/{userId}/manner")
     public BaseResponse<List<GetUserMannerRes>> getUserManner(@PathVariable int userId){
@@ -94,6 +98,12 @@ public class UserController {
         }
     }
 
+
+    /**
+     * 키워드 알림설정 API
+     * [PUT] /users/:userIdx/keywords
+     * @return BaseResponse<String>
+     */
     @ResponseBody
     @PutMapping("/{userId}/keywords")
     public BaseResponse<String> setKeywords(@PathVariable int userId, @RequestBody PutUserKeywordsReq putUserKeywordsReq){
@@ -108,5 +118,43 @@ public class UserController {
             return new BaseResponse<>((exception.getStatus()));
         }
     }
+
+    /**
+     * 유저 개인 정보 조회 API
+     * [GET] /users/:userId
+     * @return BaseResponse<GetUserInfoRes>
+     */
+    @ResponseBody
+    @GetMapping("/{userId}")
+     public BaseResponse<GetUserInfoRes> getUserInfo(@PathVariable int userId){
+        try{
+            GetUserInfoRes getUserInfoRes = userProvider.getUserInfo(userId);
+            return new BaseResponse<>(getUserInfoRes);
+        } catch (BaseException exception){
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
+    /**
+     * 유저 개인 정보 수정 API
+     * [PATCH] /users/:userId
+     * @return BaseResponse<String>
+     */
+    @ResponseBody
+    @PatchMapping("/{userId}")
+    public BaseResponse<String> modifyMyInfo(@PathVariable int userId, @RequestBody User user){
+        try {
+            PatchMyInfoReq patchMyInfoReq = new PatchMyInfoReq(userId, user.getUserImg(), user.getName());
+            userService.modifyMyInfo(patchMyInfoReq);
+
+            String result = "";
+            return new BaseResponse<>(result);
+        } catch (BaseException exception){
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
+
+
 
 }

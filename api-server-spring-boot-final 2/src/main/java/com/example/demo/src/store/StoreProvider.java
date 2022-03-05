@@ -49,13 +49,13 @@ public class StoreProvider {
     }
 
 
-    public int checkNewsUser(int postId, int storeId) throws BaseException {
-        try{
-            return storeDao.checkNewsUser(postId, storeId);
-        } catch(Exception exception){
-            throw new BaseException(DATABASE_ERROR);
-        }
-
-
-    }
+//    public int checkNewsUser(int postId, int storeId) throws BaseException {
+//        try{
+//            return storeDao.checkNewsUser(postId, storeId);
+//        } catch(Exception exception){
+//            throw new BaseException(DATABASE_ERROR);
+//        }
+//
+//
+//    }
 }

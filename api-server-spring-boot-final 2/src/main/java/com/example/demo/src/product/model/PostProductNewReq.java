@@ -9,7 +9,6 @@ import lombok.Setter;
 @AllArgsConstructor
 // 중고 거래 글을 쓸 때 필요한 것들
 public class PostProductNewReq {
-
     private int userId;
     private String title;
     private int productPostCategoryId;

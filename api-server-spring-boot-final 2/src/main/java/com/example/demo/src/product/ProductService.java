@@ -23,7 +23,11 @@ public class ProductService {
         this.productProvider = productProvider;
     }
 
-    // POST
+    /**
+     * 중고 거래 글 작성 API
+     * [POST] /products/new
+     * @return BaseResponse<PostProductNewRes>
+     */
     public PostProductNewRes createProduct(PostProductNewReq postProductNewReq) throws BaseException {
 
         try{
@@ -35,65 +39,104 @@ public class ProductService {
 
     }
 
-    public PostProductNewRes createProductFree(PostProductNewReq postProductNewReq) throws BaseException {
-        // 가격 없음
-        try{
-            int productPostId = productDao.createProductFree(postProductNewReq);
-            return new PostProductNewRes(productPostId);
+    /**
+     * 중고 거래 글 수정 API
+     * [PATCH] /products/:postId/:userId
+     * @return BaseResponse<String>
+     */
+    public void modifyProduct(PatchPostReq patchPostReq) throws BaseException {
+        try {
+            int result = productDao.modifyProduct(patchPostReq);
+            if (result == 0){
+                throw new BaseException(MODIFY_FAIL_PRODUCT_POST);
+            }
+        }catch(Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    /**
+     * 중고 거래 글 삭제 API
+     * [PATCH] /products/:postId/:userId/status
+     * @return BaseResponse<String>
+     */
+    public void deleteProduct(PatchPostStatusReq patchPostStatusReq) throws BaseException {
+        try {
+            int result = productDao.deleteProduct(patchPostStatusReq);
+            if (result == 0){
+                throw new BaseException(DELETE_FAIL_PRODUCT_POST);
+            }
+        } catch(Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+
+    /**
+     * 중고 거래 글 관심 등록 API
+     * [POST] /products/:postId/:userId/attention
+     * @return BaseResponse<String>
+     */
+    public void createProductAtt(int postId, int userId, PostProductAttReq postProductAttReq) throws BaseException {
+        try {
+            int result = productDao.createProductAtt(postId, userId, postProductAttReq);
+            if (result == 0) {
+                throw new BaseException(MODIFY_FAIL_PRODUCT_ATTENTION);
+            }
         } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);
         }
 
     }
 
-    public void modifyProductPostAtt(int postId, PutProductAttReq putProductAttReq) throws BaseException {
+    /**
+     * 중고 거래 글 관심 변경 API
+     * [PATCH] /products/:postId/:userId/attention
+     * @return BaseResponse<String>
+     */
+    public void modifyProductAtt(PatchProductAttReq patchProductAttReq) throws BaseException {
         try {
-            if (productProvider.checkAtt(postId, putProductAttReq.getUserId()) == 0){
-                // 관심 등록 하지 않은 게시글일 때
-                try{
-                    int attPostId = productDao.createProductAtt(postId, putProductAttReq);
-                } catch (Exception exception) {
-                    throw new BaseException(DATABASE_ERROR);
-                }
-            } else {
-                // 좋아요 한 댓글일 때
-                try {
-                    int result = productDao.modifyProductAtt(postId, putProductAttReq);
-                    if (result == 0) {
-                        throw new BaseException(MODIFY_FAIL_PRODUCT_ATTENTION);
-                    }
-                } catch (Exception exception) {
-                    throw new BaseException(DATABASE_ERROR);
-                }
-
+            int result = productDao.modifyProductAtt(patchProductAttReq);
+            if(result == 0){
+                throw new BaseException(MODIFY_FAIL_PRODUCT_ATTENTION);
             }
-                } catch (Exception exception) {
-                    throw new BaseException(DATABASE_ERROR);
-                }
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
 
     }
 
-    public PostDealRes createDeal(int postId, PostDealReq postDealReq) throws BaseException {
+
+    /**
+     * 중고 거래 성사 API
+     * [POST] /products/:postId/:userId/deals
+     * @return BaseResponse<PostDealRes>
+     */
+    public PostDealRes createDeal(int postId, int userId, PostDealReq postDealReq) throws BaseException {
         try{
-            int dealId = productDao.createDeal(postId, postDealReq);
+            int dealId = productDao.createDeal(postId, userId, postDealReq);
             return new PostDealRes(dealId);
         } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);
         }
     }
 
-    public void deleteDeal(int postId, PostDealReq postDealReq) throws BaseException {
+    /**
+     * 중고 거래 취소 API
+     * [PATCH] /products/:postId/:userId/status
+     * @return BaseResponse<String>
+     */
+    public void deleteDeal(PatchDealReq patchDealReq) throws BaseException {
         try{
-            if(productProvider.checkDeal(postId, postDealReq.getUserId()) == 0){
-                throw new BaseException(FIND_FAIL_DEAL_USER);
-            }
-            int result = productDao.deleteDeal(postId, postDealReq.getUserId());
-            if (result == 0) {
+            int result = productDao.deleteDeal(patchDealReq);
+            if (result==0){
                 throw new BaseException(DELETE_FAIL_DEAL);
             }
-
-        } catch (Exception exception) {
+        } catch(Exception exception){
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
+
+
 }

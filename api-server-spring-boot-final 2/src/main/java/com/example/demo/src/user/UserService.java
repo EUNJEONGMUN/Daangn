@@ -1,6 +1,7 @@
 package com.example.demo.src.user;
 
 import com.example.demo.config.BaseException;
+import com.example.demo.src.user.model.PatchMyInfoReq;
 import com.example.demo.src.user.model.PutUserKeywordsReq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,11 @@ public class UserService {
 
     }
 
+    /**
+     * 키워드 알림설정 API
+     * [PUT] /users/:userIdx/keywords
+     * @return BaseResponse<String>
+     */
     public void setKeywords(int userId, PutUserKeywordsReq putUserKeywordsReq) throws BaseException {
         if (userProvider.checkKeyword(userId, putUserKeywordsReq.getKeyword()) == 0){
             // 설정된 키워드가 없을 경우
@@ -36,6 +42,22 @@ public class UserService {
             if (result == 0) {
                 throw new BaseException(SET_FAIL_KEYWORDS);
             }
+        }
+    }
+
+    /**
+     * 유저 개인 정보 수정 API
+     * [PATCH] /users/:userId
+     * @return BaseResponse<String>
+     */
+    public void modifyMyInfo(PatchMyInfoReq patchMyInfoReq) throws BaseException {
+        try{
+            int result = userDao.modifyMyInfo(patchMyInfoReq);
+            if (result == 0){
+                throw new BaseException(PATCH_FAIL_MYINFO);
+            }
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
         }
     }
 }

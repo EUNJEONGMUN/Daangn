@@ -1,10 +1,7 @@
 package com.example.demo.src.user;
 
 import com.example.demo.config.BaseException;
-import com.example.demo.src.user.model.GetUserBadgeRes;
-import com.example.demo.src.user.model.GetUserLikeStoreRes;
-import com.example.demo.src.user.model.GetUserMannerRes;
-import com.example.demo.src.user.model.GetUserSalesListRes;
+import com.example.demo.src.user.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +40,7 @@ public class UserProvider {
         }
     }
 
+    // 키워드 체크
     public int checkKeyword(int userId, String keyword) throws BaseException {
         try{
             return userDao.checkKeyword(userId, keyword);
@@ -51,6 +49,11 @@ public class UserProvider {
         }
     }
 
+    /**
+     * 받은 매너 평가 조회 API
+     * [GET] /users/:userIdx/manner
+     * @return BaseResponse<List<GetUserMannerRes>>
+     */
     public List<GetUserMannerRes> getUserManner(int userId) throws BaseException {
         try{
             List<GetUserMannerRes> getUserMannerRes = userDao.getUserManner(userId);
@@ -58,6 +61,21 @@ public class UserProvider {
         } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);
         }
+    }
+
+    /**
+     * 유저 개인 정보 조회 API
+     * [GET] /users/:userId
+     * @return BaseResponse<GetUserInfoRes>
+     */
+    public GetUserInfoRes getUserInfo(int userId) throws BaseException {
+        try {
+            GetUserInfoRes getUserInfoRes = userDao.getUserInfo(userId);
+            return getUserInfoRes;
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+
     }
 
 

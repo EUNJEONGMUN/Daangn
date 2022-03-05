@@ -11,11 +11,13 @@ import java.sql.Timestamp;
 @Setter
 @AllArgsConstructor
 public class GetTownRes {
+
+
     private String categoryName;
     private int townPostId;
     private String content;
     private String userName;
-//    private Timestamp uploadTime;
-    private int comCount;
+    private String uploadTime;
     private int likeCount;
+    private int comCount;
 }

@@ -21,6 +21,7 @@ public class MemberDao {
 
     public List<GetMemberRes> getUsers(){
         String getUsersQuery = "select * from UserInfo";
+
         return this.jdbcTemplate.query(getUsersQuery,
                 (rs,rowNum) -> new GetMemberRes(
                         rs.getInt("userIdx"),

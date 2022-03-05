@@ -11,7 +11,7 @@ import org.yaml.snakeyaml.tokens.ScalarToken;
 
 import java.util.List;
 
-import static com.example.demo.config.BaseResponseStatus.DATABASE_ERROR;
+import static com.example.demo.config.BaseResponseStatus.*;
 
 @Service
 public class ProductProvider {
@@ -24,8 +24,12 @@ public class ProductProvider {
         this.productDao = productDao;
     }
 
+    /**
+     * 홈 화면 조회 API
+     * [GET] /products/home
+     * @return BaseResponse<GetProductRes>
+     */
     public List<GetProductRes> getProducts() throws BaseException {
-
         try{
             List<GetProductRes> getProductRes = productDao.getProducts();
             return getProductRes;
@@ -34,9 +38,17 @@ public class ProductProvider {
         }
     }
 
-
+    /**
+     * 홈 화면 카테고리별 조회 API
+     * [GET] /products/home/:categoryId
+     * @return BaseResponse<GetProductRes>
+     */
     public List<GetProductRes> getProduct(int categoryId) throws BaseException {
         try {
+            if (productDao.checkTopCategory(categoryId) != 2){
+                // 동네 생활 카테고리는 refId = 2
+                throw new BaseException(CATEGORY_RANGE_ERROR);
+            }
             List<GetProductRes> getProductRes = productDao.getProduct(categoryId);
             return getProductRes;
         } catch (Exception exception){
@@ -45,6 +57,7 @@ public class ProductProvider {
 
     }
 
+    // 중고 거래 관심 등록 확인
     public int checkAtt(int postId, int userId) throws BaseException {
         try{
             return productDao.checkAtt(postId, userId);
@@ -61,6 +74,7 @@ public class ProductProvider {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
 
 
 }
