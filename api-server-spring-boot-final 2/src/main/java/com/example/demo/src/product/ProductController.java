@@ -61,7 +61,6 @@ public class ProductController {
         }
     }
 
-
     /**
      * 중고 거래 글 작성 API
      * [POST] /products/new
@@ -143,14 +142,14 @@ public class ProductController {
             }
 
             if (productProvider.checkAtt(postId, userId) != 0){
-                // 이미 좋아요 한 기록이 있다면
+                // 이미 관심 등록한 기록이 있다면
                 PatchProductAttReq patchProductAttReq = new PatchProductAttReq(postId, userId, postProductAttReq.getStatus());
                 productService.modifyProductAtt(patchProductAttReq);
                 String result = "";
                 return new BaseResponse<>(result);
 
             } else {
-                // 좋아요 한 기록이 없다면
+                // 관심 등록한 기록이 없다면
                 productService.createProductAtt(postId, userId, postProductAttReq);
                 String result = "";
                 return new BaseResponse<>(result);
@@ -191,17 +190,21 @@ public class ProductController {
      */
     @ResponseBody
     @PostMapping ("/{postId}/{userId}/deals")
-    public BaseResponse<PostDealRes> createDeal(@PathVariable int postId, @PathVariable int userId, @RequestBody PostDealReq postDealReq) {
+    public BaseResponse<String> createDeal(@PathVariable int postId, @PathVariable int userId, @RequestBody PostDealReq postDealReq) {
         try {
             if (postDealReq.getStatus() == null) {
                 return new BaseResponse<>(POST_DEAL_EMPTY_STATUS);
             }
             if (productProvider.checkDeal(postId, userId) != 0) {
-                return new BaseResponse<>(POST_DEAL_DUPLICATE);
-
+                // 이미 거래 한 기록이 있다면
+                PatchDealReq patchDealReq = new PatchDealReq(postId, userId, postDealReq.getStatus());
+                productService.deleteDeal(patchDealReq);
+                String result = "";
+                return new BaseResponse<>(result);
             }
-            PostDealRes postDealRes = productService.createDeal(postId, userId, postDealReq);
-            return new BaseResponse<>(postDealRes);
+            productService.createDeal(postId, userId, postDealReq);
+            String result = "";
+            return new BaseResponse<>(result);
 
 
         } catch (BaseException exception) {
@@ -217,7 +220,7 @@ public class ProductController {
      * @return BaseResponse<String>
      */
     @ResponseBody
-    @PatchMapping ("/{postId}/{userId}/deals/status")
+    @PatchMapping ("/{postId}/{userId}/deals/deletion")
     public BaseResponse<String> deleteDeal(@PathVariable int postId, @PathVariable int userId, @RequestBody Deal deal){
         try{
 
@@ -230,6 +233,27 @@ public class ProductController {
             String result = "";
             return new BaseResponse<>(result);
         } catch (BaseException exception) {
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
+    /**
+     * 판매 내역 상태별 조회 API
+     * [GET] /products/user-post/:userId
+     * /:userId?status=?
+     * @return BaseResponse<List<GetProductRes>>
+     */
+    @ResponseBody
+    @GetMapping("/user-post/{userId}/{status}")
+    public BaseResponse<List<GetProductRes>> getUserProductPost(@PathVariable int userId, @PathVariable int status){
+        try{
+            if (status == 0){
+                List<GetProductRes> getProductsRes = productProvider.getUserProductPost(userId, 1);
+                return new BaseResponse<>(getProductsRes);
+            }
+            List<GetProductRes> getProductsRes = productProvider.getUserProductPost(userId, status);
+            return new BaseResponse<>(getProductsRes);
+        } catch(BaseException exception){
             return new BaseResponse<>((exception.getStatus()));
         }
     }

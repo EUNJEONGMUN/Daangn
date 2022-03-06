@@ -2,15 +2,14 @@ package com.example.demo.src.user.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @AllArgsConstructor
-public class PutUserKeywordsReq {
+@NoArgsConstructor
+public class PostUserKeywordsReq {
     private String keyword;
 
-    public PutUserKeywordsReq(){
-
-    }
 }

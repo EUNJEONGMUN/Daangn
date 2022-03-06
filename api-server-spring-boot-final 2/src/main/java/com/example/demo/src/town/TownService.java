@@ -57,94 +57,6 @@ public class TownService {
         }
     }
 
-    /**
-     * 동네 생활 댓글 작성 API
-     * [POST] /towns/:postId/:userId/comment
-     * @return BaseResponse<String>
-     */
-    public PostTownComRes createTownCom(int postId, int userId, PostTownComReq postTownComReq) throws BaseException {
-
-        try {
-            int townPostComId = townDao.createTownCom(postId, userId, postTownComReq);
-            return new PostTownComRes(townPostComId);
-        } catch (Exception exception) {
-            throw new BaseException(DATABASE_ERROR);
-        }
-    }
-
-    /**
-     * 동네 생활 댓글 작성 API - 대댓글
-     * [POST] /towns/:postId/:userId/comment
-     * @return BaseResponse<String>
-     */
-    public PostTownComRes createTownComCom(int postId, int userId, PostTownComReq postTownComReq) throws BaseException {
-
-        try {
-            int townPostComId = townDao.createTownComCom(postId, userId, postTownComReq);
-            return new PostTownComRes(townPostComId);
-        } catch (Exception exception) {
-            throw new BaseException(DATABASE_ERROR);
-        }
-    }
-
-    public void modifyTownPostLiked(int postId, PutTownLikedReq putTownLikedReq) throws BaseException {
-        try {
-            if (townProvider.checkLiked(postId, putTownLikedReq.getUserId()) == 0) {
-                // 좋아요 하지 않은 게시글일 때
-                try {
-                    int likeListId = townDao.createTownPostLiked(postId, putTownLikedReq);
-                } catch (Exception exception) {
-                    throw new BaseException(DATABASE_ERROR);
-                }
-
-            } else {
-                // 좋아요 한 게시글일 때
-                try {
-                    int result = townDao.modifyTownPostLiked(postId, putTownLikedReq);
-                    if (result == 0) {
-                        throw new BaseException(MODIFY_FAIL_TOWNPOSTLIKED);
-                    }
-                } catch (Exception exception) {
-                    throw new BaseException(DATABASE_ERROR);
-                }
-
-
-            }
-        } catch (Exception exception) {
-            throw new BaseException(DATABASE_ERROR);
-        }
-    }
-
-    public void modifyTownComLiked(int postId, int comId, PutTownComLikedReq putTownComLikedReq) throws BaseException {
-
-        try {
-            if (townProvider.checkComLiked(postId, comId, putTownComLikedReq.getUserId()) == 0) {
-                // 좋아요 하지 않은 댓글일 때
-                try {
-                    int likeListId = townDao.createTownComLiked(postId, comId, putTownComLikedReq);
-                } catch (Exception exception) {
-                    throw new BaseException(DATABASE_ERROR);
-                }
-
-
-            } else {
-                // 좋아요 한 댓글일 때
-                try {
-                    int result = townDao.modifyTownComLiked(postId, comId, putTownComLikedReq);
-                    if (result == 0) {
-                        throw new BaseException(MODIFY_FAIL_TOWNCOMLIKED);
-                    }
-                } catch (Exception exception) {
-                    throw new BaseException(DATABASE_ERROR);
-                }
-
-            }
-        } catch (Exception exception) {
-            throw new BaseException(DATABASE_ERROR);
-        }
-
-
-    }
 
     /**
      * 동네 생활 글 삭제 API
@@ -163,11 +75,137 @@ public class TownService {
     }
 
     /**
+     * 동네 생활 댓글 작성 API
+     * [POST] /towns/:postId/:userId/comment
+     * @return BaseResponse<PostTownComRes>
+     */
+    public PostTownComRes createTownCom(int postId, int userId, PostTownComReq postTownComReq) throws BaseException {
+
+        try {
+            int townPostComId = townDao.createTownCom(postId, userId, postTownComReq);
+            return new PostTownComRes(townPostComId);
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    /**
+     * 동네 생활 댓글 작성 API - 대댓글
+     * [POST] /towns/:postId/:userId/comment
+     * @return BaseResponse<PostTownComRes>
+     */
+    public PostTownComRes createTownComCom(int postId, int userId, PostTownComReq postTownComReq) throws BaseException {
+
+        try {
+            int townPostComId = townDao.createTownComCom(postId, userId, postTownComReq);
+            return new PostTownComRes(townPostComId);
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    /**
      * 동네 생활 댓글 수정 API
      * [PATCH] /towns/:postId/comment/:comId/:userId
      * @return BaseResponse<String>
      */
-    public void modifyTownCom(PatchTownPostComReq patchTownPostComReq)  throws BaseException {
+    public void modifyTownCom(PatchTownPostComReq patchTownPostComReq) throws BaseException {
+        try{
+            int result = townDao.modifyTownCom(patchTownPostComReq);
+            if (result == 0){
+                throw new BaseException(MODIFY_FAIL_TOWN_COM);
+            }
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+
+    /**
+     * 동네 생활 댓글 삭제 API
+     * [PATCH] /towns/:postId/comment/:comId/:userId/deletion
+     * @return BaseResponse<String>
+     */
+    public void deleteTownCom(PatchTownComDelReq patchTownComDelReq) throws BaseException {
+        try {
+            int result = townDao.deleteTownCom(patchTownComDelReq);
+            if (result == 0){
+                throw new BaseException(DELETE_FAIL_TOWN_COM);
+            }
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
 
     }
+
+
+    /**
+     * 동네 생활 글 좋아요 설정 API
+     * [POST] /towns/:postId/liked/:userId
+     * @return BaseResponse<String>
+     */
+    public void createTownPostLiked(int postId, int userId, PostTownLikedReq postTownLikedReq) throws BaseException {
+        try {
+            int result = townDao.createTownPostLiked(postId, userId, postTownLikedReq);
+            if (result == 0){
+                throw new BaseException(CREATE_FAIL_TOWN_POST_LIKED);
+            }
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+
+    /**
+     * 동네 생활 글 좋아요 변경 API
+     * [PATCH] /towns/:postId/liked/:userId
+     * @return BaseResponse<String>
+     */
+    public void modifyTownPostLiked(PatchTownLikedReq patchTownLikedReq) throws BaseException {
+        try {
+            int result = townDao.modifyTownPostLiked(patchTownLikedReq);
+            if (result == 0) {
+                throw new BaseException(MODIFY_FAIL_TOWN_POST_LIKED);
+            }
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    /**
+     * 동네 생활 댓글 좋아요 설정 API
+     * [POST] /towns/:postId/:comId/liked/:userId
+     *
+     * @return BaseResponse<String>
+     */
+    public void createTownComLiked(int postId, int comId, int userId,
+                                   PostTownComLikedReq postTownComLikedReq) throws BaseException {
+        try {
+            int result = townDao.createTownComLiked(postId, comId, userId, postTownComLikedReq);
+            if (result == 0){
+                throw new BaseException(CREATE_FAIL_TOWN_POST_COM_LIKED);
+            }
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    /**
+     * 동네 생활 댓글 좋아요 변경 API
+     * [PATCH] /towns/:postId/:comId/liked/:userId
+     *
+     * @return BaseResponse<String>
+     */
+    public void modifyTownComLiked(PatchTownComLikedReq patchTownComLikedReq) throws BaseException {
+        try{
+            int result = townDao.modifyTownComLiked(patchTownComLikedReq);
+            if (result == 0) {
+                throw new BaseException(MODIFY_FAIL_TOWN_POST_COM_LIKED);
+            }
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+
 }

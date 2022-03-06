@@ -7,12 +7,13 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class PutTownLikedReq {
+public class PatchTownComLikedReq {
+    private int postId;
     private int comId;
     private int userId;
-    private char status;
+    private String status;
 
-    public PutTownLikedReq(){
+    public PatchTownComLikedReq(){
 
     }
 }

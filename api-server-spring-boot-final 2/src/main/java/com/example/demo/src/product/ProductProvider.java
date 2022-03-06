@@ -67,6 +67,7 @@ public class ProductProvider {
 
     }
 
+    // 거래 기록 체크
     public int checkDeal(int postId, int userId) throws BaseException {
         try{
             return productDao.checkDeal(postId, userId);
@@ -75,6 +76,18 @@ public class ProductProvider {
         }
     }
 
-
-
+    /**
+     * 판매 내역 상태별 조회 API
+     * [GET] /products/user-post/:userId
+     * /:userId?status=?
+     * @return BaseResponse<List<GetProductRes>>
+     */
+    public List<GetProductRes> getUserProductPost(int userId, int status) throws BaseException {
+        try {
+            List<GetProductRes> getProductRes = productDao.getUserProductPost(userId, status);
+            return getProductRes;
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 }

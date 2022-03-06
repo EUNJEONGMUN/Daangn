@@ -1,0 +1,17 @@
+## gradle template ##
+.gradle
+build/
+!gradle/wrapper/gradle-wrappser.jar
+
+application.yml
+
+*.class
+
+*.war
+*.ear
+
+.idea
+*.iws
+*.iml
+*.ipr
+out/

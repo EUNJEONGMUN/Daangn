@@ -22,6 +22,22 @@ public class UserProvider {
         this.userDao = userDao;
     }
 
+    /**
+     * 유저 개인 정보 조회 API
+     * [GET] /users/:userId
+     * @return BaseResponse<GetUserInfoRes>
+     */
+    public GetUserInfoRes getUserInfo(int userId) throws BaseException {
+        try {
+            GetUserInfoRes getUserInfoRes = userDao.getUserInfo(userId);
+            return getUserInfoRes;
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+
+    }
+
+
     public List<GetUserBadgeRes> getUserBadges(int userId) throws BaseException  {
         try{
             List<GetUserBadgeRes> getUserBadgeRes = userDao.getUserBadges(userId);
@@ -63,29 +79,35 @@ public class UserProvider {
         }
     }
 
+
     /**
-     * 유저 개인 정보 조회 API
-     * [GET] /users/:userId
-     * @return BaseResponse<GetUserInfoRes>
+     * 관심 목록 전체 조회 API
+     * [GET] /users/:userId/attention
+     * @return BaseResponse<List<GetUserAttentionRes>>
      */
-    public GetUserInfoRes getUserInfo(int userId) throws BaseException {
-        try {
-            GetUserInfoRes getUserInfoRes = userDao.getUserInfo(userId);
-            return getUserInfoRes;
-        } catch (Exception exception) {
+    public List<GetUserAttentionRes> getAttention(int userId) throws BaseException {
+    try {
+            List<GetUserAttentionRes> getUserAttentionRes = userDao.getAttention(userId);
+            return getUserAttentionRes;
+        } catch (Exception exception){
             throw new BaseException(DATABASE_ERROR);
         }
 
     }
 
+    /**
+     * 보유 쿠폰 상태별 조회 API
+     * [GET] /users/:userId/coupons
+     * [GET] /coupons?status=?
+     * @return BaseResponse<List<GetUserCouponRes>>
+     */
+    public List<GetUserCouponRes> getCoupon(int userId, String status) throws BaseException {
+        try {
+            List<GetUserCouponRes> getUserCouponRes = userDao.getCoupon(userId, status);
+            return getUserCouponRes;
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
 
-//    public List<GetUserSalesListRes> getUserSalesList(String state) throws BaseException {
-//        try{
-//            List<GetUserSalesListRes> getUserSalesListRes = userDao.getUserSalesList(state){
-//            return getUserSalesListRes;
-//            }
-//        } catch (Exception exception){
-//            throw new BaseException(DATABASE_ERROR);
-//        }
-//    }
+    }
 }

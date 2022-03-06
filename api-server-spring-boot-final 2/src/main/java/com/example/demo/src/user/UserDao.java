@@ -118,14 +118,29 @@ public class UserDao {
      * [PUT] /users/:userIdx/keywords
      * @return BaseResponse<String>
      */
-    public int modifyKeywords(int userId, String keyword) {
-        String Query = "UPDATE KeywordList SET status = IF(status='Y', 'N', 'Y') where userId=? and content=?;";
-        Object[] Params = new Object[]{userId, keyword};
+//    public int modifyKeywords(int userId, String keyword) {
+//        String Query = "UPDATE KeywordList SET status = IF(status='Y', 'N', 'Y') where userId=? and content=?;";
+//        Object[] Params = new Object[]{userId, keyword};
+//        this.jdbcTemplate.update(Query, Params);
+//
+//        String lastInsertIdQuery = "select last_insert_id()";
+//        return this.jdbcTemplate.queryForObject(lastInsertIdQuery,int.class);
+//    }
+
+    /**
+     * 키워드 알림설정 API
+     * [POST] /users/:userIdx/keywords
+     * @return BaseResponse<PostUserKeywordsRes>
+     */
+    public int createKeywords(int userId, PostUserKeywordsReq postUserKeywordsReq) {
+        String Query = "insert into KeywordList (userId, content) values(?,?);";
+        Object[] Params = new Object[]{userId, postUserKeywordsReq.getKeyword()};
         this.jdbcTemplate.update(Query, Params);
 
         String lastInsertIdQuery = "select last_insert_id()";
         return this.jdbcTemplate.queryForObject(lastInsertIdQuery,int.class);
     }
+
 
     /**
      * 유저 개인 정보 조회 API
@@ -239,23 +254,152 @@ public class UserDao {
     }
 
     /**
-     * 관심 목록 전체 조회 API
-     * [GET] /users/:userId/attention
-     * @return BaseResponse<>
+     * 키워드 알림해제 API
+     * [DELETE] /users/:userIdx/keywords/:keywordsId/deletion
+     * @return BaseResponse<String>
      */
+    public int deleteKeywords(int userId, int keywordsId) {
+        String Query = "delete from KeywordList where userId=? and keywordListId=?;";
+        Object[] Params = new Object[]{userId, keywordsId};
+        return this.jdbcTemplate.update(Query, Params);
+    }
 
     /**
-     * 관심 목록 카테고리별 조회 API
+     * 관심 목록 전체 조회 API
      * [GET] /users/:userId/attention
-     * [GET] /attention?categoryId=?
-     * @return BaseResponse<>
+     * @return BaseResponse<List<GetUserAttentionRes>>
      */
+    public List<GetUserAttentionRes> getAttention(int userId) {
+
+        String Query = "select P.productPostId, img.firstImg, P.title, JusoCode.jusoName, P.price,\n" +
+                "                       case\n" +
+                "                           when TIMESTAMPDIFF(SECOND, P.createdAt, current_timestamp())<60\n" +
+                "                            then concat(TIMESTAMPDIFF(SECOND, P.createdAt, current_timestamp()),'초 전')\n" +
+                "                           when TIMESTAMPDIFF(MINUTE, P.createdAt, current_timestamp())<60\n" +
+                "                            then concat(TIMESTAMPDIFF(MINUTE, P.createdAt, current_timestamp()),'분 전')\n" +
+                "                            when TIMESTAMPDIFF(HOUR, P.createdAt, current_timestamp())<24\n" +
+                "                            then concat(TIMESTAMPDIFF(HOUR, P.createdAt, current_timestamp()), '시간 전')\n" +
+                "                            else concat(TIMESTAMPDIFF(DAY, P.createdAt, current_timestamp()), '일 전')\n" +
+                "                        end as uploadTime\n" +
+                "                       ,\n" +
+                "                       case\n" +
+                "                       when P.status = 'B'\n" +
+                "                           then '예약중'\n" +
+                "                        when P.status = 'C'\n" +
+                "                            then '거래완료'\n" +
+                "                        else '판매중'\n" +
+                "                            end as state, attChat.chatCount, attChat.attCount\n" +
+                "                from ProductPost P\n" +
+                "                    left join JusoCode on P.jusoCodeId = JusoCode.jusoCodeId\n" +
+                "                    left join (\n" +
+                "                            select P.productPostId, count(PA.postId) as attCount, chat.chatCount\n" +
+                "                            from ProductPost P\n" +
+                "                                left join ProductAttention PA on PA.postId = P.productPostId\n" +
+                "                                left join (\n" +
+                "                                    select P.productPostId, count(PC.postId) div 2 as chatCount\n" +
+                "                                    from ProductPost P\n" +
+                "                                        left join ProductChatList PC on PC.postId = P.productPostId\n" +
+                "                                group by P.productPostId) chat on chat.productPostId = P.productPostId where PA.status = 'Y'\n" +
+                "                            group by P.productPostId) attChat on attChat.productPostId = P.productPostId\n" +
+                "                    left join(\n" +
+                "                        select P.productPostId, imageSelect.firstImg\n" +
+                "                        from ProductPost P\n" +
+                "                            left join(\n" +
+                "                                select Img.productPostId, min(Img.productImageId), Img.imageUrl as firstImg\n" +
+                "                                from ProductImage Img\n" +
+                "                                group by Img.productPostId) imageSelect on imageSelect.productPostId = P.productPostId\n" +
+                "                        ) img on img.productPostId = P.productPostId\n" +
+                "                join (\n" +
+                "                    select PA.postId\n" +
+                "                    from ProductAttention PA\n" +
+                "                    where userId = ?\n" +
+                "                    ) att on att.postId = P.productPostId\n" +
+                "                where P.isHidden = 'N' and P.isExistence = 'Y'\n" +
+                "                order by P.createdAt DESC;";
+
+        int Params = userId;
+        return this.jdbcTemplate.query(Query,
+                (rs,rowNum) -> new GetUserAttentionRes(
+                        rs.getString("firstImg"),
+                        rs.getInt("productPostId"),
+                        rs.getString("title"),
+                        rs.getString("jusoName"),
+                        rs.getInt("price"),
+                        rs.getString("state"),
+                        rs.getInt("chatCount"),
+                        rs.getInt("attCount"),
+                        rs.getString("uploadTime")),
+                Params);
+
+    }
 
     /**
      * 보유 쿠폰 상태별 조회 API
      * [GET] /users/:userId/coupons
      * [GET] /coupons?status=?
-     * @return BaseResponse<>
+     * @return BaseResponse<List<GetUserCouponRes>>
      */
+    public List<GetUserCouponRes> getCoupon(int userId, String status) {
+        // 유효기간 남았을 경우
+        String Query1 = "select Sinfo.storeProfileImage, Sinfo.storeName, Sinfo.categoryName, C.couponListId, C.couponName, DATE_FORMAT(C.endDate, '%Y년 %m월 %d일까지') AS endDate,\n" +
+                "       case\n" +
+                "           when TIMESTAMPDIFF(SECOND, C.endDate, current_timestamp())>0\n" +
+                "            then '기한만료'\n" +
+                "            else '받은쿠폰'\n" +
+                "            end as time\n" +
+                "from CouponList C join UserCoupon UC on C.couponListId = UC.couponListId\n" +
+                "join (\n" +
+                "    select S.storeId, S.storeProfileImage, S.storeName, categoryName.categoryName\n" +
+                "    from Store S\n" +
+                "        join (\n" +
+                "            select S.storeId, S.storeName, C.categoryName\n" +
+                "            from Store S join Category C on S.storeCategoryId = C.categoryId\n" +
+                "        ) categoryName on categoryName.storeId = S.storeId\n" +
+                "    ) Sinfo on Sinfo.storeId = C.storeId\n" +
+                "where userId = ? and TIMESTAMPDIFF(SECOND, C.endDate, current_timestamp())<0;";
+        // 유효기간 지났을 경우
+        String Query2 = "select Sinfo.storeProfileImage, Sinfo.storeName, Sinfo.categoryName, C.couponListId, C.couponName, DATE_FORMAT(C.endDate, '%Y년 %m월 %d일까지') AS endDate,\n" +
+                "       case\n" +
+                "           when TIMESTAMPDIFF(SECOND, C.endDate, current_timestamp())>0\n" +
+                "            then '기한만료'\n" +
+                "            else '받은쿠폰'\n" +
+                "            end as time\n" +
+                "from CouponList C join UserCoupon UC on C.couponListId = UC.couponListId\n" +
+                "join (\n" +
+                "    select S.storeId, S.storeProfileImage, S.storeName, categoryName.categoryName\n" +
+                "    from Store S\n" +
+                "        join (\n" +
+                "            select S.storeId, S.storeName, C.categoryName\n" +
+                "            from Store S join Category C on S.storeCategoryId = C.categoryId\n" +
+                "        ) categoryName on categoryName.storeId = S.storeId\n" +
+                "    ) Sinfo on Sinfo.storeId = C.storeId\n" +
+                "where userId = ? and TIMESTAMPDIFF(SECOND, C.endDate, current_timestamp())>0;";
+
+        int Params = userId;
+
+        if (status == "Y"){
+            return this.jdbcTemplate.query(Query1,
+                    (rs,rowNum) -> new GetUserCouponRes(
+                            rs.getString("storeProfileImage"),
+                            rs.getString("storeName"),
+                            rs.getString("categoryName"),
+                            rs.getInt("couponListId"),
+                            rs.getString("couponName"),
+                            rs.getString("endDate"),
+                            rs.getString("time")),
+                    Params);
+        } else {
+            return this.jdbcTemplate.query(Query2,
+                    (rs,rowNum) -> new GetUserCouponRes(
+                            rs.getString("storeProfileImage"),
+                            rs.getString("storeName"),
+                            rs.getString("categoryName"),
+                            rs.getInt("couponListId"),
+                            rs.getString("couponName"),
+                            rs.getString("endDate"),
+                            rs.getString("time")),
+                    Params);
+        }
+    }
 
 }

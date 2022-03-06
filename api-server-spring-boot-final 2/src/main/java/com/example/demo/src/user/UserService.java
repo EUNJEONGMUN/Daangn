@@ -1,8 +1,9 @@
 package com.example.demo.src.user;
 
 import com.example.demo.config.BaseException;
-import com.example.demo.src.user.model.PatchMyInfoReq;
-import com.example.demo.src.user.model.PutUserKeywordsReq;
+import com.example.demo.src.town.model.PostTownComRes;
+import com.example.demo.src.user.model.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,23 +28,41 @@ public class UserService {
 
     /**
      * 키워드 알림설정 API
-     * [PUT] /users/:userIdx/keywords
+     * [POST] /users/:userIdx/keywords
+     * @return BaseResponse<PostUserKeywordsRes>
+     */
+    public PostUserKeywordsRes createKeywords(int userId, PostUserKeywordsReq postUserKeywordsReq) throws BaseException {
+        try{
+            if (userProvider.checkKeyword(userId, postUserKeywordsReq.getKeyword()) != 0){
+                // 요청한 키워드가 있을 경우
+                throw new BaseException(DUPLICATED_KEYWORDS);
+            } else {
+                // 요청한 키워드가 없을 경우
+                int keywordsId = userDao.createKeywords(userId, postUserKeywordsReq);
+                return new PostUserKeywordsRes(keywordsId);
+            }
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+
+    }
+
+    /**
+     * 키워드 알림해제 API
+     * [DELETE] /users/:userIdx/keywords/:keywordsId/deletion
      * @return BaseResponse<String>
      */
-    public void setKeywords(int userId, PutUserKeywordsReq putUserKeywordsReq) throws BaseException {
-        if (userProvider.checkKeyword(userId, putUserKeywordsReq.getKeyword()) == 0){
-            // 설정된 키워드가 없을 경우
-            int result = userDao.setKeyWords(userId, putUserKeywordsReq.getKeyword());
-            if (result == 0) {
-                throw new BaseException(SET_FAIL_KEYWORDS);
+    public void deleteKeywords(int userId, int keywordsId) throws BaseException {
+        try {
+            int result = userDao.deleteKeywords(userId, keywordsId);
+            if (result == 0){
+                throw new BaseException(DELETE_FAIL_KEYWORDS);
             }
-        } else {
-            int result = userDao.modifyKeywords(userId, putUserKeywordsReq.getKeyword());
-            if (result == 0) {
-                throw new BaseException(SET_FAIL_KEYWORDS);
-            }
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
         }
     }
+
 
     /**
      * 유저 개인 정보 수정 API
@@ -60,4 +79,6 @@ public class UserService {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
+
 }

@@ -7,12 +7,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class PutTownComLikedReq {
-    private int postId;
-    private int userId;
-    private char status;
-
-    public PutTownComLikedReq(){
-
-    }
+public class GetTownComRes {
+    private int townPostComId;
+    private String comment;
+    private String postContent;
+    private String uploadTime;
 }

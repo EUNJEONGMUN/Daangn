@@ -1,4 +1,4 @@
-package com.example.demo.src.product.model;
+package com.example.demo.src.town.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class PostDealReq {
+public class TownLiked {
     private String status;
 
 }

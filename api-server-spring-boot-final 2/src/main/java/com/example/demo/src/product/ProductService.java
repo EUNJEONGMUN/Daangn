@@ -112,10 +112,12 @@ public class ProductService {
      * [POST] /products/:postId/:userId/deals
      * @return BaseResponse<PostDealRes>
      */
-    public PostDealRes createDeal(int postId, int userId, PostDealReq postDealReq) throws BaseException {
+    public void createDeal(int postId, int userId, PostDealReq postDealReq) throws BaseException {
         try{
-            int dealId = productDao.createDeal(postId, userId, postDealReq);
-            return new PostDealRes(dealId);
+            int result = productDao.createDeal(postId, userId, postDealReq);
+            if (result==0){
+                throw new BaseException(CREATE_FAIL_DEAL);
+            }
         } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);
         }
