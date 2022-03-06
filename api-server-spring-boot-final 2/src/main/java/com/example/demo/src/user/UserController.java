@@ -169,9 +169,6 @@ public class UserController {
         }
     }
 
-
-
-
     /**
      * 보유 쿠폰 상태별 조회 API
      * [GET] /users/:userId/coupons
@@ -193,7 +190,7 @@ public class UserController {
         }
     }
 
-
+    // 분리하기
 
 
 
