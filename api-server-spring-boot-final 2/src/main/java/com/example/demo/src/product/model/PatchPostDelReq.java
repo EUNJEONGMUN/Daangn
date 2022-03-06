@@ -9,12 +9,12 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @JsonAutoDetect
-public class PatchPostStatusReq {
+public class PatchPostDelReq {
     private int postId;
     private int userId;
     private String isExistence;
 
-    public PatchPostStatusReq(){
+    public PatchPostDelReq(){
 
     }
 }

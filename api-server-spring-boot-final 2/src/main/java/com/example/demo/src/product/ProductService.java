@@ -60,9 +60,9 @@ public class ProductService {
      * [PATCH] /products/:postId/:userId/status
      * @return BaseResponse<String>
      */
-    public void deleteProduct(PatchPostStatusReq patchPostStatusReq) throws BaseException {
+    public void deleteProduct(PatchPostDelReq patchPostDelReq) throws BaseException {
         try {
-            int result = productDao.deleteProduct(patchPostStatusReq);
+            int result = productDao.deleteProduct(patchPostDelReq);
             if (result == 0){
                 throw new BaseException(DELETE_FAIL_PRODUCT_POST);
             }
@@ -138,7 +138,6 @@ public class ProductService {
             throw new BaseException(DATABASE_ERROR);
         }
     }
-
 
 
 }

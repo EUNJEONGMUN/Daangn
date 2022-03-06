@@ -72,7 +72,7 @@ public class TownController {
     @ResponseBody
     @PostMapping("/new/{userId}") // (POST) 127.0.0.1:9000/towns/new
     public BaseResponse<PostTownNewRes> createTown(@PathVariable int userId, @RequestBody PostTownNewReq postTownNewReq) {
-
+        try {
         if (postTownNewReq.getTownPostCategoryId() == 0) {
             return new BaseResponse<>(EMPTY_CATEGORY);
         }
@@ -80,7 +80,10 @@ public class TownController {
             return new BaseResponse<>(POST_TOWNS_EMPTY_CONTENT);
         }
 
-        try {
+        if (townProvider.checkTopCategory(postTownNewReq.getTownPostCategoryId())!=2){
+            return new BaseResponse<>(CATEGORY_RANGE_ERROR);
+        }
+
             PostTownNewRes postTownNewRes = townService.createTown(userId, postTownNewReq);
             return new BaseResponse<>(postTownNewRes);
         } catch (BaseException exception) {

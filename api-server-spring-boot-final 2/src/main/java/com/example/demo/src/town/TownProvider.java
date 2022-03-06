@@ -49,11 +49,6 @@ public class TownProvider {
     @ResponseBody
     public List<GetTownRes> getTown(int categoryId) throws BaseException {
         try {
-            if (townDao.checkTopCategory(categoryId) != 2){
-                // 중고거래 카테고리는 refId = 1
-                throw new BaseException(CATEGORY_RANGE_ERROR);
-            }
-
             List<GetTownRes> getTownRes = townDao.getTown(categoryId);
             return getTownRes;
         } catch (Exception exception){
@@ -107,5 +102,14 @@ public class TownProvider {
             throw new BaseException(DATABASE_ERROR);
         }
 
+    }
+
+    // 카테고리 범위 체크
+    public int checkTopCategory(int townPostCategoryId) throws BaseException {
+        try {
+            return townDao.checkTopCategory(townPostCategoryId);
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
     }
 }

@@ -54,6 +54,10 @@ public class ProductController {
     @GetMapping("/home/{categoryId}") // (GET) 127.0.0.1:9000/products/home/:categoryId
     public BaseResponse<List<GetProductRes>> getProduct(@PathVariable("categoryId") int categoryId){
         try{
+            if (productProvider.checkTopCategory(categoryId) != 1){
+                // 중고거래 refId=1
+                return new BaseResponse<>(CATEGORY_RANGE_ERROR);
+            }
             List<GetProductRes> getProductsRes = productProvider.getProduct(categoryId);
             return new BaseResponse<>(getProductsRes);
         } catch(BaseException exception){
@@ -112,15 +116,15 @@ public class ProductController {
 
     /**
      * 중고 거래 글 삭제 API
-     * [PATCH] /products/:postId/:userId/status
+     * [PATCH] /products/:postId/:userId/deletion
      * @return BaseResponse<String>
      */
     @ResponseBody
-    @PatchMapping("/{postId}/{userId}/status")
-    public BaseResponse<String> deleteProduct(@PathVariable int postId, @PathVariable int userId, @RequestBody ProductPostStatus productPostStatus){
+    @PatchMapping("/{postId}/{userId}/deletion")
+    public BaseResponse<String> deleteProduct(@PathVariable int postId, @PathVariable int userId, @RequestBody ProductPostDel productPostDel){
         try{
-            PatchPostStatusReq patchPostStatusReq = new PatchPostStatusReq(postId, userId, productPostStatus.getIsExistence());
-            productService.deleteProduct(patchPostStatusReq);
+            PatchPostDelReq patchPostDelReq = new PatchPostDelReq(postId, userId, productPostDel.getIsExistence());
+            productService.deleteProduct(patchPostDelReq);
             String result = "";
             return new BaseResponse<>(result);
         } catch (BaseException exception) {
@@ -257,5 +261,22 @@ public class ProductController {
             return new BaseResponse<>((exception.getStatus()));
         }
     }
+
+    /**
+     * 구매 내역 조회 API
+     * [GET] /products/buylist/:userId
+     * @return BaseResponse<List<GetProductRes>>
+     */
+    @ResponseBody
+    @GetMapping("/buylist/{userId}")
+    public BaseResponse<List<GetProductRes>> getUserBuyList(@PathVariable int userId){
+        try{
+            List<GetProductRes> getProductsRes = productProvider.getUserBuyList(userId);
+            return new BaseResponse<>(getProductsRes);
+        } catch(BaseException exception){
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
 
 }

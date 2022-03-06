@@ -45,10 +45,6 @@ public class ProductProvider {
      */
     public List<GetProductRes> getProduct(int categoryId) throws BaseException {
         try {
-            if (productDao.checkTopCategory(categoryId) != 2){
-                // 동네 생활 카테고리는 refId = 2
-                throw new BaseException(CATEGORY_RANGE_ERROR);
-            }
             List<GetProductRes> getProductRes = productDao.getProduct(categoryId);
             return getProductRes;
         } catch (Exception exception){
@@ -85,6 +81,28 @@ public class ProductProvider {
     public List<GetProductRes> getUserProductPost(int userId, int status) throws BaseException {
         try {
             List<GetProductRes> getProductRes = productDao.getUserProductPost(userId, status);
+            return getProductRes;
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public int checkTopCategory(int categoryId) throws BaseException  {
+        try {
+            return productDao.checkTopCategory(categoryId);
+        } catch(Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    /**
+     * 구매 내역 조회 API
+     * [GET] /products/buylist/:userId
+     * @return BaseResponse<List<GetProductRes>>
+     */
+    public List<GetProductRes> getUserBuyList(int userId) throws BaseException {
+        try {
+            List<GetProductRes> getProductRes = productDao.getUserBuyList(userId);
             return getProductRes;
         } catch (Exception exception){
             throw new BaseException(DATABASE_ERROR);

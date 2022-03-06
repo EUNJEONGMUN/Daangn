@@ -69,17 +69,17 @@ public class MemberProvider {
     }
 
     public PostLoginRes logIn(PostLoginReq postLoginReq) throws BaseException{
-        User user = memberDao.getPwd(postLoginReq);
+        User user = memberDao.getPwd(postLoginReq); // DB로부터 암호화되어있는 PW를 가져옴
         String encryptPwd;
         try {
-            encryptPwd=new SHA256().encrypt(postLoginReq.getPassword());
+            encryptPwd=new SHA256().encrypt(postLoginReq.getPassword()); // 가져온 암호화를 복호화 함
         } catch (Exception ignored) {
             throw new BaseException(PASSWORD_DECRYPTION_ERROR);
         }
 
-        if(user.getPassword().equals(encryptPwd)){
+        if(user.getPassword().equals(encryptPwd)){ // 바디값으로 갖고 온 PW와 DB에서 복호화환 PW가 같다면
             int userIdx = user.getUserIdx();
-            String jwt = jwtService.createJwt(userIdx);
+            String jwt = jwtService.createJwt(userIdx); // jwt를 만드는 함수에 userIdx를 넣음
             return new PostLoginRes(userIdx,jwt);
         }
         else{

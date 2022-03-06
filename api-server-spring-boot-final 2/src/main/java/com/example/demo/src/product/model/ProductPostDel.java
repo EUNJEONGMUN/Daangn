@@ -9,6 +9,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductPostStatus {
+public class ProductPostDel {
     private String isExistence;
 }

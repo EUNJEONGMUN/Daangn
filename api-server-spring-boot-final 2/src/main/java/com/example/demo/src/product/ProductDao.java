@@ -146,11 +146,11 @@ public class ProductDao {
 
     // 카테고리 범위 체크
     public int checkTopCategory(int categoryId) {
-        String checkTopCategoryQuery = "select refId from Category where categoryId=?";
-        int checkTopCategoryParam = categoryId;
-        return this.jdbcTemplate.queryForObject(checkTopCategoryQuery,
+        String Query = "select refId from Category where categoryId=?";
+        int Param = categoryId;
+        return this.jdbcTemplate.queryForObject(Query,
                 int.class,
-                checkTopCategoryParam);
+                Param);
     }
 
     /**
@@ -190,11 +190,11 @@ public class ProductDao {
      * [PATCH] /products/:postId/:userId/status
      * @return BaseResponse<String>
      */
-    public int deleteProduct(PatchPostStatusReq patchPostStatusReq) {
+    public int deleteProduct(PatchPostDelReq patchPostDelReq) {
         String Query = "update ProductPost P " +
                 "set P.isExistence=?" +
                 "where P.userId=? and P.productPostId=?;";
-        Object[] Params = new Object[]{patchPostStatusReq.getIsExistence(), patchPostStatusReq.getUserId(), patchPostStatusReq.getPostId()};
+        Object[] Params = new Object[]{patchPostDelReq.getIsExistence(), patchPostDelReq.getUserId(), patchPostDelReq.getPostId()};
         return this.jdbcTemplate.update(Query, Params);
     }
 
@@ -459,5 +459,72 @@ public class ProductDao {
                             rs.getString("uploadTime")),
                     Params);
         }
+    }
+
+    /**
+     * 구매 내역 조회 API
+     * [GET] /products/buylist/:userId
+     * @return BaseResponse<List<GetProductRes>>
+     */
+    public List<GetProductRes> getUserBuyList(int userId) {
+        String Query = "select P.productPostId, img.firstImg, P.title, JusoCode.jusoName, P.price,\n" +
+                "                       case\n" +
+                "                           when TIMESTAMPDIFF(SECOND, P.createdAt, current_timestamp())<60\n" +
+                "                            then concat(TIMESTAMPDIFF(SECOND, P.createdAt, current_timestamp()),'초 전')\n" +
+                "                           when TIMESTAMPDIFF(MINUTE, P.createdAt, current_timestamp())<60\n" +
+                "                            then concat(TIMESTAMPDIFF(MINUTE, P.createdAt, current_timestamp()),'분 전')\n" +
+                "                            when TIMESTAMPDIFF(HOUR, P.createdAt, current_timestamp())<24\n" +
+                "                            then concat(TIMESTAMPDIFF(HOUR, P.createdAt, current_timestamp()), '시간 전')\n" +
+                "                            else concat(TIMESTAMPDIFF(DAY, P.createdAt, current_timestamp()), '일 전')\n" +
+                "                        end as uploadTime\n" +
+                "                       ,\n" +
+                "                       case\n" +
+                "                       when P.status = 'B'\n" +
+                "                           then '예약중'\n" +
+                "                        when P.status = 'C'\n" +
+                "                           then '거래완료'\n" +
+                "                        else '판매중'\n" +
+                "                            end as state, attChat.chatCount, attChat.attCount\n" +
+                "                from ProductPost P\n" +
+                "                    left join JusoCode on P.jusoCodeId = JusoCode.jusoCodeId\n" +
+                "                    left join (\n" +
+                "                            select P.productPostId, count(PA.postId) as attCount, chat.chatCount\n" +
+                "                            from ProductPost P\n" +
+                "                                left join ProductAttention PA on PA.postId = P.productPostId\n" +
+                "                                left join (\n" +
+                "                                    select P.productPostId, count(PC.postId) div 2 as chatCount\n" +
+                "                                    from ProductPost P\n" +
+                "                                        left join ProductChatList PC on PC.postId = P.productPostId\n" +
+                "                               group by P.productPostId) chat on chat.productPostId = P.productPostId where PA.status = 'Y'\n" +
+                "                            group by P.productPostId) attChat on attChat.productPostId = P.productPostId\n" +
+                "                    left join(\n" +
+                "                        select P.productPostId, imageSelect.firstImg\n" +
+                "                        from ProductPost P\n" +
+                "                            left join(\n" +
+                "                                select Img.productPostId, min(Img.productImageId), Img.imageUrl as firstImg\n" +
+                "                                from ProductImage Img\n" +
+                "                                group by Img.productPostId) imageSelect on imageSelect.productPostId = P.productPostId\n" +
+                "                        ) img on img.productPostId = P.productPostId\n" +
+                "                join (\n" +
+                "                    select productPostId from Deal where buyUserId = ?\n" +
+                "                    ) buy on buy.productPostId = P.productPostId\n" +
+                "                where P.isExistence = 'Y'\n" +
+                "                order by P.createdAt DESC;";
+
+
+        int Params = userId;
+
+        return this.jdbcTemplate.query(Query,
+                (rs,rowNum) -> new GetProductRes(
+                        rs.getString("firstImg"),
+                        rs.getInt("productPostId"),
+                        rs.getString("title"),
+                        rs.getString("jusoName"),
+                        rs.getInt("price"),
+                        rs.getString("state"),
+                        rs.getInt("chatCount"),
+                        rs.getInt("attCount"),
+                        rs.getString("uploadTime")),
+                Params);
     }
 }
