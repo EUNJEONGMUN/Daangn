@@ -10,6 +10,9 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class User {
-    private String userImg;
-    private String name;
+    private int userId;
+    private String userName;
+    private String profileImg;
+
+
 }

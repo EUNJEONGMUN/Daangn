@@ -1,6 +1,11 @@
 package com.example.demo.src.user;
 
 import com.example.demo.src.user.model.*;
+import com.example.demo.src.user.model.Req.PatchMyInfoReq;
+import com.example.demo.src.user.model.Req.PostSignInReq;
+import com.example.demo.src.user.model.Req.PostUserKeywordsReq;
+import com.example.demo.src.user.model.Req.PostUserReq;
+import com.example.demo.src.user.model.Res.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -143,7 +148,7 @@ public class UserDao {
 
 
     /**
-     * 유저 개인 정보 조회 API
+     * 프로필 조회 API
      * [GET] /users/:userId
      * @return BaseResponse<GetUserInfoRes>
      */
@@ -243,7 +248,7 @@ public class UserDao {
     }
 
     /**
-     * 유저 개인 정보 수정 API
+     * 프로필 수정 API
      * [PATCH] /users/:userId
      * @return BaseResponse<String>
      */
@@ -402,4 +407,50 @@ public class UserDao {
         }
     }
 
+    // 휴대폰 중복체크
+    public int checkPhoneNumber(String phoneNumber) {
+        String Query = "select exists(select * from User where UserPhoneNumber = ?);";
+        String Params = phoneNumber;
+        return this.jdbcTemplate.queryForObject(Query,
+                int.class,
+                Params);
+    }
+
+    /**
+     * 회원가입 API
+     * [POST] /users/sign-in
+     * @return BaseResponse<String>
+     */
+    public int createUser(PostUserReq postUserReq) {
+        String Query = "insert into User (userPhoneNumber, userName, userProfileImageUrl) values (?,?,?);";
+        Object[] Params = new Object[]{postUserReq.getPhoneNumber(), postUserReq.getUserName(), postUserReq.getProfileImg()};
+        return this.jdbcTemplate.update(Query, Params);
+    }
+
+    // 전화번호 가져오기
+    public User getPhoneNumber(PostSignInReq postSignInReq) {
+        // User에 담길 정보들
+        String Query = "select User.userId, User.userName, User.userProfileImageUrl as profileImg from User where userPhoneNumber = ?;";
+        String Params = postSignInReq.getPhoneNumber();
+        return this.jdbcTemplate.queryForObject(Query,
+                (rs,rowNum)-> new User(
+                        rs.getInt("userId"),
+                        rs.getString("userName"),
+                        rs.getString("profileImg")
+                ),
+                Params
+        );
+
+
+
+
+    }
+
+    public char checkExistsUser(String encryptPhone) {
+        String Query = "select status from User where UserPhoneNumber = ?;";
+        String Params = encryptPhone;
+        return this.jdbcTemplate.queryForObject(Query,
+                char.class,
+                Params);
+    }
 }

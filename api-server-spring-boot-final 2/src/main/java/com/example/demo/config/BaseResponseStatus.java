@@ -26,12 +26,16 @@ public enum BaseResponseStatus {
 
     // users
     USERS_EMPTY_USER_ID(false, 2010, "유저 아이디 값을 확인해주세요."),
+    FAIL_MESSAGE_AUTH(false, 2011, "휴대폰 인증에 실패하였습니다."),
 
     // [POST] /users
     POST_USERS_EMPTY_EMAIL(false, 2015, "이메일을 입력해주세요."),
     POST_USERS_INVALID_EMAIL(false, 2016, "이메일 형식을 확인해주세요."),
     POST_USERS_EXISTS_EMAIL(false,2017,"중복된 이메일입니다."),
     EMPTY_KEYWORD(false, 2018, "키워드를 입력해주세요."),
+    POST_USERS_EMPTY_PHONENUMBER(false, 2019, "휴대폰 번호를 입력해주세요."),
+    POST_USERS_INVALID_PHONEMUNBER(false, 2020, "휴대폰 번호 형식을 확인해주세요."),
+    POST_USERS_NOT_EXISTS_PHONENUMBER(false, 2022, "회원가입을 먼저 진행해주세요."),
 
     // [POST] /towns
     POST_TOWNS_EMPTY_CONTENT(false, 2100, "내용을 입력해주세요."),
@@ -75,73 +79,73 @@ public enum BaseResponseStatus {
     RESPONSE_ERROR(false, 3000, "값을 불러오는데 실패하였습니다."),
 
     // [POST] /users
-    DUPLICATED_EMAIL(false, 3013, "중복된 이메일입니다."),
-    FAILED_TO_LOGIN(false,3014,"없는 아이디거나 비밀번호가 틀렸습니다."),
-    DUPLICATED_KEYWORDS(false, 3015, "중복된 키워드가 존재합니다."),
+    DUPLICATED_EMAIL(false, 3010, "중복된 이메일입니다."),
+    FAILED_TO_LOGIN(false,3011,"없는 아이디거나 비밀번호가 틀렸습니다."),
+    DUPLICATED_KEYWORDS(false, 3012, "중복된 키워드가 존재합니다."),
+    POST_USERS_EXISTS_PHONE_NUMBER(false, 3013, "이미 가입한 적이 있거나 탈퇴한 번호입니다."),
+    POST_USERS_SECESSION(false, 3014, "탈퇴한 계정입니다."),
+    /**
+     * 4000
+     */
 
 
     /**
-     * 4000 : Database, Server 오류
+     * 5000 : Database, Server 오류
      */
-    DATABASE_ERROR(false, 4000, "데이터베이스 연결에 실패하였습니다."),
-    SERVER_ERROR(false, 4001, "서버와의 연결에 실패하였습니다."),
+    DATABASE_ERROR(false, 5000, "데이터베이스 연결에 실패하였습니다."),
+    SERVER_ERROR(false, 5001, "서버와의 연결에 실패하였습니다."),
 
-    //[PATCH] /users/{userIdx}
-    MODIFY_FAIL_USERNAME(false,4014,"유저네임 수정 실패"),
+    //users
+    MODIFY_FAIL_USERNAME(false,5100,"유저네임 수정 실패"),
+    PASSWORD_ENCRYPTION_ERROR(false, 5101, "비밀번호 암호화에 실패하였습니다."),
+    PASSWORD_DECRYPTION_ERROR(false, 5102, "비밀번호 복호화에 실패하였습니다."),
+    PHONENUMBER_DECRYPTION_ERROR(false, 5103, "전화번호 복호화에 실패했습니다."),
+    PATCH_FAIL_MYINFO(false, 5104, "사용자 정보를 바꾸는 데 실패했습니다."),
+    CREATE_FAIL_KEYWORDS(false, 5105, "키워드 설정에 실패했습니다."),
+    DELETE_FAIL_KEYWORDS(false, 5106, "키워드 삭제에 실패했습니다."),
 
-    PASSWORD_ENCRYPTION_ERROR(false, 4011, "비밀번호 암호화에 실패하였습니다."),
-    PASSWORD_DECRYPTION_ERROR(false, 4012, "비밀번호 복호화에 실패하였습니다."),
 
-    // [POST] /towns
-    CREATE_FAIL_TOWN_POST_LIKED(false, 4100, "동네 생활 글 좋아요 생성에 실패하였습니다."),
-    CREATE_FAIL_TOWN_POST_COM_LIKED(false, 4101, "동네 생활 댓글 좋아요 생성에 실패하였습니다."),
-
-    // [PATCH] /towns
-    MODIFY_FAIL_TOWN_POST(false, 4110, "동네 생활 글 수정에 실패 했습니다."),
-    DELETE_FAIL_TOWN_POST(false, 4111, "동네 생활 글 삭제에 실패했습니다."),
-    MODIFY_FAIL_TOWN_COM(false, 4112, "동네 생활 댓글 수정에 실패했습니다."),
-    DELETE_FAIL_TOWN_COM(false, 4113, "동네 생활 댓글 삭제에 실패했습니다."),
-    MODIFY_FAIL_TOWN_POST_LIKED(false, 4114, "동네 생활 글 좋아요 변경에 실패하였습니다."),
-    MODIFY_FAIL_TOWN_POST_COM_LIKED(false, 4115, "동네 생활 댓글 좋아요 변경에 실패하였습니다."),
-
-    // [POST] /aourd
-    POST_FAIL_AROUND_CHATLIST(false, 4200, "내 근처 글 채팅 방 생성 실패"),
-    POST_FAIL_AROUND_CHAT(false, 4201, "내 근처 글 채팅 전송 실패"),
-
-    // [GET] /around
-    FIND_FAIL_AROUND_POST_USER(false, 4210, "내 근처 글을 작성한 사용자가 없습니다"),
+    ///towns
+    CREATE_FAIL_TOWN_POST_LIKED(false, 5200, "동네 생활 글 좋아요 생성에 실패하였습니다."),
+    CREATE_FAIL_TOWN_POST_COM_LIKED(false, 5201, "동네 생활 댓글 좋아요 생성에 실패하였습니다."),
+    POST_FAIL_SIGNUP(false, 5202, "회원가입에 실패하였습니다."),
+    MODIFY_FAIL_TOWN_POST(false, 5204, "동네 생활 글 수정에 실패 했습니다."),
+    DELETE_FAIL_TOWN_POST(false, 5205, "동네 생활 글 삭제에 실패했습니다."),
+    MODIFY_FAIL_TOWN_COM(false, 5206, "동네 생활 댓글 수정에 실패했습니다."),
+    DELETE_FAIL_TOWN_COM(false, 5207, "동네 생활 댓글 삭제에 실패했습니다."),
+    MODIFY_FAIL_TOWN_POST_LIKED(false, 5208, "동네 생활 글 좋아요 변경에 실패하였습니다."),
+    MODIFY_FAIL_TOWN_POST_COM_LIKED(false, 5209, "동네 생활 댓글 좋아요 변경에 실패하였습니다."),
 
 
     // [PUT] /products
-    MODIFY_FAIL_PRODUCT_ATTENTION(false, 4300, "중고거래 관심 등록 실패"),
-    MODIFY_FAIL_PRODUCT_POST(false, 4301, "중고 거래 글 수정 실패"),
-
-    // [DELETE] /products
-    DELETE_FAIL_PRODUCT_POST(false, 4302, "중고거래 글 삭제를 실패했습니다."),
+    MODIFY_FAIL_PRODUCT_ATTENTION(false, 5300, "중고거래 관심 등록을 실패했습니다."),
+    MODIFY_FAIL_PRODUCT_POST(false, 5301, "중고 거래 글 수정에 실패했습니다."),
+    DELETE_FAIL_PRODUCT_POST(false, 5302, "중고거래 글 삭제를 실패했습니다."),
 
     // [GET] /deals
-    FIND_FAIL_DEAL_USER(false, 4400, "중고 거래 기록이 없습니다."),
+    FIND_FAIL_DEAL_USER(false, 5400, "중고 거래 기록이 없습니다."),
+    DELETE_FAIL_DEAL(false, 5401, "중고 거래 기록 삭제를 실패했습니다."),
+    CREATE_FAIL_DEAL(false, 5402, "중고 거래 생성을 실패했습니다."),
 
-    // [PATCH]
-    DELETE_FAIL_DEAL(false, 4410, "중고 거래 기록 삭제 실패"),
-    //[POST]
-    CREATE_FAIL_DEAL(false, 4411, "중고 거래 생성 실패"),
-
-    // [PUT] / users
-    CREATE_FAIL_KEYWORDS(false, 4500, "키워드 설정에 실패했습니다."),
-
-    // [PATCH] /users
-    PATCH_FAIL_MYINFO(false, 4510, "사용자 정보를 바꾸는 데 실패했습니다."),
-
-    //[DELETE] /users
-    DELETE_FAIL_KEYWORDS(false, 4520, "키워드 삭제에 실패했습니다."),
 
     // [patch] /stores
-    FAIL_TO_STORE_MODIFY(false, 4530, "가게 정보를 수정하는 데 실패했습니다."),
-    FAIL_TO_STORE_DELETE(false, 4531, "가게 정보를 삭제하는 데 실패했습니다."),
-    FAIL_TO_NEWS_MODIFY(false, 4532, "가게 소식을 수정하는 데 실패했습니다.");
+    FAIL_TO_STORE_MODIFY(false, 5500, "가게 정보를 수정하는 데 실패했습니다."),
+    FAIL_TO_STORE_DELETE(false, 5501, "가게 정보를 삭제하는 데 실패했습니다."),
+    FAIL_TO_NEWS_MODIFY(false, 5502, "가게 소식을 수정하는 데 실패했습니다."),
 
-    // 5000 : 필요시 만들어서 쓰세요
+    // [POST] /aourd
+    POST_FAIL_AROUND_CHATLIST(false, 5601, "내 근처 글 채팅 방 생성 실패"),
+    POST_FAIL_AROUND_CHAT(false, 5602, "내 근처 글 채팅 전송 실패"),
+    FIND_FAIL_AROUND_POST_USER(false, 5603, "내 근처 글을 작성한 사용자가 없습니다");
+
+
+
+
+
+
+
+
+
     // 6000 : 필요시 만들어서 쓰세요
 
 

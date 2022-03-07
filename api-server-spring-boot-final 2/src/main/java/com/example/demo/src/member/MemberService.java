@@ -21,7 +21,7 @@ public class MemberService {
     private final MemberDao memberDao;
     private final MemberProvider memberProvider;
     private final JwtService jwtService;
-
+    private final int FAIL = 0;
 
     @Autowired
     public MemberService(MemberDao memberDao, MemberProvider memberProvider, JwtService jwtService) {

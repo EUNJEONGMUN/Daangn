@@ -5,7 +5,6 @@ import com.example.demo.src.around.model.PostAroundChatReq;
 import com.example.demo.src.around.model.PostAroundChatRes;
 import com.example.demo.src.around.model.PostAroundNewReq;
 import com.example.demo.src.around.model.PostAroundNewRes;
-import com.example.demo.src.town.model.PostTownNewRes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

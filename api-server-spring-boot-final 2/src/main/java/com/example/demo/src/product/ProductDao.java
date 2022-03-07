@@ -1,6 +1,7 @@
 package com.example.demo.src.product;
 
-import com.example.demo.src.product.model.*;
+import com.example.demo.src.product.model.Req.*;
+import com.example.demo.src.product.model.Res.GetProductRes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;

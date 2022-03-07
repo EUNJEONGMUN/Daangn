@@ -1,6 +1,8 @@
 package com.example.demo.src.town;
 
-import com.example.demo.src.town.model.*;
+import com.example.demo.src.town.model.Req.*;
+import com.example.demo.src.town.model.Res.GetTownComRes;
+import com.example.demo.src.town.model.Res.GetTownRes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;

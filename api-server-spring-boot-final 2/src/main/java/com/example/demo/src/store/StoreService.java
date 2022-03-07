@@ -1,10 +1,10 @@
 package com.example.demo.src.store;
 
 import com.example.demo.config.BaseException;
-import com.example.demo.src.store.model.PostNewsReq;
-import com.example.demo.src.store.model.PostNewsRes;
-import com.example.demo.src.store.model.PostStoreReq;
-import com.example.demo.src.store.model.PostStoreRes;
+import com.example.demo.src.store.model.Req.PostNewsReq;
+import com.example.demo.src.store.model.Res.PostNewsRes;
+import com.example.demo.src.store.model.Req.PostStoreReq;
+import com.example.demo.src.store.model.Res.PostStoreRes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

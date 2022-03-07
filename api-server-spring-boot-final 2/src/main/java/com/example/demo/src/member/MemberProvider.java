@@ -72,7 +72,7 @@ public class MemberProvider {
         User user = memberDao.getPwd(postLoginReq); // DB로부터 암호화되어있는 PW를 가져옴
         String encryptPwd;
         try {
-            encryptPwd=new SHA256().encrypt(postLoginReq.getPassword()); // 가져온 암호화를 복호화 함
+            encryptPwd=new SHA256().encrypt(postLoginReq.getPassword());
         } catch (Exception ignored) {
             throw new BaseException(PASSWORD_DECRYPTION_ERROR);
         }

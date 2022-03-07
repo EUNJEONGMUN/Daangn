@@ -1,13 +1,12 @@
 package com.example.demo.src.product;
 
 import com.example.demo.config.BaseException;
-import com.example.demo.src.product.model.GetProductRes;
+import com.example.demo.src.product.model.Res.GetProductRes;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.yaml.snakeyaml.tokens.ScalarToken;
 
 import java.util.List;
 

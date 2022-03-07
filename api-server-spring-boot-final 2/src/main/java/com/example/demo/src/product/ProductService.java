@@ -1,7 +1,8 @@
 package com.example.demo.src.product;
 
 import com.example.demo.config.BaseException;
-import com.example.demo.src.product.model.*;
+import com.example.demo.src.product.model.Req.*;
+import com.example.demo.src.product.model.Res.PostProductNewRes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

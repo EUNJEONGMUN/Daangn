@@ -1,7 +1,7 @@
 package com.example.demo.src.store;
 
-import com.example.demo.src.store.model.PostNewsReq;
-import com.example.demo.src.store.model.PostStoreReq;
+import com.example.demo.src.store.model.Req.PostNewsReq;
+import com.example.demo.src.store.model.Req.PostStoreReq;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;

@@ -1,7 +1,8 @@
 package com.example.demo.src.user;
 
 import com.example.demo.config.BaseException;
-import com.example.demo.src.user.model.*;
+import com.example.demo.src.user.model.Req.PostSignInReq;
+import com.example.demo.src.user.model.Res.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ public class UserProvider {
     }
 
     /**
-     * 유저 개인 정보 조회 API
+     * 프로필 조회 API
      * [GET] /users/:userId
      * @return BaseResponse<GetUserInfoRes>
      */
@@ -109,5 +110,23 @@ public class UserProvider {
             throw new BaseException(DATABASE_ERROR);
         }
 
+    }
+
+    // 휴대폰 번호 중복체크
+    public int checkPhoneNumber(String phoneNumber)throws BaseException {
+        try {
+            return userDao.checkPhoneNumber(phoneNumber);
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    // 계정 상태 확인
+    public char checkExistsUser(String encryptPhone) throws BaseException {
+        try {
+            return userDao.checkExistsUser(encryptPhone);
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
     }
 }

@@ -1,7 +1,9 @@
 package com.example.demo.src.town;
 
 import com.example.demo.config.BaseException;
-import com.example.demo.src.town.model.*;
+import com.example.demo.src.town.model.Req.*;
+import com.example.demo.src.town.model.Res.PostTownComRes;
+import com.example.demo.src.town.model.Res.PostTownNewRes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

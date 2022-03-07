@@ -1,8 +1,8 @@
 package com.example.demo.src.town;
 
 import com.example.demo.config.BaseException;
-import com.example.demo.src.town.model.GetTownComRes;
-import com.example.demo.src.town.model.GetTownRes;
+import com.example.demo.src.town.model.Res.GetTownComRes;
+import com.example.demo.src.town.model.Res.GetTownRes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 
-import static com.example.demo.config.BaseResponseStatus.CATEGORY_RANGE_ERROR;
 import static com.example.demo.config.BaseResponseStatus.DATABASE_ERROR;
 
 @Service
