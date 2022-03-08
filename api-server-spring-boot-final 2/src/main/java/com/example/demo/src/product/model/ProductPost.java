@@ -10,12 +10,14 @@ import lombok.Setter;
 public class ProductPost {
     // 수정 가능한 항목들
     private String title;
-    private int productPostCategoryId;
-    private int productPostLocation;
+    private int categoryId;
+    private int jusoCodeId;
     private String isProposal;
     private String content;
     private int price;
-    private String state;
+    private String status;
+    private String isHidden;
+    private String isExistence;
 
     public ProductPost(){
 

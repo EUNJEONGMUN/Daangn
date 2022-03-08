@@ -11,4 +11,5 @@ import lombok.Setter;
 @NoArgsConstructor
 public class TownPostCom {
     private String content;
+    private String status;
 }

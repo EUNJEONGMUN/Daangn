@@ -1,4 +1,4 @@
-package com.example.demo.src.town.model;
+package com.example.demo.src.product.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,7 +8,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-@NoArgsConstructor
-public class TownPostComDel {
-    private String status;
+public class GetProductChatCount {
+    private int chatCount;
 }

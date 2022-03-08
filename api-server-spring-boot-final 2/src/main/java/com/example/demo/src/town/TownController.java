@@ -8,6 +8,7 @@ import com.example.demo.src.town.model.Res.GetTownComRes;
 import com.example.demo.src.town.model.Res.GetTownRes;
 import com.example.demo.src.town.model.Res.PostTownComRes;
 import com.example.demo.src.town.model.Res.PostTownNewRes;
+import com.example.demo.utils.JwtService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,18 +27,21 @@ public class TownController {
     private final TownProvider townProvider;
     @Autowired
     private final TownService townService;
+    @Autowired
+    private final JwtService jwtService;
 
 
-    public TownController(TownProvider townProvider, TownService townService) {
+    public TownController(TownProvider townProvider, TownService townService, JwtService jwtService) {
         this.townProvider = townProvider;
         this.townService = townService;
+        this.jwtService = jwtService;
     }
 
     /**
      * 동네 생활 전체 글 조회 API
      * [GET] /towns/home
      *
-     * @return BaseResponse<List < GetTownRes>>
+     * @return BaseResponse<List <GetTownRes>>
      */
     @ResponseBody
     @GetMapping("/home") // (GET) 127.0.0.1:9000/towns/home
@@ -55,12 +59,16 @@ public class TownController {
      * 동네 생활 카테고리별 조회 API
      * [GET] /towns/home/:categoryId
      *
-     * @return BaseResponse<List < GetTownRes>>
+     * @return BaseResponse<List<GetTownRes>>
      */
     @ResponseBody
     @GetMapping("/home/{categoryId}") // (GET) 127.0.0.1:9000/towns/home/:categoryId
     public BaseResponse<List<GetTownRes>> getTown(@PathVariable("categoryId") int categoryId) {
         try {
+            if (townProvider.checkTopCategory(categoryId)!=2){
+                return new BaseResponse<>(CATEGORY_RANGE_ERROR);
+            }
+
             List<GetTownRes> getTownRes = townProvider.getTown(categoryId);
             return new BaseResponse<>(getTownRes);
         } catch (BaseException exception) {
@@ -106,7 +114,7 @@ public class TownController {
     public BaseResponse<String> modifyTownPost(@PathVariable int postId, @PathVariable int userId, @RequestBody Town town) {
         try {
             PatchTownPostReq patchTownPostReq = new PatchTownPostReq(postId, userId, town.getTownPostCategoryId(),
-                    town.getContent(), town.getTownPostLocation());
+                    town.getContent(), town.getTownPostLocation(), town.getStatus());
             townService.modifyTownPost(patchTownPostReq);
             String result = "";
             return new BaseResponse<>(result);
@@ -115,23 +123,23 @@ public class TownController {
         }
     }
 
-    /**
-     * 동네 생활 글 삭제 API
-     * [PATCH] /towns/:postId/:userId/deletion
-     * @return BaseResponse<String>
-     */
-    @ResponseBody
-    @PatchMapping("/{postId}/{userId}/deletion")
-    public BaseResponse<String> deleteTownPost(@PathVariable int postId, @PathVariable int userId, @RequestBody PatchTownPostDel patchTownPostDel) {
-        try {
-            PatchTownPostDelReq patchTownPostDelReq = new PatchTownPostDelReq(postId, userId, patchTownPostDel.getStatus());
-            townService.deleteTownPost(patchTownPostDelReq);
-            String result = "";
-            return new BaseResponse<>(result);
-        } catch (BaseException exception) {
-            return new BaseResponse<>((exception.getStatus()));
-        }
-    }
+//    /**
+//     * 동네 생활 글 삭제 API
+//     * [PATCH] /towns/:postId/:userId/deletion
+//     * @return BaseResponse<String>
+//     */
+//    @ResponseBody
+//    @PatchMapping("/{postId}/{userId}/deletion")
+//    public BaseResponse<String> deleteTownPost(@PathVariable int postId, @PathVariable int userId, @RequestBody PatchTownPostDel patchTownPostDel) {
+//        try {
+//            PatchTownPostDelReq patchTownPostDelReq = new PatchTownPostDelReq(postId, userId, patchTownPostDel.getStatus());
+//            townService.deleteTownPost(patchTownPostDelReq);
+//            String result = "";
+//            return new BaseResponse<>(result);
+//        } catch (BaseException exception) {
+//            return new BaseResponse<>((exception.getStatus()));
+//        }
+//    }
 
     /**
      * 동네 생활 댓글 작성 API
@@ -175,7 +183,7 @@ public class TownController {
     public BaseResponse<String> modifyTownCom(@PathVariable int postId, @PathVariable int comId, @PathVariable int userId,
                                               @RequestBody TownPostCom townPostCom) {
         try {
-            PatchTownPostComReq patchTownPostComReq = new PatchTownPostComReq(postId, comId, userId, townPostCom.getContent());
+            PatchTownPostComReq patchTownPostComReq = new PatchTownPostComReq(postId, comId, userId, townPostCom.getContent(), townPostCom.getStatus());
             townService.modifyTownCom(patchTownPostComReq);
             String result = "";
             return new BaseResponse<>(result);
@@ -183,26 +191,26 @@ public class TownController {
             return new BaseResponse<>((exception.getStatus()));
         }
     }
-
-    /**
-     * 동네 생활 댓글 삭제 API
-     * [PATCH] /towns/:postId/comment/:comId/:userId/deletion
-     * @return BaseResponse<String>
-     */
-    @ResponseBody
-    @PatchMapping("/{postId}/comment/{comId}/{userId}/deletion")
-    public BaseResponse<String> deleteTownCom(@PathVariable int postId, @PathVariable int comId, @PathVariable int userId,
-                                              @RequestBody TownPostComDel townPostComDel) {
-        try {
-            PatchTownComDelReq patchTownComDelReq = new PatchTownComDelReq(postId, comId, userId, townPostComDel.getStatus());
-            townService.deleteTownCom(patchTownComDelReq);
-            String result = "";
-            return new BaseResponse<>(result);
-        } catch (BaseException exception) {
-            return new BaseResponse<>((exception.getStatus()));
-        }
-
-    }
+//
+//    /**
+//     * 동네 생활 댓글 삭제 API
+//     * [PATCH] /towns/:postId/comment/:comId/:userId/deletion
+//     * @return BaseResponse<String>
+//     */
+//    @ResponseBody
+//    @PatchMapping("/{postId}/comment/{comId}/{userId}/deletion")
+//    public BaseResponse<String> deleteTownCom(@PathVariable int postId, @PathVariable int comId, @PathVariable int userId,
+//                                              @RequestBody TownPostComDel townPostComDel) {
+//        try {
+//            PatchTownComDelReq patchTownComDelReq = new PatchTownComDelReq(postId, comId, userId, townPostComDel.getStatus());
+//            townService.deleteTownCom(patchTownComDelReq);
+//            String result = "";
+//            return new BaseResponse<>(result);
+//        } catch (BaseException exception) {
+//            return new BaseResponse<>((exception.getStatus()));
+//        }
+//
+//    }
 
     /**
      * 동네 생활 글 좋아요 설정 API
@@ -308,6 +316,13 @@ public class TownController {
     @GetMapping("/user-post/{userId}")
     public BaseResponse<List<GetTownRes>> getUserTownPosts(@PathVariable int userId) {
         try {
+            //jwt에서 idx 추출.
+            int userIdxByJwt = jwtService.getUserIdx();
+            //userIdx와 접근한 유저가 같은지 확인
+            if(userId != userIdxByJwt){
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+
             List<GetTownRes> getTownsRes = townProvider.getUserTownPosts(userId);
 
             return new BaseResponse<>(getTownsRes);
@@ -325,6 +340,14 @@ public class TownController {
     @GetMapping("/user-comment/{userId}")
     public BaseResponse<List<GetTownComRes>> getUserTownComs(@PathVariable int userId) {
         try {
+
+            //jwt에서 idx 추출.
+            int userIdxByJwt = jwtService.getUserIdx();
+            //userIdx와 접근한 유저가 같은지 확인
+            if(userId != userIdxByJwt){
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+
             List<GetTownComRes> getTownComRes = townProvider.getUserTownComs(userId);
 
             return new BaseResponse<>(getTownComRes);

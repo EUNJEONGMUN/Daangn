@@ -1,5 +1,4 @@
 package com.example.demo.src.user;
-
 import com.example.demo.config.BaseException;
 
 import com.example.demo.src.user.model.Req.PatchMyInfoReq;
@@ -11,6 +10,7 @@ import com.example.demo.src.user.model.Res.PostUserKeywordsRes;
 import com.example.demo.src.user.model.User;
 import com.example.demo.utils.JwtService;
 import com.example.demo.utils.SHA256;
+
 import net.nurigo.java_sdk.api.Message;
 import net.nurigo.java_sdk.exceptions.CoolsmsException;
 import org.json.simple.JSONObject;
@@ -32,6 +32,7 @@ public class UserService {
     private final UserDao userDao;
     private final UserProvider userProvider;
     private final JwtService jwtService;
+    private final int FAIL = 0;
 
     @Autowired
     public UserService(UserDao userDao, UserProvider userProvider, JwtService jwtService) {
@@ -86,7 +87,7 @@ public class UserService {
 
         try {
             int result = userDao.createUser(postUserReq);
-            if (result == 0){
+            if (result == FAIL){
                 throw new BaseException(POST_FAIL_SIGNUP);
             }
         } catch (Exception exception) {
@@ -143,7 +144,7 @@ public class UserService {
     public void modifyMyInfo(PatchMyInfoReq patchMyInfoReq) throws BaseException {
         try{
             int result = userDao.modifyMyInfo(patchMyInfoReq);
-            if (result == 0){
+            if (result == FAIL){
                 throw new BaseException(PATCH_FAIL_MYINFO);
             }
         } catch (Exception exception) {
@@ -181,7 +182,7 @@ public class UserService {
     public void deleteKeywords(int userId, int keywordsId) throws BaseException {
         try {
             int result = userDao.deleteKeywords(userId, keywordsId);
-            if (result == 0){
+            if (result == FAIL){
                 throw new BaseException(DELETE_FAIL_KEYWORDS);
             }
         } catch (Exception exception) {

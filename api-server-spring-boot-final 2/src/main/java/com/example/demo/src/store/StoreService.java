@@ -19,6 +19,7 @@ public class StoreService {
 
     private final StoreDao storeDao;
     private final StoreProvider storeProvider;
+    private final int FAIL = 0;
 
     @Autowired
     private StoreService(StoreDao storeDao, StoreProvider storeProvider) {
@@ -114,7 +115,7 @@ public class StoreService {
 
         try {
             int result = storeDao.modifyNews(storeNewsId, postNewsReq);
-            if (result==0){
+            if (result==FAIL){
                 throw new BaseException(FAIL_TO_NEWS_MODIFY);
             }
         } catch (Exception exception) {

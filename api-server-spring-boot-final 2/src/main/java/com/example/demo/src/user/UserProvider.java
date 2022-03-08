@@ -38,7 +38,11 @@ public class UserProvider {
 
     }
 
-
+    /**
+     * 유저 배지 조회 API
+     * [GET] /users/badge
+     * @return BaseResponse<List<GetUserBadgeRes>>
+     */
     public List<GetUserBadgeRes> getUserBadges(int userId) throws BaseException  {
         try{
             List<GetUserBadgeRes> getUserBadgeRes = userDao.getUserBadges(userId);
@@ -48,6 +52,11 @@ public class UserProvider {
         }
     }
 
+    /**
+     * 유저 단골 가게 조회 API
+     * [GET] /users/:userIdx/likestores
+     * @return BaseResponse<List<GetUserLikeStoreRes>>
+     */
     public List<GetUserLikeStoreRes> getUserLikeStores(int userId) throws BaseException {
         try{
             List<GetUserLikeStoreRes> getUserLikeStoreRes = userDao.getUserLikeStores(userId);

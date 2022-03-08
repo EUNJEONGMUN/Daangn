@@ -1,4 +1,4 @@
-package com.example.demo.src.town.model.Req;
+package com.example.demo.src.notUse;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -9,6 +9,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductPostDel {
-    private String isExistence;
+public class PostProductImg {
+    private String imgUrl;
 }

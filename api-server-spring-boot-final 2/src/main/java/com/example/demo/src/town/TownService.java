@@ -17,6 +17,7 @@ public class TownService {
 
     private final TownDao townDao;
     private final TownProvider townProvider;
+    private final int FAIL = 0;
 
     @Autowired
     private TownService(TownDao townDao, TownProvider townProvider) {
@@ -51,7 +52,7 @@ public class TownService {
     public void modifyTownPost(PatchTownPostReq patchTownPostReq) throws BaseException {
         try{
             int result = townDao.modifyTownPost(patchTownPostReq);
-            if (result == 0){
+            if (result == FAIL){
                 throw new BaseException(MODIFY_FAIL_TOWN_POST);
             }
         } catch(Exception exception){
@@ -60,21 +61,21 @@ public class TownService {
     }
 
 
-    /**
-     * 동네 생활 글 삭제 API
-     * [PATCH] /towns/:postId/:userId/deletion
-     * @return BaseResponse<String>
-     */
-    public void deleteTownPost(PatchTownPostDelReq patchTownPostDelReq) throws BaseException {
-        try {
-            int result = townDao.deleteTownPost(patchTownPostDelReq);
-            if (result == 0) {
-                throw new BaseException(DELETE_FAIL_TOWN_POST);
-            }
-        } catch(Exception exception){
-            throw new BaseException(DATABASE_ERROR);
-        }
-    }
+//    /**
+//     * 동네 생활 글 삭제 API
+//     * [PATCH] /towns/:postId/:userId/deletion
+//     * @return BaseResponse<String>
+//     */
+//    public void deleteTownPost(PatchTownPostDelReq patchTownPostDelReq) throws BaseException {
+//        try {
+//            int result = townDao.deleteTownPost(patchTownPostDelReq);
+//            if (result == FAIL) {
+//                throw new BaseException(DELETE_FAIL_TOWN_POST);
+//            }
+//        } catch(Exception exception){
+//            throw new BaseException(DATABASE_ERROR);
+//        }
+//    }
 
     /**
      * 동네 생활 댓글 작성 API
@@ -114,7 +115,7 @@ public class TownService {
     public void modifyTownCom(PatchTownPostComReq patchTownPostComReq) throws BaseException {
         try{
             int result = townDao.modifyTownCom(patchTownPostComReq);
-            if (result == 0){
+            if (result == FAIL){
                 throw new BaseException(MODIFY_FAIL_TOWN_COM);
             }
         } catch (Exception exception) {
@@ -122,23 +123,23 @@ public class TownService {
         }
     }
 
-
-    /**
-     * 동네 생활 댓글 삭제 API
-     * [PATCH] /towns/:postId/comment/:comId/:userId/deletion
-     * @return BaseResponse<String>
-     */
-    public void deleteTownCom(PatchTownComDelReq patchTownComDelReq) throws BaseException {
-        try {
-            int result = townDao.deleteTownCom(patchTownComDelReq);
-            if (result == 0){
-                throw new BaseException(DELETE_FAIL_TOWN_COM);
-            }
-        } catch (Exception exception) {
-            throw new BaseException(DATABASE_ERROR);
-        }
-
-    }
+//
+//    /**
+//     * 동네 생활 댓글 삭제 API
+//     * [PATCH] /towns/:postId/comment/:comId/:userId/deletion
+//     * @return BaseResponse<String>
+//     */
+//    public void deleteTownCom(PatchTownComDelReq patchTownComDelReq) throws BaseException {
+//        try {
+//            int result = townDao.deleteTownCom(patchTownComDelReq);
+//            if (result == FAIL){
+//                throw new BaseException(DELETE_FAIL_TOWN_COM);
+//            }
+//        } catch (Exception exception) {
+//            throw new BaseException(DATABASE_ERROR);
+//        }
+//
+//    }
 
 
     /**
@@ -149,7 +150,7 @@ public class TownService {
     public void createTownPostLiked(int postId, int userId, PostTownLikedReq postTownLikedReq) throws BaseException {
         try {
             int result = townDao.createTownPostLiked(postId, userId, postTownLikedReq);
-            if (result == 0){
+            if (result == FAIL){
                 throw new BaseException(CREATE_FAIL_TOWN_POST_LIKED);
             }
         } catch (Exception exception) {
@@ -166,7 +167,7 @@ public class TownService {
     public void modifyTownPostLiked(PatchTownLikedReq patchTownLikedReq) throws BaseException {
         try {
             int result = townDao.modifyTownPostLiked(patchTownLikedReq);
-            if (result == 0) {
+            if (result == FAIL) {
                 throw new BaseException(MODIFY_FAIL_TOWN_POST_LIKED);
             }
         } catch (Exception exception) {
@@ -184,7 +185,7 @@ public class TownService {
                                    PostTownComLikedReq postTownComLikedReq) throws BaseException {
         try {
             int result = townDao.createTownComLiked(postId, comId, userId, postTownComLikedReq);
-            if (result == 0){
+            if (result == FAIL){
                 throw new BaseException(CREATE_FAIL_TOWN_POST_COM_LIKED);
             }
         } catch (Exception exception) {
@@ -201,7 +202,7 @@ public class TownService {
     public void modifyTownComLiked(PatchTownComLikedReq patchTownComLikedReq) throws BaseException {
         try{
             int result = townDao.modifyTownComLiked(patchTownComLikedReq);
-            if (result == 0) {
+            if (result == FAIL) {
                 throw new BaseException(MODIFY_FAIL_TOWN_POST_COM_LIKED);
             }
         } catch (Exception exception) {

@@ -1,5 +1,6 @@
 package com.example.demo.src.product;
 
+import com.example.demo.src.product.model.*;
 import com.example.demo.src.product.model.Req.*;
 import com.example.demo.src.product.model.Res.GetProductRes;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,10 @@ import java.util.List;
 public class ProductDao {
 
     private JdbcTemplate jdbcTemplate;
+    private GetProductImg getProductImg;
+    private GetProductInfo getProductInfo;
+    private GetProductChatCount getProductChatCount;
+    private GetProductAttCount getProductAttCount;
 
     @Autowired
     public void setDataSource(DataSource dataSource){
@@ -82,6 +87,109 @@ public class ProductDao {
                 );
 
     }
+
+//    public List<GetProductPostRes> getProducts() {
+//        // 대표 이미지
+//        String Query1 = "select imageSelect.firstImg\n" +
+//                "from ProductPost P\n" +
+//                "    left join(\n" +
+//                "            select Img.productPostId, min(Img.productImageId), Img.imageUrl as firstImg\n" +
+//                "            from ProductImage Img\n" +
+//                "            group by Img.productPostId\n" +
+//                "    ) imageSelect on imageSelect.productPostId = P.productPostId\n" +
+//                "where P.isHidden = 'N' and P.isExistence = 'Y'\n" +
+//                "order by P.createdAt DESC;";
+//
+//        // 글 정보
+//        String Query2 = "select P.productPostId, P.title, JusoCode.jusoName, P.price,\n" +
+//                "       case\n" +
+//                "           when TIMESTAMPDIFF(SECOND, P.createdAt, current_timestamp())<60\n" +
+//                "            then concat(TIMESTAMPDIFF(SECOND, P.createdAt, current_timestamp()),'초 전')\n" +
+//                "           when TIMESTAMPDIFF(MINUTE, P.createdAt, current_timestamp())<60\n" +
+//                "            then concat(TIMESTAMPDIFF(MINUTE, P.createdAt, current_timestamp()),'분 전')\n" +
+//                "            when TIMESTAMPDIFF(HOUR, P.createdAt, current_timestamp())<24\n" +
+//                "            then concat(TIMESTAMPDIFF(HOUR, P.createdAt, current_timestamp()), '시간 전')\n" +
+//                "            else concat(TIMESTAMPDIFF(DAY, P.createdAt, current_timestamp()), '일 전')\n" +
+//                "        end as uploadTime,\n" +
+//                "       case\n" +
+//                "           when P.status = 'B'\n" +
+//                "               then '예약중'\n" +
+//                "            when P.status = 'C'\n" +
+//                "                then '거래완료'\n" +
+//                "            else '판매중'\n" +
+//                "                end as state\n" +
+//                "from ProductPost P\n" +
+//                "    inner join JusoCode on P.jusoCodeId = JusoCode.jusoCodeId\n" +
+//                "where P.isHidden = 'N' and P.isExistence = 'Y'\n" +
+//                "order by P.createdAt DESC;";
+//
+//        // 채팅 수
+//        String Query3 = "select count(ChatList.postId) div 2 as chatCount\n" +
+//                "from ProductPost P\n" +
+//                "    left join ProductChatList ChatList on ChatList.postId = P.productPostId\n" +
+//                "where P.isHidden = 'N' and P.isExistence = 'Y'\n" +
+//                "group by P.productPostId\n" +
+//                "order by P.createdAt DESC;\n";
+//
+//        // 관심 등록 수
+//        String Query4 = "select count(PA.postId) as attCount\n" +
+//                "from ProductPost P\n" +
+//                "    left join ProductAttention PA on PA.postId = P.productPostId\n" +
+//                "where PA.status = 'Y' and P.isHidden = 'N' and P.isExistence = 'Y'\n" +
+//                "group by P.productPostId\n" +
+//                "order by P.createdAt DESC;";
+//
+//        List<GetProductPostRes> getProductPostRes = new ArrayList <>();
+//
+//        return new GetProductPostRes(
+//                getProductImg = this.jdbcTemplate.queryForObject(Query1,
+//                        (rs, rowNum)-> new GetProductImg(
+//                                rs.getString("firstImg")
+//                        )),
+//                getProductInfo = this.jdbcTemplate.queryForObject(Query2,
+//                            (rs2,rowNum2) -> new GetProductInfo(
+//                                rs2.getInt("productPostId"),
+//                                rs2.getString("title"),
+//                                rs2.getString("jusoName"),
+//                                rs2.getInt("price"),
+//                                rs2.getString("state"),
+//                                rs2.getString("uploadTime")
+//                        )),
+//                getProductChatCount = this.jdbcTemplate.queryForObject(Query3,
+//                        (rs, rowNum)-> new GetProductChatCount(
+//                                rs.getInt("chatCount")
+//                        )),
+//                getProductAttCount = this.jdbcTemplate.queryForObject(Query4,
+//                        (rs, rowNum) -> new GetProductAttCount(
+//                                rs.getInt("attCount")
+//                        )
+//                ));
+
+//                getProductImg = this.jdbcTemplate.queryForObject(Query1,
+//                    (rs,rowNum) -> new GetProductImg(
+//                        rs.getString("firstImg")
+//                )),
+//                getProductInfo = this.jdbcTemplate.queryForObject(Query2,
+//                    (rs,rowNum) -> new GetProductInfo(
+//                        rs.getInt("productPostId"),
+//                        rs.getString("title"),
+//                        rs.getString("jusoName"),
+//                        rs.getInt("price"),
+//                        rs.getString("state"),
+//                        rs.getString("uploadTime")
+//                )),
+//                getProductChatCount = this.jdbcTemplate.queryForObject(Query3,
+//                        (rs, rowNum) -> new GetProductChatCount(
+//                            rs.getInt("chatCount")
+//                        )),
+//                getProductAttCount = this.jdbcTemplate.queryForObject(Query4,
+//                        (rs, rowNum) -> new GetProductAttCount(
+//                                rs.getInt("attCount")
+//                        ))
+//
+//                );
+
+//    }
 
     /**
      * 홈 화면 카테고리별 조회 API
@@ -161,7 +269,7 @@ public class ProductDao {
      */
     public int createProduct(PostProductNewReq postProductNewReq) {
         String createProductQuery = "insert into ProductPost (userId, title, productPostCategoryId, price,content) VALUES(?,?,?,?,?)";
-        Object[] createProductParams = new Object[]{postProductNewReq.getUserId(), postProductNewReq.getTitle(), postProductNewReq.getProductPostCategoryId(),
+        Object[] createProductParams = new Object[]{postProductNewReq.getUserId(), postProductNewReq.getTitle(), postProductNewReq.getCategoryId(),
                                                     postProductNewReq.getPrice(), postProductNewReq.getContent()};
         this.jdbcTemplate.update(createProductQuery, createProductParams);
 
@@ -169,6 +277,41 @@ public class ProductDao {
         return this.jdbcTemplate.queryForObject(lastInsertIdQuery,int.class);
 
     }
+//    public int createProduct(JSONObject jsonObj) {
+//        System.out.println("dao 진입");
+//        int userId = (int)jsonObj.get("userId");
+//        String title = (String)jsonObj.get("title");
+//        int categoryId = (int)jsonObj.get("categoryId");
+//        int jusoCodeId = (int)jsonObj.get("jusoCodeId");
+//        String isProposal = (String)jsonObj.get("isProposal");
+//        String content = (String)jsonObj.get("content");
+//        int price = (int)jsonObj.get("price");
+//        System.out.println("insert 전");
+//        String createProductQuery = "insert into ProductPost (userId, title, productPostCategoryId ,jusoCodeId, isProposal, content, price) values (?,?,?,?,?,?,?);";
+//        Object[] createProductParams = new Object[]{userId, title, categoryId, jusoCodeId,
+//                isProposal, content, price};
+//        this.jdbcTemplate.update(createProductQuery, createProductParams);
+//        System.out.println("insert 완료");
+//        int postId = this.jdbcTemplate.queryForObject("select last_insert_id()",int.class);
+//        System.out.println("postId");
+//        System.out.println(postId);
+//
+//        JSONArray jsonArr = (JSONArray) jsonObj.get("postProductImgList");
+//        for (int i=0; i<jsonArr.size(); i++){
+//            JSONObject jsonObject2 = (JSONObject) jsonArr.get(i);
+//
+//            String imgUrl = (String) jsonObject2.get("imgUrl");
+//
+//            System.out.println("여기");
+//            String Query = "insert into ProductImage (productPostId, ImageUrl) values (?,?);";
+//            Object[] Params = new Object[]{postId, imgUrl};
+//            this.jdbcTemplate.update(Query, Params);
+//            System.out.println("저기");
+//        }
+//
+//        return postId;
+//    }
+
 
     /**
      * 중고 거래 글 수정 API
@@ -178,26 +321,30 @@ public class ProductDao {
     public int modifyProduct(PatchPostReq patchPostReq) {
         String Query = "update ProductPost P " +
                 "set P.title=?, P.productPostCategoryId=?, P.jusoCodeId=?, P.isProposal=?, P.content=?," +
-                "P.price=?, P.status=? where P.userId=? and P.productPostId=?;";
+                "P.price=?, P.status=?, P.isHidden=?, P.isExistence=? where P.userId=? and P.productPostId=?;";
         Object[] Params = new Object[]{patchPostReq.getTitle(), patchPostReq.getProductPostCategoryId(),
                 patchPostReq.getProductPostLocation(), patchPostReq.getIsProposal(), patchPostReq.getContent(),
-                patchPostReq.getPrice(), patchPostReq.getState(), patchPostReq.getUserId(), patchPostReq.getPostId()};
+                patchPostReq.getPrice(), patchPostReq.getStatus(), patchPostReq.getIsHidden(),
+                patchPostReq.getIsExistence(), patchPostReq.getUserId(), patchPostReq.getPostId()};
 
         return this.jdbcTemplate.update(Query, Params);
     }
 
-    /**
-     * 중고 거래 글 삭제 API
-     * [PATCH] /products/:postId/:userId/status
-     * @return BaseResponse<String>
-     */
-    public int deleteProduct(PatchPostDelReq patchPostDelReq) {
-        String Query = "update ProductPost P " +
-                "set P.isExistence=?" +
-                "where P.userId=? and P.productPostId=?;";
-        Object[] Params = new Object[]{patchPostDelReq.getIsExistence(), patchPostDelReq.getUserId(), patchPostDelReq.getPostId()};
-        return this.jdbcTemplate.update(Query, Params);
-    }
+//    /**
+//     * 중고 거래 글 삭제 API
+//     * [PATCH] /products/:postId/:userId/status
+//     * @return BaseResponse<String>
+//     */
+//    public int deleteProduct(PatchPostDelReq patchPostDelReq) {
+//        String Query = "update ProductPost P " +
+//                "set P.isExistence=?" +
+//                "where P.userId=? and P.productPostId=?;";
+//        Object[] Params = new Object[]{patchPostDelReq.getIsExistence(), patchPostDelReq.getUserId(), patchPostDelReq.getPostId()};
+//        return this.jdbcTemplate.update(Query, Params);
+//    }
+
+
+
 
     // 중고 거래 관심 등록 확인
     public int checkAtt(int postId, int userId) {
@@ -208,16 +355,26 @@ public class ProductDao {
                 int.class,
                 checkAttParams);
     }
+    // 사용자 관심 등록 확인
+    public String checkAttStatus(int postId, int userId) {
+        String checkAttQuery = "select status from ProductAttention where postId=? and userId=?";
+        Object[] checkAttParams = new Object[]{postId, userId};
+
+        return this.jdbcTemplate.queryForObject(checkAttQuery,
+                String.class,
+                checkAttParams);
+    }
+
 
     /**
      * 중고 거래 글 관심 등록 API
      * [POST] /products/:postId/:userId/attention
      * @return BaseResponse<String>
      */
-    public int createProductAtt(int postId, int userId, PostProductAttReq postProductAttReq) {
+    public int createProductAtt(int postId, int userId, String status) {
 
         String createProductAttQuery = "insert into ProductAttention (postId, userId, status) VALUES (?, ?, ?)";
-        Object[] createProductAttParams = new Object[]{postId, userId, postProductAttReq.getStatus()};
+        Object[] createProductAttParams = new Object[]{postId, userId, status};
         return this.jdbcTemplate.update(createProductAttQuery, createProductAttParams);
     }
 
@@ -232,24 +389,26 @@ public class ProductDao {
                 "where postId=? and userId=?;";
         Object[] Params = new Object[]{patchProductAttReq.getStatus(), patchProductAttReq.getPostId(), patchProductAttReq.getUserId()};
 
-        // toggle 형태
-//        String Query = "UPDATE ProductAttention PA " +
-//                "SET status = IF(status='Y', 'N', 'Y') " +
-//                "where postId=? and userId=?;";
-//        Object[] Params = new Object[]{patchProductAttReq.getPostId(), patchProductAttReq.getUserId()};
-
         return this.jdbcTemplate.update(Query, Params);
 
     }
 
     // 거래 기록 체크
-    public int checkDeal(int postId, int userId) {
-        String checkDealQuery = "select exists(select * from Deal where productPostId=? and buyUserId=?);";
-        Object[] checkDealParams = new Object[]{postId, userId};
+    public int checkDeal(int postId) {
+        String checkDealQuery = "select exists(select * from Deal where productPostId=? and status='Y');";
+        int Params = postId;
 
         return this.jdbcTemplate.queryForObject(checkDealQuery,
                 int.class,
-                checkDealParams);
+                Params);
+    }
+    // 사용자의 거래기록 상태 체크
+    public String checkDealUser(int postId, int userId) {
+        String checkDealQuery = "select status from Deal where productPostId=? and buyUserId=?;";
+        Object[] Params = new Object[]{postId, userId};
+        return this.jdbcTemplate.queryForObject(checkDealQuery,
+                String.class,
+                Params);
     }
 
     /**
@@ -263,6 +422,7 @@ public class ProductDao {
         return this.jdbcTemplate.update(createDealQuery, createDealParams);
 
     }
+
 
     /**
      * 중고 거래 삭제 API
@@ -292,7 +452,7 @@ public class ProductDao {
      * /:userId?status=?
      * @return BaseResponse<List<GetProductRes>>
      */
-    public List<GetProductRes> getUserProductPost(int userId, int status) {
+    public List<GetProductRes> getUserProductPost(int userId, String status) {
 
         // 판매중
         String Query1 = "select P.productPostId, img.firstImg, P.title, JusoCode.jusoName, P.price,\n" +
@@ -420,7 +580,7 @@ public class ProductDao {
 
         int Params = userId;
 
-        if (status == 2){
+        if (status.equals("finish")){
             return this.jdbcTemplate.query(Query2,
                     (rs,rowNum) -> new GetProductRes(
                             rs.getString("firstImg"),
@@ -433,7 +593,8 @@ public class ProductDao {
                             rs.getInt("attCount"),
                             rs.getString("uploadTime")),
                     Params);
-        } else if (status == 3){
+        }
+        if (status.equals("hidden")){
             return this.jdbcTemplate.query(Query3,
                     (rs,rowNum) -> new GetProductRes(
                             rs.getString("firstImg"),
@@ -446,8 +607,9 @@ public class ProductDao {
                             rs.getInt("attCount"),
                             rs.getString("uploadTime")),
                     Params);
-        } else {
-            return this.jdbcTemplate.query(Query1,
+        }
+
+        return this.jdbcTemplate.query(Query1,
                     (rs,rowNum) -> new GetProductRes(
                             rs.getString("firstImg"),
                             rs.getInt("productPostId"),
@@ -459,7 +621,7 @@ public class ProductDao {
                             rs.getInt("attCount"),
                             rs.getString("uploadTime")),
                     Params);
-        }
+
     }
 
     /**
@@ -528,4 +690,7 @@ public class ProductDao {
                         rs.getString("uploadTime")),
                 Params);
     }
+
+
+
 }

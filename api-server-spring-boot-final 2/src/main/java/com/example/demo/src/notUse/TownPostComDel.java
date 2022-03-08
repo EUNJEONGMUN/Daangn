@@ -1,4 +1,4 @@
-package com.example.demo.src.town.model.Req;
+package com.example.demo.src.notUse;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,9 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class PatchTownComDelReq {
-    private int postId;
-    private int comId;
-    private int userId;
+@NoArgsConstructor
+public class TownPostComDel {
     private String status;
 }

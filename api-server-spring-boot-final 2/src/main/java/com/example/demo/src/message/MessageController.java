@@ -21,22 +21,22 @@ public class MessageController {
         this.messageService = messageService;
     }
 
-    // 휴대폰 인증
-    @ResponseBody
-    @GetMapping("/check/sendSMS")
-    public String sendSMS(@RequestBody AuthMessageReq authMessageReq) {
-        String phoneNumber = authMessageReq.getPhoneNumber();
-        Random rand  = new Random();
-        String numStr = "";
-        for(int i=0; i<4; i++) {
-            String ran = Integer.toString(rand.nextInt(10));
-            numStr+=ran;
-        }
-
-        System.out.println("수신자 번호 : " + phoneNumber);
-        System.out.println("인증번호 : " + numStr);
-        messageService.certifiedPhoneNumber(phoneNumber,numStr);
-        return numStr;
-    }
+//    // 휴대폰 인증
+//    @ResponseBody
+//    @GetMapping("/check/sendSMS")
+//    public String sendSMS(@RequestBody AuthMessageReq authMessageReq) {
+//        String phoneNumber = authMessageReq.getPhoneNumber();
+//        Random rand  = new Random();
+//        String numStr = "";
+//        for(int i=0; i<4; i++) {
+//            String ran = Integer.toString(rand.nextInt(10));
+//            numStr+=ran;
+//        }
+//
+//        System.out.println("수신자 번호 : " + phoneNumber);
+//        System.out.println("인증번호 : " + numStr);
+//        messageService.certifiedPhoneNumber(phoneNumber,numStr);
+//        return numStr;
+//    }
 
 }

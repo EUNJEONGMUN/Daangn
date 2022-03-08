@@ -13,4 +13,5 @@ public class PatchTownPostReq {
     private int townPostCategoryId;
     private String content;
     private int townPostLocation;
+    private String status;
 }

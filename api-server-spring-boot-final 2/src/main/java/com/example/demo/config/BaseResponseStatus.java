@@ -23,6 +23,7 @@ public enum BaseResponseStatus {
     INVALID_USER_JWT(false,2003,"권한이 없는 유저의 접근입니다."),
     CATEGORY_RANGE_ERROR(false, 2004, "올바른 카테고리 범위를 벗어났습니다."),
     EMPTY_CATEGORY(false, 2005, "카테고리를 선택해주세요."),
+    NOT_CORRECT_STATUS(false, 2006, "상태값을 올바르게 입력해주세요"),
 
     // users
     USERS_EMPTY_USER_ID(false, 2010, "유저 아이디 값을 확인해주세요."),
@@ -54,12 +55,13 @@ public enum BaseResponseStatus {
     POST_PRODUCTS_EMPTY_TITLE(false, 2301, "제목을 입력해주세요."),
     POST_ATTENTION_EMPTY_STATUS(false, 2302, "상태를 입력해주세요."),
     POST_DEAL_EMPTY_STATUS(false, 2303, "상태를 입력해주세요."),
-
-
+    DUPLICATED_PRODUCT_ATTENTION_Y(false, 2304, "이미 관심 등록 한 글입니다."),
+    DUPLICATED_PRODUCT_ATTENTION_N(false, 2305, "이미 관심 취소 한 글입니다."),
 
     // [POST] /deals
     POST_DEAL_DUPLICATE(false, 2400, "이미 존재하는 거래입니다."),
     POST_DEAL_EMPTY(false, 2401,"존재하지 않는 거래입니다."),
+    POST_DEAL_DUPLICATE_STATE(false, 2402,"이미 성사된 거래입니다."),
 
     // [post] /stores
     POST_STORE_EMPTY_STORENAME(false, 2500, "가게 이름을 입력해주세요"),
@@ -84,6 +86,11 @@ public enum BaseResponseStatus {
     DUPLICATED_KEYWORDS(false, 3012, "중복된 키워드가 존재합니다."),
     POST_USERS_EXISTS_PHONE_NUMBER(false, 3013, "이미 가입한 적이 있거나 탈퇴한 번호입니다."),
     POST_USERS_SECESSION(false, 3014, "탈퇴한 계정입니다."),
+
+    // products
+    POST_ATTENTION_DUPLICATED(false, 3100, "이미 관심 등록한 글입니다."),
+    POST_ATTENTION_EMPTY(false, 3101, "관심 등록한 기록이 없습니다."),
+    POST_ATTENTION_DEL_DUPLICATED(false, 3102, "이미 관심 등록 취소한 글입니다."),
     /**
      * 4000
      */
@@ -118,10 +125,10 @@ public enum BaseResponseStatus {
 
 
     // [PUT] /products
-    MODIFY_FAIL_PRODUCT_ATTENTION(false, 5300, "중고거래 관심 등록을 실패했습니다."),
+    MODIFY_FAIL_PRODUCT_ATTENTION(false, 5300, "중고거래 관심 수정을 실패했습니다."),
     MODIFY_FAIL_PRODUCT_POST(false, 5301, "중고 거래 글 수정에 실패했습니다."),
     DELETE_FAIL_PRODUCT_POST(false, 5302, "중고거래 글 삭제를 실패했습니다."),
-
+    CREATE_FAIL_PRODUCT_ATTENTION(false, 5303, "중고거래 관심 등록을 실패했습니다."),
     // [GET] /deals
     FIND_FAIL_DEAL_USER(false, 5400, "중고 거래 기록이 없습니다."),
     DELETE_FAIL_DEAL(false, 5401, "중고 거래 기록 삭제를 실패했습니다."),

@@ -16,5 +16,7 @@ public class PatchPostReq {
     private String isProposal;
     private String content;
     private int price;
-    private String state;
+    private String status;
+    private String isHidden;
+    private String isExistence;
 }

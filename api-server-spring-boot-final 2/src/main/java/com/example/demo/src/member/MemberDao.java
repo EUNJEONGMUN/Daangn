@@ -63,7 +63,6 @@ public class MemberDao {
         String createUserQuery = "insert into UserInfo (userName, ID, password, email) VALUES (?,?,?,?)";
         Object[] createUserParams = new Object[]{postMemberReq.getUserName(), postMemberReq.getId(), postMemberReq.getPassword(), postMemberReq.getEmail()};
         this.jdbcTemplate.update(createUserQuery, createUserParams);
-
         String lastInsertIdQuery = "select last_insert_id()";
         return this.jdbcTemplate.queryForObject(lastInsertIdQuery,int.class);
     }

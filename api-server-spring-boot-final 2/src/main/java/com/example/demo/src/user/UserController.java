@@ -176,15 +176,23 @@ public class UserController {
 
     /**
      * 유저 배지 조회 API
-     * [GET] /users/:userIdx/badge
+     * [GET] /users/badge
      * @return BaseResponse<List<GetUserBadgeRes>>
      */
     @ResponseBody
     @GetMapping("/{userId}/badge")
     public BaseResponse<List<GetUserBadgeRes>> getUserBadges(@PathVariable int userId){
         try{
+            //jwt에서 idx 추출.
+            int userIdxByJwt = jwtService.getUserIdx();
+            //userIdx와 접근한 유저가 같은지 확인
+            if(userId != userIdxByJwt){
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+
             List<GetUserBadgeRes> getUserBadgeRes = userProvider.getUserBadges(userId);
             return new BaseResponse<>(getUserBadgeRes);
+
         } catch (BaseException exception) {
             return new BaseResponse<>((exception.getStatus()));
         }
@@ -200,12 +208,48 @@ public class UserController {
     @GetMapping("/{userId}/likestores")
     public BaseResponse<List<GetUserLikeStoreRes>> GetUserLikeStoreRes(@PathVariable int userId){
         try{
+            //jwt에서 idx 추출.
+            int userIdxByJwt = jwtService.getUserIdx();
+            //userIdx와 접근한 유저가 같은지 확인
+            if(userId != userIdxByJwt){
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+
             List<GetUserLikeStoreRes> getUserLikeStoreRes = userProvider.getUserLikeStores(userId);
             return new BaseResponse<>(getUserLikeStoreRes);
         } catch (BaseException exception) {
             return new BaseResponse<>((exception.getStatus()));
         }
     }
+
+    /**
+     * 보유 쿠폰 상태별 조회 API
+     * [GET] /users/:userId/coupons
+     * [GET] /coupons?status=?
+     * @return BaseResponse<List<GetUserCouponRes>>
+     */
+    @ResponseBody
+    @GetMapping("/{userId}/coupons")
+    public BaseResponse<List<GetUserCouponRes>> getAttention(@PathVariable int userId, @RequestParam(required = false) String status){
+        try{
+            //jwt에서 idx 추출.
+            int userIdxByJwt = jwtService.getUserIdx();
+            //userIdx와 접근한 유저가 같은지 확인
+            if(userId != userIdxByJwt){
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+
+            if(status == null){
+                List<GetUserCouponRes> getUserCouponRes = userProvider.getCoupon(userId, "Y");
+                return new BaseResponse<>(getUserCouponRes);
+            }
+            List<GetUserCouponRes> getUserCouponRes = userProvider.getCoupon(userId, status);
+            return new BaseResponse<>(getUserCouponRes);
+        } catch(BaseException exception){
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
 
     /**
      * 받은 매너 평가 조회 API
@@ -277,26 +321,7 @@ public class UserController {
         }
     }
 
-    /**
-     * 보유 쿠폰 상태별 조회 API
-     * [GET] /users/:userId/coupons
-     * [GET] /coupons?status=?
-     * @return BaseResponse<List<GetUserCouponRes>>
-     */
-    @ResponseBody
-    @GetMapping("/{userId}/coupons")
-    public BaseResponse<List<GetUserCouponRes>> getAttention(@PathVariable int userId, @RequestParam(required = false) String status){
-        try{
-            if(status == null){
-                List<GetUserCouponRes> getUserCouponRes = userProvider.getCoupon(userId, "Y");
-                return new BaseResponse<>(getUserCouponRes);
-            }
-            List<GetUserCouponRes> getUserCouponRes = userProvider.getCoupon(userId, status);
-            return new BaseResponse<>(getUserCouponRes);
-        } catch(BaseException exception){
-            return new BaseResponse<>((exception.getStatus()));
-        }
-    }
+
 
 
 

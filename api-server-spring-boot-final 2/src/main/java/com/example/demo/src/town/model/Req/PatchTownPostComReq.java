@@ -12,4 +12,5 @@ public class PatchTownPostComReq {
     private int comId;
     private int userId;
     private String content;
+    private String status;
 }

@@ -15,4 +15,5 @@ public class Town {
     private int townPostCategoryId;
     private String content;
     private int townPostLocation;
+    private String status;
 }

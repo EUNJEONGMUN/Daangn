@@ -36,6 +36,14 @@ public class ProductProvider {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+//    public List<GetProductPostRes> getProducts() throws BaseException {
+//        try{
+//            GetProductPostRes getProductPostRes = productDao.getProducts();
+//            return getProductPostRes;
+//        } catch (Exception exception){
+//            throw new BaseException(DATABASE_ERROR);
+//        }
+//    }
 
     /**
      * 홈 화면 카테고리별 조회 API
@@ -61,11 +69,29 @@ public class ProductProvider {
         }
 
     }
+    // 사용자 관심 등록 확인
+    public String checkAttStatus(int postId, int userId) throws BaseException  {
+        try{
+            return productDao.checkAttStatus(postId, userId);
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
 
     // 거래 기록 체크
-    public int checkDeal(int postId, int userId) throws BaseException {
+    public int checkDeal(int postId) throws BaseException {
         try{
-            return productDao.checkDeal(postId, userId);
+            return productDao.checkDeal(postId);
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    // 사용자의 거래 기록 상태
+    public String checkDealUser(int postId, int userId) throws BaseException {
+        try{
+            return productDao.checkDealUser(postId, userId);
         } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);
         }
@@ -77,7 +103,7 @@ public class ProductProvider {
      * /:userId?status=?
      * @return BaseResponse<List<GetProductRes>>
      */
-    public List<GetProductRes> getUserProductPost(int userId, int status) throws BaseException {
+    public List<GetProductRes> getUserProductPost(int userId, String status) throws BaseException {
         try {
             List<GetProductRes> getProductRes = productDao.getUserProductPost(userId, status);
             return getProductRes;
@@ -107,4 +133,7 @@ public class ProductProvider {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
+
+
 }
