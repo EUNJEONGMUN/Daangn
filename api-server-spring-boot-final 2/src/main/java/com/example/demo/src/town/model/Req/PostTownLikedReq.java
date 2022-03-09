@@ -10,8 +10,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PostTownLikedReq {
-    private int postId;
-    private int comId;
     private int userId;
     private String status;
 }

@@ -12,5 +12,6 @@ import lombok.Setter;
 public class Myinfo {
     private String userName;
     private String profileImg;
+    private int jusoCodeId;
 
 }

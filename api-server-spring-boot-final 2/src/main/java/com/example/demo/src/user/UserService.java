@@ -1,10 +1,7 @@
 package com.example.demo.src.user;
 import com.example.demo.config.BaseException;
 
-import com.example.demo.src.user.model.Req.PatchMyInfoReq;
-import com.example.demo.src.user.model.Req.PostSignInReq;
-import com.example.demo.src.user.model.Req.PostUserKeywordsReq;
-import com.example.demo.src.user.model.Req.PostUserReq;
+import com.example.demo.src.user.model.Req.*;
 import com.example.demo.src.user.model.Res.PostSignInRes;
 import com.example.demo.src.user.model.Res.PostUserKeywordsRes;
 import com.example.demo.src.user.model.User;
@@ -42,8 +39,12 @@ public class UserService {
     }
 
 
-    // 휴대폰 인증
-    public String certifiedPhoneNumber(String phoneNumber, String numStr) {
+    /**
+     * 휴대폰 인증 API
+     * [POST] /users/message
+     * @return BaseResponse<String>
+     */
+    public void certifiedPhoneNumber(String phoneNumber, String numStr) throws BaseException  {
         String api_key = API_KEY;
         String api_secret = API_SECRET;
         net.nurigo.java_sdk.api.Message coolsms = new Message(api_key, api_secret);
@@ -51,19 +52,17 @@ public class UserService {
         // 4 params(to, from, type, text) are mandatory. must be filled
         HashMap<String, String> params = new HashMap<String, String>();
         params.put("to", phoneNumber);    // 수신전화번호
-        params.put("from", PHONE_NUMBER);    // 발신전화번호. 테스트시에는 발신,수신 둘다 본인 번호로 하면 됨
+        params.put("from", PHONE_NUMBER);    // 발신전화번호.
         params.put("type", "SMS");
         params.put("text", "회원가입 인증 메시지 : 인증번호는" + "["+numStr+"]" + "입니다.");
-        params.put("app_version", "test app 1.2"); // application name and version
 
         try {
             JSONObject obj = (JSONObject) coolsms.send(params);
             System.out.println(obj.toString());
-            return "success";
         } catch (CoolsmsException e) {
             System.out.println(e.getMessage());
             System.out.println(e.getCode());
-            return "fail";
+            throw new BaseException(FAIL_SEND_MESSAGE);
         }
     }
 
@@ -73,10 +72,7 @@ public class UserService {
      * @return BaseResponse<String>
      */
     public void createUser(PostUserReq postUserReq) throws BaseException {
-        // 중복 확인
-        if(userProvider.checkPhoneNumber(postUserReq.getPhoneNumber()) == 1){
-            throw new BaseException(POST_USERS_EXISTS_PHONE_NUMBER);
-        }
+
         String phone;
         try {
             phone = new SHA256().encrypt(postUserReq.getPhoneNumber());
@@ -85,11 +81,24 @@ public class UserService {
             throw new BaseException(PASSWORD_ENCRYPTION_ERROR);
         }
 
+        // 중복 확인
+        if(userProvider.checkPhoneNumber(postUserReq.getPhoneNumber()) == 1){
+            throw new BaseException(POST_USERS_EXISTS_PHONE_NUMBER);
+        }
+
         try {
-            int result = userDao.createUser(postUserReq);
+            int userId = userDao.createUser(postUserReq);
+            if (userId == FAIL){
+                throw new BaseException(POST_FAIL_INSERT_INFO);
+            }
+            // 트랜잭션?
+            int result = userDao.createUserArea(userId, postUserReq.getJusoCodeId());
+            System.out.println(result);
             if (result == FAIL){
                 throw new BaseException(POST_FAIL_SIGNUP);
             }
+
+
         } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);
         }
@@ -132,8 +141,6 @@ public class UserService {
         } catch (Exception exception) {
             throw new BaseException(FAILED_TO_LOGIN);
         }
-
-
     }
 
     /**
@@ -146,6 +153,10 @@ public class UserService {
             int result = userDao.modifyMyInfo(patchMyInfoReq);
             if (result == FAIL){
                 throw new BaseException(PATCH_FAIL_MYINFO);
+            }
+            int result2 = userDao.modifyMyArea(patchMyInfoReq);
+            if (result2 == FAIL){
+                throw new BaseException(PATCH_FAIL_MYINFO_AREA);
             }
         } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);
@@ -176,12 +187,15 @@ public class UserService {
 
     /**
      * 키워드 알림해제 API
-     * [DELETE] /users/:userIdx/keywords/:keywordsId/deletion
+     * [DELETE] /users/:userIdx/keywords
      * @return BaseResponse<String>
      */
-    public void deleteKeywords(int userId, int keywordsId) throws BaseException {
+    public void deleteKeywords(DeleteKeywordReq deleteKeywordReq) throws BaseException {
         try {
-            int result = userDao.deleteKeywords(userId, keywordsId);
+            if (userDao.checkKeyword(deleteKeywordReq.getUserId(), deleteKeywordReq.getKeyword()) == 0){
+                throw new BaseException(KEYWORD_NOT_EXISTS);
+            }
+            int result = userDao.deleteKeywords(deleteKeywordReq);
             if (result == FAIL){
                 throw new BaseException(DELETE_FAIL_KEYWORDS);
             }

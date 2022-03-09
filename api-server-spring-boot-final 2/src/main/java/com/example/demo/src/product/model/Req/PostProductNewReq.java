@@ -18,7 +18,7 @@ public class PostProductNewReq {
     private int userId;
     private String title;
     private int categoryId;
-    private int jusoCodeId;
+//    private int jusoCodeId;
     private String isProposal;
     private String content;
     private int price;

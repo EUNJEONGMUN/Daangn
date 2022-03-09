@@ -1,4 +1,4 @@
-package com.example.demo.src.town.model.Req;
+package com.example.demo.src.user.model.Req;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,6 +9,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class PostTownComLikedReq {
-    private String status;
+public class PostMessageReq {
+    private String phoneNumber;
 }

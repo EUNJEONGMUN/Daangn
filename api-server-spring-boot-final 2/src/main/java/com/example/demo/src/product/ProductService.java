@@ -39,7 +39,8 @@ public class ProductService {
     public PostProductNewRes createProduct(PostProductNewReq postProductNewReq) throws BaseException {
 
         try{
-            int productPostId = productDao.createProduct(postProductNewReq);
+            int userJusoCodeId = productDao.findUserJusoCodeId(postProductNewReq.getUserId());
+            int productPostId = productDao.createProduct(userJusoCodeId, postProductNewReq);
             return new PostProductNewRes(productPostId);
         } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);

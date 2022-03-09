@@ -5,6 +5,7 @@ import com.example.demo.config.BaseResponse;
 import com.example.demo.config.BaseResponseStatus;
 import com.example.demo.src.product.model.*;
 import com.example.demo.src.product.model.Req.*;
+import com.example.demo.src.product.model.Res.GetProductPostRes;
 import com.example.demo.src.product.model.Res.GetProductRes;
 import com.example.demo.src.product.model.Res.PostProductNewRes;
 import com.example.demo.utils.JwtService;
@@ -54,8 +55,8 @@ public class ProductController {
 //    @GetMapping("/home") // (GET) 127.0.0.1:9000/products/home
 //    public BaseResponse<List<GetProductPostRes>> getProducts(){
 //        try {
-//            GetProductPostRes getProductPostRes = productProvider.getProducts();
-//            return new BaseResponse<>(getProductPostRes);
+//            GetProductPostRes getProductPostRes = (GetProductPostRes) productProvider.getProducts();
+//            return new BaseResponse(getProductPostRes);
 //        } catch (BaseException exception){
 //            return new BaseResponse<>((exception.getStatus()));
 //        }
@@ -87,7 +88,7 @@ public class ProductController {
      */
     @ResponseBody
     @PostMapping("/new/{userId}")
-    public BaseResponse<PostProductNewRes> createProduct(@PathVariable int userId, @RequestBody PostProductNewReq postProductNewReq){
+    public BaseResponse<PostProductNewRes> createProduct(@PathVariable int userId, @RequestBody PostProductNew postProductNew){
         try{
             int userIdxByJwt = jwtService.getUserIdx();
             //userIdx와 접근한 유저가 같은지 확인
@@ -99,18 +100,19 @@ public class ProductController {
             return new BaseResponse<>((exception.getStatus()));
         }
 
-        if (postProductNewReq.getTitle() == null){
+        if (postProductNew.getTitle() == null){
             return new BaseResponse<>(POST_PRODUCTS_EMPTY_TITLE);
         }
 
-        if (postProductNewReq.getCategoryId() == 0){
-            return new BaseResponse<>(BaseResponseStatus.EMPTY_CATEGORY);
+        if (postProductNew.getCategoryId() == 0){
+            return new BaseResponse<>(EMPTY_CATEGORY);
         }
-        if (postProductNewReq.getContent() == null){
+        if (postProductNew.getContent() == null){
             return new BaseResponse<>(POST_PRODUCTS_EMPTY_CONTENT);
         }
 
         try{
+            PostProductNewReq postProductNewReq = new PostProductNewReq(userId, postProductNew.getTitle(), postProductNew.getCategoryId(), postProductNew.getIsProposal(), postProductNew.getContent(), postProductNew.getPrice());
             PostProductNewRes postProductNewRes = productService.createProduct(postProductNewReq);
             return new BaseResponse<>(postProductNewRes);
 
@@ -185,6 +187,10 @@ public class ProductController {
             }
             if (productPost.getContent() == null){
                 return new BaseResponse<>(POST_PRODUCTS_EMPTY_CONTENT);
+            }
+
+            if (productProvider.checkPostExists(postId) == 0){
+                return new BaseResponse<>(POST_NOT_EXISTS);
             }
 
             PatchPostReq patchPostReq = new PatchPostReq(postId, userId, productPost.getTitle(), productPost.getCategoryId(),

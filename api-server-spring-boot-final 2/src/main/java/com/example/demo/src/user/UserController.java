@@ -2,11 +2,9 @@ package com.example.demo.src.user;
 
 import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponse;
+import com.example.demo.src.product.model.Res.GetProductRes;
 import com.example.demo.src.user.model.*;
-import com.example.demo.src.user.model.Req.PatchMyInfoReq;
-import com.example.demo.src.user.model.Req.PostSignInReq;
-import com.example.demo.src.user.model.Req.PostUserKeywordsReq;
-import com.example.demo.src.user.model.Req.PostUserReq;
+import com.example.demo.src.user.model.Req.*;
 import com.example.demo.src.user.model.Res.*;
 import com.example.demo.utils.JwtService;
 import com.example.demo.utils.SHA256;
@@ -43,6 +41,46 @@ public class UserController {
     }
 
     /**
+     * 휴대폰 인증 API
+     * [POST] /users/message
+     * @return BaseResponse<String>
+     */
+    @ResponseBody
+    @PostMapping("/message")
+    public BaseResponse<String> messageUser(@RequestBody PostMessageReq postMessageReq){
+        if (postMessageReq.getPhoneNumber() == null){
+            return new BaseResponse<>(POST_USERS_EMPTY_PHONENUMBER);
+        }
+        // 휴대폰 번호 정규표현
+        if (!isRegexPhoneNumber(postMessageReq.getPhoneNumber())){
+            return new BaseResponse<>(POST_USERS_INVALID_PHONEMUNBER);
+        }
+
+        String phoneNumber = postMessageReq.getPhoneNumber();
+
+        //  난수 생성
+        Random rand  = new Random();
+        String numStr = "";
+        for(int i=0; i<4; i++) {
+            String ran = Integer.toString(rand.nextInt(10));
+            numStr+=ran;
+        }
+
+        System.out.println("수신자 번호 : " + phoneNumber);
+        System.out.println("인증번호 : " + numStr);
+
+        try {
+            userService.certifiedPhoneNumber(phoneNumber,numStr);
+            String result = "";
+            return new BaseResponse<>(result);
+        } catch (BaseException exception) {
+            return new BaseResponse<>((exception.getStatus()));
+        }
+
+
+    }
+
+    /**
      * 회원가입 API
      * [POST] /users/sign-up
      * @return BaseResponse<String>
@@ -50,49 +88,24 @@ public class UserController {
     @ResponseBody
     @PostMapping("/sign-up")
     public BaseResponse<String> createUser(@RequestBody PostUserReq postUserReq){
-        if (postUserReq.getPhoneNumber() == null){
-            return new BaseResponse<>(POST_USERS_EMPTY_PHONENUMBER);
-        }
-        // 휴대폰 번호 정규표현
-        if (!isRegexPhoneNumber(postUserReq.getPhoneNumber())){
-            return new BaseResponse<>(POST_USERS_INVALID_PHONEMUNBER);
-        }
-
-        /**
-         * 휴대폰 인증 요금 발생주의
-         */
-        // 휴대폰 인증
-//        System.out.println("휴대폰 인증 시작");
-//        String phoneNumber = postUserReq.getPhoneNumber();
-//        Random rand  = new Random();
-//        String numStr = "";
-//        for(int i=0; i<4; i++) {
-//            String ran = Integer.toString(rand.nextInt(10));
-//            numStr+=ran;
-//        }
-//
-//        System.out.println("수신자 번호 : " + phoneNumber);
-//        System.out.println("인증번호 : " + numStr);
-//
-//        System.out.println("휴대폰 인증으로 넘어감");
-//        String success = userService.certifiedPhoneNumber(phoneNumber,numStr);
-//        System.out.println("휴대폰 인증에서 나옴");
-//
-//        if (success == "fail"){
-//            return new BaseResponse<>(FAIL_MESSAGE_AUTH);
-//        }
-//        try {
-//            System.out.println("계정 생성으로 넘어감");
-//            userService.createUser(postUserReq);
-//            System.out.println("계정 생성에서 나옴");
-//            String result = "";
-//            return new BaseResponse<>(result);
-//        } catch(BaseException exception){
-//            return new BaseResponse<>((exception.getStatus()));
-//        }
-
-
         try {
+
+            if (postUserReq.getPhoneNumber() == null){
+                return new BaseResponse<>(POST_USERS_EMPTY_PHONENUMBER);
+            }
+            // 휴대폰 번호 정규표현
+            if (!isRegexPhoneNumber(postUserReq.getPhoneNumber())){
+                return new BaseResponse<>(POST_USERS_INVALID_PHONEMUNBER);
+            }
+
+            if (postUserReq.getUserName() == null){
+                return new BaseResponse<>(POST_USERS_EMPTY_NAME);
+            }
+
+            if (postUserReq.getJusoCodeId() == 0){
+                return new BaseResponse<>(POST_USERS_EMPTY_JUSOCODE);
+            }
+
             userService.createUser(postUserReq);
             String result = "";
             return new BaseResponse<>(result);
@@ -164,7 +177,7 @@ public class UserController {
                 return new BaseResponse<>(INVALID_USER_JWT);
             }
 
-            PatchMyInfoReq patchMyInfoReq = new PatchMyInfoReq(userId, myinfo.getProfileImg(), myinfo.getUserName());
+            PatchMyInfoReq patchMyInfoReq = new PatchMyInfoReq(userId, myinfo.getProfileImg(), myinfo.getUserName(), myinfo.getJusoCodeId());
             userService.modifyMyInfo(patchMyInfoReq);
 
             String result = "";
@@ -250,6 +263,28 @@ public class UserController {
         }
     }
 
+    /**
+     * 관심 목록 전체 조회 API
+     * [GET] /users/:userId/attention
+     * @return BaseResponse<List<GetProductRes>>
+     */
+    @ResponseBody
+    @GetMapping("/{userId}/attention")
+    public BaseResponse<List<GetProductRes>> getAttention(@PathVariable int userId){
+        try{
+            //jwt에서 idx 추출.
+            int userIdxByJwt = jwtService.getUserIdx();
+            //userIdx와 접근한 유저가 같은지 확인
+            if(userId != userIdxByJwt){
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+
+            List<GetProductRes> getProductRes = userProvider.getAttention(userId);
+            return new BaseResponse<>(getProductRes);
+        } catch(BaseException exception){
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
 
     /**
      * 받은 매너 평가 조회 API
@@ -260,6 +295,13 @@ public class UserController {
     @GetMapping("/{userId}/manner")
     public BaseResponse<List<GetUserMannerRes>> getUserManner(@PathVariable int userId){
         try{
+            //jwt에서 idx 추출.
+            int userIdxByJwt = jwtService.getUserIdx();
+            //userIdx와 접근한 유저가 같은지 확인
+            if(userId != userIdxByJwt){
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+
             List<GetUserMannerRes> getUserMannerRes = userProvider.getUserManner(userId);
             return new BaseResponse<>(getUserMannerRes);
         } catch (BaseException exception){
@@ -276,10 +318,17 @@ public class UserController {
     @ResponseBody
     @PostMapping("/{userId}/keywords")
     public BaseResponse<PostUserKeywordsRes> createKeywords(@PathVariable int userId, @RequestBody PostUserKeywordsReq postUserKeywordsReq){
-        if (postUserKeywordsReq.getKeyword() == null) {
-            return new BaseResponse<>(EMPTY_KEYWORD);
-        }
         try {
+            //jwt에서 idx 추출.
+            int userIdxByJwt = jwtService.getUserIdx();
+            //userIdx와 접근한 유저가 같은지 확인
+            if(userId != userIdxByJwt){
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+
+            if (postUserKeywordsReq.getKeyword() == null) {
+                return new BaseResponse<>(EMPTY_KEYWORD);
+            }
             PostUserKeywordsRes postUserKeywords = userService.createKeywords(userId, postUserKeywordsReq);
             return new BaseResponse<>(postUserKeywords);
         } catch (BaseException exception){
@@ -289,14 +338,25 @@ public class UserController {
 
     /**
      * 키워드 알림해제 API
-     * [DELETE] /users/:userIdx/keywords/:keywordsId/deletion
+     * [DELETE] /users/:userIdx/keywords
      * @return BaseResponse<String>
      */
     @ResponseBody
-    @DeleteMapping("/{userId}/keywords/{keywordsId}/deletion")
-    public BaseResponse<String> deleteKeywords(@PathVariable int userId, @PathVariable int keywordsId){
+    @PatchMapping("/{userId}/keywords")
+    public BaseResponse<String> deleteKeywords(@PathVariable int userId, @RequestBody DeleteKeyword deleteKeyword){
         try {
-            userService.deleteKeywords(userId, keywordsId);
+            //jwt에서 idx 추출.
+            int userIdxByJwt = jwtService.getUserIdx();
+            //userIdx와 접근한 유저가 같은지 확인
+            if(userId != userIdxByJwt){
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+            if (deleteKeyword.getKeyword() == null) {
+                return new BaseResponse<>(EMPTY_KEYWORD);
+            }
+
+            DeleteKeywordReq deleteKeywordReq = new DeleteKeywordReq(userId, deleteKeyword.getKeyword());
+            userService.deleteKeywords(deleteKeywordReq);
             String result = "";
             return new BaseResponse<>(result);
         } catch (BaseException exception){
@@ -305,21 +365,7 @@ public class UserController {
     }
 
 
-    /**
-     * 관심 목록 전체 조회 API
-     * [GET] /users/:userId/attention
-     * @return BaseResponse<List<GetUserAttentionRes>>
-     */
-    @ResponseBody
-    @GetMapping("/{userId}/attention")
-    public BaseResponse<List<GetUserAttentionRes>> getAttention(@PathVariable int userId){
-        try{
-            List<GetUserAttentionRes> getUserAttentionRes = userProvider.getAttention(userId);
-            return new BaseResponse<>(getUserAttentionRes);
-        } catch(BaseException exception){
-            return new BaseResponse<>((exception.getStatus()));
-        }
-    }
+
 
 
 

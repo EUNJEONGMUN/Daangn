@@ -111,4 +111,55 @@ public class TownProvider {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
+    // 글쓴이 아이디 체크
+    public int checkPostUser(int postId) throws BaseException {
+        try {
+            return townDao.checkPostUser(postId);
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    // 게시글 존재 확인
+    public int checkPostExists(int postId) throws BaseException {
+        try {
+            return townDao.checkPostExists(postId);
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public int checkComUser(int comId) throws BaseException {
+        try {
+            return townDao.checkComUser(comId);
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    // 댓글 존재 확인
+    public int checkComExists(int refId) throws BaseException  {
+        try {
+            return townDao.checkComExists(refId);
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+    // 좋아요 상태 확인
+    public String checkPostLikeStatus(int postId, int userId) throws BaseException  {
+        try {
+            return townDao.checkPostLikeStatus(postId, userId);
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public String checkPostComLikeStatus(int comId, int userId) throws BaseException {
+        try {
+            return townDao.checkPostComLikeStatus(comId, userId);
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 }

@@ -24,7 +24,7 @@ public enum BaseResponseStatus {
     CATEGORY_RANGE_ERROR(false, 2004, "올바른 카테고리 범위를 벗어났습니다."),
     EMPTY_CATEGORY(false, 2005, "카테고리를 선택해주세요."),
     NOT_CORRECT_STATUS(false, 2006, "상태값을 올바르게 입력해주세요"),
-
+    INVALID_USER_POST(false,2007,"권한이 없는 유저의 접근입니다."),
     // users
     USERS_EMPTY_USER_ID(false, 2010, "유저 아이디 값을 확인해주세요."),
     FAIL_MESSAGE_AUTH(false, 2011, "휴대폰 인증에 실패하였습니다."),
@@ -37,7 +37,8 @@ public enum BaseResponseStatus {
     POST_USERS_EMPTY_PHONENUMBER(false, 2019, "휴대폰 번호를 입력해주세요."),
     POST_USERS_INVALID_PHONEMUNBER(false, 2020, "휴대폰 번호 형식을 확인해주세요."),
     POST_USERS_NOT_EXISTS_PHONENUMBER(false, 2022, "회원가입을 먼저 진행해주세요."),
-
+    POST_USERS_EMPTY_NAME(false, 2023, "닉네임을 입력해주세요."),
+    POST_USERS_EMPTY_JUSOCODE(false, 2024, "동네를 선택해주세요."),
     // [POST] /towns
     POST_TOWNS_EMPTY_CONTENT(false, 2100, "내용을 입력해주세요."),
 
@@ -79,18 +80,24 @@ public enum BaseResponseStatus {
      */
     // Common
     RESPONSE_ERROR(false, 3000, "값을 불러오는데 실패하였습니다."),
-
+    POST_NOT_EXISTS(false, 3001, "해당 글이 존재하지 않습니다."),
+    POST_COM_NOT_EXISTS(false, 3003, "해당 댓글이 존재하지 않습니다."),
+    POST_LIKE_NOT_EXISTS(false, 3004, "글의 좋아요를 먼저 눌러주세요."),
+    POST_COM_LIKE_NOT_EXISTS(false, 3005, "댓글의 좋아요를 먼저 눌러주세요."),
     // [POST] /users
     DUPLICATED_EMAIL(false, 3010, "중복된 이메일입니다."),
     FAILED_TO_LOGIN(false,3011,"없는 아이디거나 비밀번호가 틀렸습니다."),
     DUPLICATED_KEYWORDS(false, 3012, "중복된 키워드가 존재합니다."),
     POST_USERS_EXISTS_PHONE_NUMBER(false, 3013, "이미 가입한 적이 있거나 탈퇴한 번호입니다."),
     POST_USERS_SECESSION(false, 3014, "탈퇴한 계정입니다."),
-
+    KEYWORD_NOT_EXISTS(false, 3015, "해당 키워드가 없습니다."),
     // products
     POST_ATTENTION_DUPLICATED(false, 3100, "이미 관심 등록한 글입니다."),
     POST_ATTENTION_EMPTY(false, 3101, "관심 등록한 기록이 없습니다."),
     POST_ATTENTION_DEL_DUPLICATED(false, 3102, "이미 관심 등록 취소한 글입니다."),
+
+    POST_LIKE_DUPLICATED(false, 3200, "이미 좋아요 한 글입니다."),
+    POST_NOT_LIKE_DUPLICATED(false, 3201, "이미 좋아요를 취소한 글입니다."),
     /**
      * 4000
      */
@@ -101,21 +108,22 @@ public enum BaseResponseStatus {
      */
     DATABASE_ERROR(false, 5000, "데이터베이스 연결에 실패하였습니다."),
     SERVER_ERROR(false, 5001, "서버와의 연결에 실패하였습니다."),
+    FAIL_SEND_MESSAGE(false, 5002, "휴대폰 인증번호 전송에 실패했습니다."),
 
     //users
     MODIFY_FAIL_USERNAME(false,5100,"유저네임 수정 실패"),
     PASSWORD_ENCRYPTION_ERROR(false, 5101, "비밀번호 암호화에 실패하였습니다."),
     PASSWORD_DECRYPTION_ERROR(false, 5102, "비밀번호 복호화에 실패하였습니다."),
     PHONENUMBER_DECRYPTION_ERROR(false, 5103, "전화번호 복호화에 실패했습니다."),
-    PATCH_FAIL_MYINFO(false, 5104, "사용자 정보를 바꾸는 데 실패했습니다."),
+    PATCH_FAIL_MYINFO(false, 5104, "사용자 정보 수정에 실패했습니다."),
     CREATE_FAIL_KEYWORDS(false, 5105, "키워드 설정에 실패했습니다."),
     DELETE_FAIL_KEYWORDS(false, 5106, "키워드 삭제에 실패했습니다."),
-
-
+    POST_FAIL_INSERT_INFO(false, 5107, "사용자 정보 입력에 실패했습니다."),
+    POST_FAIL_SIGNUP(false, 5108, "회원가입에 실패하였습니다."),
+    PATCH_FAIL_MYINFO_AREA(false, 5109,"사용자 동네 수정에 실패했습니다."),
     ///towns
     CREATE_FAIL_TOWN_POST_LIKED(false, 5200, "동네 생활 글 좋아요 생성에 실패하였습니다."),
     CREATE_FAIL_TOWN_POST_COM_LIKED(false, 5201, "동네 생활 댓글 좋아요 생성에 실패하였습니다."),
-    POST_FAIL_SIGNUP(false, 5202, "회원가입에 실패하였습니다."),
     MODIFY_FAIL_TOWN_POST(false, 5204, "동네 생활 글 수정에 실패 했습니다."),
     DELETE_FAIL_TOWN_POST(false, 5205, "동네 생활 글 삭제에 실패했습니다."),
     MODIFY_FAIL_TOWN_COM(false, 5206, "동네 생활 댓글 수정에 실패했습니다."),

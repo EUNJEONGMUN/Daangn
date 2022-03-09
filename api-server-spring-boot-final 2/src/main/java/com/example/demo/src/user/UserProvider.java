@@ -1,6 +1,7 @@
 package com.example.demo.src.user;
 
 import com.example.demo.config.BaseException;
+import com.example.demo.src.product.model.Res.GetProductRes;
 import com.example.demo.src.user.model.Req.PostSignInReq;
 import com.example.demo.src.user.model.Res.*;
 import org.slf4j.Logger;
@@ -93,12 +94,12 @@ public class UserProvider {
     /**
      * 관심 목록 전체 조회 API
      * [GET] /users/:userId/attention
-     * @return BaseResponse<List<GetUserAttentionRes>>
+     * @return BaseResponse<List<GetProductRes>>
      */
-    public List<GetUserAttentionRes> getAttention(int userId) throws BaseException {
+    public List<GetProductRes> getAttention(int userId) throws BaseException {
     try {
-            List<GetUserAttentionRes> getUserAttentionRes = userDao.getAttention(userId);
-            return getUserAttentionRes;
+            List<GetProductRes> getProductRes = userDao.getAttention(userId);
+            return getProductRes;
         } catch (Exception exception){
             throw new BaseException(DATABASE_ERROR);
         }

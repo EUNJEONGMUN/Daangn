@@ -135,9 +135,9 @@ public class TownDao {
      * [POST] /towns/new/:userId
      * @return BaseResponse<PostTownNewRes>
      */
-    public int createTown(int userId, PostTownNewReq postTownNewReq) {
+    public int createTown(int jusoCodeId, PostTownNewReq postTownNewReq) {
         String createTownQuery = "insert into TownPost (userId, townPostCategoryId, content, townPostLocation) VALUES (?,?,?,?)";
-        Object[] createTownParams = new Object[]{userId, postTownNewReq.getTownPostCategoryId(), postTownNewReq.getContent(), postTownNewReq.getTownPostLocation()};
+        Object[] createTownParams = new Object[]{postTownNewReq.getUserId(), postTownNewReq.getTownPostCategoryId(), postTownNewReq.getContent(), jusoCodeId};
         this.jdbcTemplate.update(createTownQuery, createTownParams);
 
         String lastInsertIdQuery = "select last_insert_id()";
@@ -150,26 +150,15 @@ public class TownDao {
      * @return BaseResponse<String>
      */
     public int modifyTownPost(PatchTownPostReq patchTownPostReq) {
+        System.out.println("modify 진입");
         String Query = "update TownPost TP\n" +
-                "set TP.townPostCategoryId=?, TP.content=?, TP.townPostLocation=?, TP.status=?\n" +
+                "set TP.townPostCategoryId=?, TP.content=?, TP.status=?\n" +
                 "where TP.userId=? and TP.townPostId=?;";
-        Object[] Params = new Object[]{patchTownPostReq.getTownPostCategoryId(), patchTownPostReq.getContent(), patchTownPostReq.getTownPostLocation(),
-        patchTownPostReq.getUserId(), patchTownPostReq.getTownPostId(), patchTownPostReq.getStatus()};
+        Object[] Params = new Object[]{patchTownPostReq.getTownPostCategoryId(), patchTownPostReq.getContent(), patchTownPostReq.getStatus(),
+        patchTownPostReq.getUserId(), patchTownPostReq.getTownPostId()};
         return this.jdbcTemplate.update(Query, Params);
     }
 
-//    /**
-//     * 동네 생활 글 삭제 API
-//     * [PATCH] /towns/:postId/:userId/deletion
-//     * @return BaseResponse<String>
-//     */
-//    public int deleteTownPost(PatchTownPostDelReq patchTownPostDelReq) {
-//        String Query = "update TownPost TP\n" +
-//                "set TP.status =?\n" +
-//                "where TP.userId=? and TP.townPostId=?;\n";
-//        Object[] Params = new Object[]{patchTownPostDelReq.getStatus(), patchTownPostDelReq.getUserId(), patchTownPostDelReq.getPostId()};
-//        return this.jdbcTemplate.update(Query, Params);
-//    }
 
     /**
      * 동네 생활 댓글 작성 API
@@ -186,20 +175,6 @@ public class TownDao {
     }
 
     /**
-     * 동네 생활 댓글 작성 API - 대댓글
-     * [POST] /towns/:postId/:userId/comment
-     * @return BaseResponse<PostTownComRes>
-     */
-    public int createTownComCom(int postId, int userId, PostTownComReq postTownComReq) {
-        String createTownComQuery = "insert into TownPostCom (townPostId, userId, content) VALUES (?,?,?)";
-        Object[] createTownComParams = new Object[]{postId, userId, postTownComReq.getContent()};
-        this.jdbcTemplate.update(createTownComQuery, createTownComParams);
-
-        String lastInsertIdQuery = "select last_insert_id()";
-        return this.jdbcTemplate.queryForObject(lastInsertIdQuery,int.class);
-    }
-
-    /**
      * 동네 생활 댓글 수정 API
      * [PATCH] /towns/:postId/comment/:comId/:userId
      * @return BaseResponse<String>
@@ -207,25 +182,12 @@ public class TownDao {
     public int modifyTownCom(PatchTownPostComReq patchTownPostComReq) {
         String Query = "update TownPostCom TC\n" +
                 "set TC.content = ?, TC.status=?\n" +
-                "where TC.userId=? and TC.townPostComId=?;";
-        Object[] Params = new Object[]{patchTownPostComReq.getContent(), patchTownPostComReq.getUserId(), patchTownPostComReq.getComId(), patchTownPostComReq.getStatus()};
+                "where TC.townPostComId=?;";
+        Object[] Params = new Object[]{patchTownPostComReq.getContent(), patchTownPostComReq.getStatus(), patchTownPostComReq.getComId()};
         return this.jdbcTemplate.update(Query, Params);
 
     }
 
-//    /**
-//     * 동네 생활 댓글 삭제 API
-//     * [PATCH] /towns/:postId/comment/:comId/:userId/deletion
-//     * @return BaseResponse<String>
-//     */
-//    public int deleteTownCom(PatchTownComDelReq patchTownComDelReq) {
-//        String Query = "update TownPostCom TC\n" +
-//                "set TC.status = ?\n" +
-//                "where TC.userId=? and TC.townPostComId=?;";
-//        Object[] Params = new Object[]{patchTownComDelReq.getStatus(), patchTownComDelReq.getUserId(), patchTownComDelReq.getComId()};
-//        return this.jdbcTemplate.update(Query, Params);
-//
-//    }
 
     // 동네 생활 글 좋아요 체크
     public int checkLiked(int postId, int userId) {
@@ -241,9 +203,9 @@ public class TownDao {
      * [POST] /towns/:postId/liked/:userId
      * @return BaseResponse<String>
      */
-    public int createTownPostLiked(int postId, int userId, PostTownLikedReq postTownLikedReq) {
-        String Query = "insert into TownPostLike (postId, userId, status) values (?,?,?);";
-        Object[] Params = new Object[]{postId, userId, postTownLikedReq.getStatus()};
+    public int createTownPostLiked(int postId, int userId) {
+        String Query = "insert into TownPostLike (postId, userId) values (?,?);";
+        Object[] Params = new Object[]{postId, userId};
         return this.jdbcTemplate.update(Query, Params);
     }
 
@@ -261,7 +223,7 @@ public class TownDao {
 
     // 동네 생활 댓글 좋아요 체크
     public int checkComLiked(int postId, int comId, int userId) {
-       String checkLikedQuery = "select exists(select postId, comId, userId from TownPostComLike where postId=? and comId =? and userId=?)";
+       String checkLikedQuery = "select exists(select postId, comId, userId from TownPostComLike where postId=? and comId =? and userId=?);";
        Object[] checkLikedParams = new Object[]{postId, comId, userId};
        return this.jdbcTemplate.queryForObject(checkLikedQuery,
                int.class,
@@ -273,9 +235,9 @@ public class TownDao {
      * [POST] /towns/:postId/:comId/liked/:userId
      * @return BaseResponse<String>
      */
-    public int createTownComLiked(int postId, int comId, int userId, PostTownComLikedReq postTownComLikedReq) {
-        String Query = "insert into TownPostComLike (postId, comId, userId, status) VALUES (?, ?, ?, ?)";
-        Object[] Params = new Object[]{postId, comId, userId, postTownComLikedReq.getStatus()};
+    public int createTownComLiked(int postId, int comId, int userId) {
+        String Query = "insert into TownPostComLike (postId, comId, userId) VALUES (?, ?, ?);";
+        Object[] Params = new Object[]{postId, comId, userId};
         return this.jdbcTemplate.update(Query, Params);
     }
 
@@ -371,4 +333,62 @@ public class TownDao {
                 Params);
     }
 
+    public int checkPostUser(int postId) {
+        String Query = "select userId from TownPost where townPostId=?";
+        int Params = postId;
+        return this.jdbcTemplate.queryForObject(Query,
+                int.class,
+                Params);
+    }
+
+    // 사용자 주소 코드 찾기
+    public int findUserJusoCodeId(int userId) {
+        String Query = "select jusoCodeId from UserArea where userId=?;";
+        int Params = userId;
+        return this.jdbcTemplate.queryForObject(Query,
+                int.class,
+                Params);
+    }
+
+    // 게시글 존재 확인
+    public int checkPostExists(int postId) {
+        String Query = "select exists(select * from TownPost where townPostId=? and status='Y');";
+        int Params = postId;
+        return this.jdbcTemplate.queryForObject(Query,
+                int.class,
+                Params);
+    }
+
+    // 댓글 존재 확인
+    public int checkComExists(int refId) {
+        String Query = "select exists(select * from TownPostCom where townPostComId=? and status='Y');";
+        int Params = refId;
+        return this.jdbcTemplate.queryForObject(Query,
+                int.class,
+                Params);
+    }
+
+    public int checkComUser(int comId) {
+        String Query = "select userId from TownPostCom where townPostComId=?";
+        int Params = comId;
+        return this.jdbcTemplate.queryForObject(Query,
+                int.class,
+                Params);
+    }
+
+    public String checkPostLikeStatus(int postId, int userId) {
+        String Query = "select status from TownPostLike where postId=? and userId=?";
+        Object[] Params = new Object[]{postId, userId};
+        return this.jdbcTemplate.queryForObject(Query,
+                String.class,
+                Params);
+    }
+
+    public String checkPostComLikeStatus(int comId, int userId) {
+        String Query = "select status from TownPostComLike where comId=? and userId=?";
+        Object[] Params = new Object[]{comId, userId};
+        return this.jdbcTemplate.queryForObject(Query,
+                String.class,
+                Params);
+    }
 }

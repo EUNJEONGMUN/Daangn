@@ -79,25 +79,32 @@ public class TownController {
     /**
      * 동네 생활 글 작성 API
      * [POST] /towns/new/:userId
-     *
      * @return BaseResponse<PostTownNewRes>
      */
     @ResponseBody
-    @PostMapping("/new/{userId}") // (POST) 127.0.0.1:9000/towns/new
-    public BaseResponse<PostTownNewRes> createTown(@PathVariable int userId, @RequestBody PostTownNewReq postTownNewReq) {
+    @PostMapping("/new/{userId}")
+    public BaseResponse<PostTownNewRes> createTown(@PathVariable int userId, @RequestBody PostTownNew postTownNew) {
         try {
-        if (postTownNewReq.getTownPostCategoryId() == 0) {
+
+            //jwt에서 idx 추출.
+            int userIdxByJwt = jwtService.getUserIdx();
+            //userIdx와 접근한 유저가 같은지 확인
+            if(userId != userIdxByJwt){
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+
+            if (postTownNew.getTownPostCategoryId() == 0) {
             return new BaseResponse<>(EMPTY_CATEGORY);
-        }
-        if (postTownNewReq.getContent() == null) {
-            return new BaseResponse<>(POST_TOWNS_EMPTY_CONTENT);
-        }
+            }
+            if (postTownNew.getContent() == null) {
+                return new BaseResponse<>(POST_TOWNS_EMPTY_CONTENT);
+            }
 
-        if (townProvider.checkTopCategory(postTownNewReq.getTownPostCategoryId())!=2){
-            return new BaseResponse<>(CATEGORY_RANGE_ERROR);
-        }
-
-            PostTownNewRes postTownNewRes = townService.createTown(userId, postTownNewReq);
+            if (townProvider.checkTopCategory(postTownNew.getTownPostCategoryId())!=2){
+                return new BaseResponse<>(CATEGORY_RANGE_ERROR);
+            }
+            PostTownNewReq postTownNewReq = new PostTownNewReq(userId, postTownNew.getTownPostCategoryId(), postTownNew.getContent());
+            PostTownNewRes postTownNewRes = townService.createTown(postTownNewReq);
             return new BaseResponse<>(postTownNewRes);
         } catch (BaseException exception) {
             return new BaseResponse<>((exception.getStatus()));
@@ -113,8 +120,34 @@ public class TownController {
     @PatchMapping("/{postId}/{userId}")
     public BaseResponse<String> modifyTownPost(@PathVariable int postId, @PathVariable int userId, @RequestBody Town town) {
         try {
+            //jwt에서 idx 추출.
+            int userIdxByJwt = jwtService.getUserIdx();
+            //userIdx와 접근한 유저가 같은지 확인
+            if(userId != userIdxByJwt){
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+            // 글 존재여부 확인
+            if (townProvider.checkPostExists(postId) == 0){
+                return new BaseResponse<>(POST_NOT_EXISTS);
+            }
+            // 자신의 글인지 확인
+            if(townProvider.checkPostUser(postId)!=userId){
+                return new BaseResponse<>(INVALID_USER_POST);
+            }
+            if (town.getTownPostCategoryId() == 0) {
+                return new BaseResponse<>(EMPTY_CATEGORY);
+            }
+            if (town.getContent() == null) {
+                return new BaseResponse<>(POST_TOWNS_EMPTY_CONTENT);
+            }
+
+            if (townProvider.checkTopCategory(town.getTownPostCategoryId())!=2){
+                return new BaseResponse<>(CATEGORY_RANGE_ERROR);
+            }
+
+            System.out.println(postId);
             PatchTownPostReq patchTownPostReq = new PatchTownPostReq(postId, userId, town.getTownPostCategoryId(),
-                    town.getContent(), town.getTownPostLocation(), town.getStatus());
+                    town.getContent(), town.getStatus());
             townService.modifyTownPost(patchTownPostReq);
             String result = "";
             return new BaseResponse<>(result);
@@ -123,54 +156,43 @@ public class TownController {
         }
     }
 
-//    /**
-//     * 동네 생활 글 삭제 API
-//     * [PATCH] /towns/:postId/:userId/deletion
-//     * @return BaseResponse<String>
-//     */
-//    @ResponseBody
-//    @PatchMapping("/{postId}/{userId}/deletion")
-//    public BaseResponse<String> deleteTownPost(@PathVariable int postId, @PathVariable int userId, @RequestBody PatchTownPostDel patchTownPostDel) {
-//        try {
-//            PatchTownPostDelReq patchTownPostDelReq = new PatchTownPostDelReq(postId, userId, patchTownPostDel.getStatus());
-//            townService.deleteTownPost(patchTownPostDelReq);
-//            String result = "";
-//            return new BaseResponse<>(result);
-//        } catch (BaseException exception) {
-//            return new BaseResponse<>((exception.getStatus()));
-//        }
-//    }
-
     /**
      * 동네 생활 댓글 작성 API
-     * [POST] /towns/:postId/:userId/comment
+     * [POST] /towns/:postId/comment/:userId
      * @return BaseResponse<PostTownComRes>
      */
     @ResponseBody
-    @PostMapping("/{postId}/{userId}/comment") // (POST) 127.0.0.1:9000/towns/:postId/comment
+    @PostMapping("/{postId}/comment/{userId}") // (POST) 127.0.0.1:9000/towns/:postId/comment
     public BaseResponse<PostTownComRes> createTownCom(@PathVariable int postId, @PathVariable int userId, @RequestBody PostTownComReq postTownComReq) {
 
-        if (postTownComReq.getContent() == null) {
-            return new BaseResponse<>(POST_TOWNS_EMPTY_CONTENT);
+        try{
+            //jwt에서 idx 추출.
+            int userIdxByJwt = jwtService.getUserIdx();
+            //userIdx와 접근한 유저가 같은지 확인
+            if(userId != userIdxByJwt){
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+
+            // 글 존재여부 확인
+            if (townProvider.checkPostExists(postId) == 0){
+                return new BaseResponse<>(POST_NOT_EXISTS);
+            }
+            // 대댓글일 때, 상위 댓글 존재 여부 확인
+            if (postTownComReq.getRefId() != 0 && townProvider.checkComExists(postTownComReq.getRefId())==0){
+                return new BaseResponse<>(POST_COM_NOT_EXISTS);
+            }
+
+            if (postTownComReq.getContent() == null) {
+                return new BaseResponse<>(POST_TOWNS_EMPTY_CONTENT);
+            }
+
+            PostTownComRes postTownComRes = townService.createTownCom(postId, userId, postTownComReq);
+            return new BaseResponse<>(postTownComRes);
+
+        } catch (BaseException exception){
+            return new BaseResponse<>((exception.getStatus()));
         }
 
-        if (postTownComReq.getRefId() == 0) {
-            // 대댓글 일 때
-            try {
-                PostTownComRes postTownComRes = townService.createTownComCom(postId, userId, postTownComReq);
-                return new BaseResponse<>(postTownComRes);
-            } catch (BaseException exception) {
-                return new BaseResponse<>((exception.getStatus()));
-            }
-        } else {
-            // 댓글 일 때
-            try {
-                PostTownComRes postTownComRes = townService.createTownCom(postId, userId, postTownComReq);
-                return new BaseResponse<>(postTownComRes);
-            } catch (BaseException exception) {
-                return new BaseResponse<>((exception.getStatus()));
-            }
-        }
     }
 
     /**
@@ -183,34 +205,43 @@ public class TownController {
     public BaseResponse<String> modifyTownCom(@PathVariable int postId, @PathVariable int comId, @PathVariable int userId,
                                               @RequestBody TownPostCom townPostCom) {
         try {
+            //jwt에서 idx 추출.
+            int userIdxByJwt = jwtService.getUserIdx();
+            //userIdx와 접근한 유저가 같은지 확인
+            if(userId != userIdxByJwt){
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+
+
+            // 글 존재여부 확인
+            if (townProvider.checkPostExists(postId)==0){
+                return new BaseResponse<>(POST_NOT_EXISTS);
+            }
+
+            // 댓글 존재여부 확인
+            if (townProvider.checkComExists(comId)==0){
+                return new BaseResponse<>(POST_COM_NOT_EXISTS);
+            }
+
+            // 자신의 댓글인지 확인
+            if(townProvider.checkComUser(comId)!=userId){
+                return new BaseResponse<>(INVALID_USER_POST);
+            }
+
+            if (townPostCom.getContent() == null) {
+                return new BaseResponse<>(POST_TOWNS_EMPTY_CONTENT);
+            }
+
             PatchTownPostComReq patchTownPostComReq = new PatchTownPostComReq(postId, comId, userId, townPostCom.getContent(), townPostCom.getStatus());
             townService.modifyTownCom(patchTownPostComReq);
             String result = "";
             return new BaseResponse<>(result);
+
         } catch (BaseException exception) {
             return new BaseResponse<>((exception.getStatus()));
         }
     }
-//
-//    /**
-//     * 동네 생활 댓글 삭제 API
-//     * [PATCH] /towns/:postId/comment/:comId/:userId/deletion
-//     * @return BaseResponse<String>
-//     */
-//    @ResponseBody
-//    @PatchMapping("/{postId}/comment/{comId}/{userId}/deletion")
-//    public BaseResponse<String> deleteTownCom(@PathVariable int postId, @PathVariable int comId, @PathVariable int userId,
-//                                              @RequestBody TownPostComDel townPostComDel) {
-//        try {
-//            PatchTownComDelReq patchTownComDelReq = new PatchTownComDelReq(postId, comId, userId, townPostComDel.getStatus());
-//            townService.deleteTownCom(patchTownComDelReq);
-//            String result = "";
-//            return new BaseResponse<>(result);
-//        } catch (BaseException exception) {
-//            return new BaseResponse<>((exception.getStatus()));
-//        }
-//
-//    }
+
 
     /**
      * 동네 생활 글 좋아요 설정 API
@@ -219,17 +250,32 @@ public class TownController {
      */
     @ResponseBody
     @PostMapping("/{postId}/liked/{userId}")
-    public BaseResponse<String> createTownPostLiked(@PathVariable int postId, @PathVariable int userId, @RequestBody PostTownLikedReq postTownLikedReq) {
+    public BaseResponse<String> createTownPostLiked(@PathVariable int postId, @PathVariable int userId) {
         try {
+            //jwt에서 idx 추출.
+            int userIdxByJwt = jwtService.getUserIdx();
+            //userIdx와 접근한 유저가 같은지 확인
+            if(userId != userIdxByJwt){
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+
+            // 글 존재여부 확인
+            if (townProvider.checkPostExists(postId) == 0){
+                return new BaseResponse<>(POST_NOT_EXISTS);
+            }
+
             if (townProvider.checkLiked(postId, userId) == 0) {
                 // 좋아요 하지 않은 게시글일 때
-                townService.createTownPostLiked(postId, userId, postTownLikedReq);
+                townService.createTownPostLiked(postId, userId);
                 String result = "";
                 return new BaseResponse<>(result);
 
             } else {
+                if (townProvider.checkPostLikeStatus(postId, userId).equals("Y")){
+                    return new BaseResponse<>(POST_LIKE_DUPLICATED);
+                }
                 // 좋아요 한 기록이 있는 게시글일 때
-                PatchTownLikedReq patchTownLikedReq = new PatchTownLikedReq(postId, userId, postTownLikedReq.getStatus());
+                PatchTownLikedReq patchTownLikedReq = new PatchTownLikedReq(postId, userId,"Y");
                 townService.modifyTownPostLiked(patchTownLikedReq);
                 String result = "";
                 return new BaseResponse<>(result);
@@ -249,6 +295,27 @@ public class TownController {
     @PatchMapping("/{postId}/liked/{userId}")
     public BaseResponse<String> modifyTownPostLiked(@PathVariable int postId, @PathVariable int userId, @RequestBody TownLiked townLiked) {
         try {
+            //jwt에서 idx 추출.
+            int userIdxByJwt = jwtService.getUserIdx();
+            //userIdx와 접근한 유저가 같은지 확인
+            if(userId != userIdxByJwt){
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+
+            // 글 존재여부 확인
+            if (townProvider.checkPostExists(postId) == 0){
+                return new BaseResponse<>(POST_NOT_EXISTS);
+            }
+            // 좋아요 한 기록이 있는지 여부 확인
+            if (townProvider.checkLiked(postId, userId) == 0){
+                return new BaseResponse<>(POST_LIKE_NOT_EXISTS);
+            }
+            if (townProvider.checkPostLikeStatus(postId, userId).equals(townLiked.getStatus())){
+                if (townLiked.getStatus().equals("Y")){
+                    return new BaseResponse<>(POST_LIKE_DUPLICATED);
+                }
+                return new BaseResponse<>(POST_NOT_LIKE_DUPLICATED);
+            }
 
             PatchTownLikedReq patchTownLikedReq = new PatchTownLikedReq(postId, userId, townLiked.getStatus());
             townService.modifyTownPostLiked(patchTownLikedReq);
@@ -266,18 +333,38 @@ public class TownController {
      */
     @ResponseBody
     @PostMapping("/{postId}/{comId}/liked/{userId}")
-    public BaseResponse<String> createTownComLiked(@PathVariable int postId, @PathVariable int comId, @PathVariable int userId,
-                                                   @RequestBody PostTownComLikedReq postTownComLikedReq) {
+    public BaseResponse<String> createTownComLiked(@PathVariable int postId, @PathVariable int comId, @PathVariable int userId) {
         try {
+            //jwt에서 idx 추출.
+            int userIdxByJwt = jwtService.getUserIdx();
+            //userIdx와 접근한 유저가 같은지 확인
+            if(userId != userIdxByJwt){
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+
+            // 글 존재여부 확인
+            if (townProvider.checkPostExists(postId) == 0){
+                return new BaseResponse<>(POST_NOT_EXISTS);
+            }
+
+            // 댓글 존재여부 확인
+            if (townProvider.checkComExists(comId)==0){
+                return new BaseResponse<>(POST_COM_NOT_EXISTS);
+            }
+
+
             if (townProvider.checkComLiked(postId, comId, userId) == 0) {
                 // 좋아요 하지 않은 댓글일 때
-                townService.createTownComLiked(postId, comId, userId, postTownComLikedReq);
+                townService.createTownComLiked(postId, comId, userId);
                 String result = "";
                 return new BaseResponse<>(result);
 
             } else {
+                if (townProvider.checkPostComLikeStatus(comId, userId).equals("Y")){
+                    return new BaseResponse<>(POST_LIKE_DUPLICATED);
+                }
                 // 좋아요 한 기록이 있는 댓글일 떄
-                PatchTownComLikedReq patchTownComLikedReq = new PatchTownComLikedReq(postId, comId, userId, postTownComLikedReq.getStatus());
+                PatchTownComLikedReq patchTownComLikedReq = new PatchTownComLikedReq(postId, comId, userId, "Y");
                 townService.modifyTownComLiked(patchTownComLikedReq);
                 String result = "";
                 return new BaseResponse<>(result);
@@ -297,6 +384,32 @@ public class TownController {
     public BaseResponse<String> modifyTownComLiked(@PathVariable int postId, @PathVariable int comId, @PathVariable int userId,
                                                    @RequestBody TownComLiked townComLiked) {
         try {
+            //jwt에서 idx 추출.
+            int userIdxByJwt = jwtService.getUserIdx();
+            //userIdx와 접근한 유저가 같은지 확인
+            if(userId != userIdxByJwt){
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+
+            // 글 존재여부 확인
+            if (townProvider.checkPostExists(postId) == 0){
+                return new BaseResponse<>(POST_NOT_EXISTS);
+            }
+            // 댓글 존재여부 확인
+            if (townProvider.checkComExists(comId)==0){
+                return new BaseResponse<>(POST_COM_NOT_EXISTS);
+            }
+
+            // 좋아요 한 기록이 있는지 여부 확인
+            if (townProvider.checkComLiked(postId, comId, userId) == 0){
+                return new BaseResponse<>(POST_COM_LIKE_NOT_EXISTS);
+            }
+            if (townProvider.checkPostComLikeStatus(comId, userId).equals(townComLiked.getStatus())){
+                if (townComLiked.getStatus().equals("Y")){
+                    return new BaseResponse<>(POST_LIKE_DUPLICATED);
+                }
+                return new BaseResponse<>(POST_NOT_LIKE_DUPLICATED);
+            }
             PatchTownComLikedReq patchTownComLikedReq = new PatchTownComLikedReq(postId, comId, userId, townComLiked.getStatus());
             townService.modifyTownComLiked(patchTownComLikedReq);
             String result = "";

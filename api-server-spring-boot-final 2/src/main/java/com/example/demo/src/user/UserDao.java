@@ -1,10 +1,8 @@
 package com.example.demo.src.user;
 
+import com.example.demo.src.product.model.Res.GetProductRes;
 import com.example.demo.src.user.model.*;
-import com.example.demo.src.user.model.Req.PatchMyInfoReq;
-import com.example.demo.src.user.model.Req.PostSignInReq;
-import com.example.demo.src.user.model.Req.PostUserKeywordsReq;
-import com.example.demo.src.user.model.Req.PostUserReq;
+import com.example.demo.src.user.model.Req.*;
 import com.example.demo.src.user.model.Res.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -35,9 +33,20 @@ public class UserDao {
     public int createUser(PostUserReq postUserReq) {
         String Query = "insert into User (userPhoneNumber, userName, userProfileImageUrl) values (?,?,?);";
         Object[] Params = new Object[]{postUserReq.getPhoneNumber(), postUserReq.getUserName(), postUserReq.getProfileImg()};
-        return this.jdbcTemplate.update(Query, Params);
+
+        this.jdbcTemplate.update(Query,Params);
+        String lastInsertIdQuery = "select last_insert_id()";
+
+        return this.jdbcTemplate.queryForObject(lastInsertIdQuery,int.class);
+
     }
 
+    // 사용자 동네 입력
+    public int createUserArea(int userId, int jusoCodeId) {
+        String Query = "insert into UserArea (userId, jusoCodeId) values (?,?);";
+        Object[] Params = new Object[]{userId, jusoCodeId};
+        return this.jdbcTemplate.update(Query, Params);
+    }
 
     // 휴대폰 번호 중복체크
     public int checkPhoneNumber(String phoneNumber) {
@@ -177,7 +186,11 @@ public class UserDao {
         return this.jdbcTemplate.update(Query, Params);
     }
 
-
+    public int modifyMyArea(PatchMyInfoReq patchMyInfoReq) {
+        String Query = "update UserArea set jusoCodeId=? where userId=?;";
+        Object[] Params = new Object[]{patchMyInfoReq.getJusoCodeId(), patchMyInfoReq.getUserId()};
+        return this.jdbcTemplate.update(Query, Params);
+    }
     /**
      * 유저 배지 조회 API
      * [GET] /users/badge
@@ -378,12 +391,12 @@ public class UserDao {
 
     /**
      * 키워드 알림해제 API
-     * [DELETE] /users/:userIdx/keywords/:keywordsId/deletion
+     * [PATCH] /users/:userIdx/keywords
      * @return BaseResponse<String>
      */
-    public int deleteKeywords(int userId, int keywordsId) {
-        String Query = "delete from KeywordList where userId=? and keywordListId=?;";
-        Object[] Params = new Object[]{userId, keywordsId};
+    public int deleteKeywords(DeleteKeywordReq deleteKeywordReq) {
+        String Query = "update KeywordList set status='N' where userId=? and content=?;";
+        Object[] Params = new Object[]{deleteKeywordReq.getUserId(), deleteKeywordReq.getKeyword()};
         return this.jdbcTemplate.update(Query, Params);
     }
 
@@ -392,7 +405,7 @@ public class UserDao {
      * [GET] /users/:userId/attention
      * @return BaseResponse<List<GetUserAttentionRes>>
      */
-    public List<GetUserAttentionRes> getAttention(int userId) {
+    public List<GetProductRes> getAttention(int userId) {
 
         String Query = "select P.productPostId, img.firstImg, P.title, JusoCode.jusoName, P.price,\n" +
                 "                       case\n" +
@@ -442,7 +455,7 @@ public class UserDao {
 
         int Params = userId;
         return this.jdbcTemplate.query(Query,
-                (rs,rowNum) -> new GetUserAttentionRes(
+                (rs,rowNum) -> new GetProductRes(
                         rs.getString("firstImg"),
                         rs.getInt("productPostId"),
                         rs.getString("title"),
@@ -466,4 +479,7 @@ public class UserDao {
                 char.class,
                 Params);
     }
+
+
+
 }

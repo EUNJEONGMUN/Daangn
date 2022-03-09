@@ -3,7 +3,9 @@ package com.example.demo.src.member;
 
 
 import com.example.demo.config.BaseException;
-import com.example.demo.src.member.model.*;
+import com.example.demo.src.member.model.PatchMemberReq;
+import com.example.demo.src.member.model.PostMemberReq;
+import com.example.demo.src.member.model.PostMemberRes;
 import com.example.demo.utils.JwtService;
 import com.example.demo.utils.SHA256;
 import org.slf4j.Logger;

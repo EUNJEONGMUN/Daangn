@@ -1,4 +1,4 @@
-package com.example.demo.src.product.model;
+package com.example.demo.src.user.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,6 +9,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class GetProductChatCount {
-    private int chatCount;
+public class DeleteKeyword {
+    private String keyword;
 }

@@ -11,4 +11,5 @@ public class PatchMyInfoReq {
     private int userId;
     private String userImg;
     private String name;
+    private int jusoCodeId;
 }

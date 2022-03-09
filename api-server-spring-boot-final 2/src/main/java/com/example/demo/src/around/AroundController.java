@@ -3,9 +3,10 @@ package com.example.demo.src.around;
 import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponse;
 
-import com.example.demo.src.around.model.*;
-
-import com.fasterxml.jackson.databind.ser.Serializers;
+import com.example.demo.src.around.model.PostAroundChatReq;
+import com.example.demo.src.around.model.PostAroundChatRes;
+import com.example.demo.src.around.model.PostAroundNewReq;
+import com.example.demo.src.around.model.PostAroundNewRes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

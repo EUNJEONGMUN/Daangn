@@ -30,14 +30,11 @@ public class TownService {
      * [POST] /towns/new/:userId
      * @return BaseResponse<PostTownNewRes>
      */
-    public PostTownNewRes createTown(int userId, PostTownNewReq postTownNewReq) throws BaseException {
+    public PostTownNewRes createTown(PostTownNewReq postTownNewReq) throws BaseException {
 
         try {
-            if (townDao.checkTopCategory(postTownNewReq.getTownPostCategoryId()) != 2){
-                // 동네생활 카테고리 refId = 2
-                throw new BaseException(CATEGORY_RANGE_ERROR);
-            }
-            int townPostId = townDao.createTown(userId, postTownNewReq);
+            int userJusoCodeId = townDao.findUserJusoCodeId(postTownNewReq.getUserId());
+            int townPostId = townDao.createTown(userJusoCodeId, postTownNewReq);
             return new PostTownNewRes(townPostId);
         } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);
@@ -61,21 +58,6 @@ public class TownService {
     }
 
 
-//    /**
-//     * 동네 생활 글 삭제 API
-//     * [PATCH] /towns/:postId/:userId/deletion
-//     * @return BaseResponse<String>
-//     */
-//    public void deleteTownPost(PatchTownPostDelReq patchTownPostDelReq) throws BaseException {
-//        try {
-//            int result = townDao.deleteTownPost(patchTownPostDelReq);
-//            if (result == FAIL) {
-//                throw new BaseException(DELETE_FAIL_TOWN_POST);
-//            }
-//        } catch(Exception exception){
-//            throw new BaseException(DATABASE_ERROR);
-//        }
-//    }
 
     /**
      * 동네 생활 댓글 작성 API
@@ -92,20 +74,6 @@ public class TownService {
         }
     }
 
-    /**
-     * 동네 생활 댓글 작성 API - 대댓글
-     * [POST] /towns/:postId/:userId/comment
-     * @return BaseResponse<PostTownComRes>
-     */
-    public PostTownComRes createTownComCom(int postId, int userId, PostTownComReq postTownComReq) throws BaseException {
-
-        try {
-            int townPostComId = townDao.createTownComCom(postId, userId, postTownComReq);
-            return new PostTownComRes(townPostComId);
-        } catch (Exception exception) {
-            throw new BaseException(DATABASE_ERROR);
-        }
-    }
 
     /**
      * 동네 생활 댓글 수정 API
@@ -123,23 +91,6 @@ public class TownService {
         }
     }
 
-//
-//    /**
-//     * 동네 생활 댓글 삭제 API
-//     * [PATCH] /towns/:postId/comment/:comId/:userId/deletion
-//     * @return BaseResponse<String>
-//     */
-//    public void deleteTownCom(PatchTownComDelReq patchTownComDelReq) throws BaseException {
-//        try {
-//            int result = townDao.deleteTownCom(patchTownComDelReq);
-//            if (result == FAIL){
-//                throw new BaseException(DELETE_FAIL_TOWN_COM);
-//            }
-//        } catch (Exception exception) {
-//            throw new BaseException(DATABASE_ERROR);
-//        }
-//
-//    }
 
 
     /**
@@ -147,9 +98,9 @@ public class TownService {
      * [POST] /towns/:postId/liked/:userId
      * @return BaseResponse<String>
      */
-    public void createTownPostLiked(int postId, int userId, PostTownLikedReq postTownLikedReq) throws BaseException {
+    public void createTownPostLiked(int postId, int userId) throws BaseException {
         try {
-            int result = townDao.createTownPostLiked(postId, userId, postTownLikedReq);
+            int result = townDao.createTownPostLiked(postId, userId);
             if (result == FAIL){
                 throw new BaseException(CREATE_FAIL_TOWN_POST_LIKED);
             }
@@ -181,10 +132,9 @@ public class TownService {
      *
      * @return BaseResponse<String>
      */
-    public void createTownComLiked(int postId, int comId, int userId,
-                                   PostTownComLikedReq postTownComLikedReq) throws BaseException {
+    public void createTownComLiked(int postId, int comId, int userId) throws BaseException {
         try {
-            int result = townDao.createTownComLiked(postId, comId, userId, postTownComLikedReq);
+            int result = townDao.createTownComLiked(postId, comId, userId);
             if (result == FAIL){
                 throw new BaseException(CREATE_FAIL_TOWN_POST_COM_LIKED);
             }

@@ -5,14 +5,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.sql.Timestamp;
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Town {
+public class PostTownNew {
     private int townPostCategoryId;
     private String content;
-    private String status;
 }

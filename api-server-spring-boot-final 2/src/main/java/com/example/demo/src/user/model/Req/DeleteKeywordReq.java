@@ -9,9 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class PostUserReq {
-    private String userName;
-    private String phoneNumber;
-    private String profileImg;
-    private int jusoCodeId;
+public class DeleteKeywordReq {
+    private int userId;
+    private String keyword;
 }

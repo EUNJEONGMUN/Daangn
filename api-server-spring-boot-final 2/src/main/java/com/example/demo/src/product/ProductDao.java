@@ -2,6 +2,7 @@ package com.example.demo.src.product;
 
 import com.example.demo.src.product.model.*;
 import com.example.demo.src.product.model.Req.*;
+import com.example.demo.src.product.model.Res.GetProductPostRes;
 import com.example.demo.src.product.model.Res.GetProductRes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -14,10 +15,10 @@ import java.util.List;
 public class ProductDao {
 
     private JdbcTemplate jdbcTemplate;
-    private GetProductImg getProductImg;
-    private GetProductInfo getProductInfo;
-    private GetProductChatCount getProductChatCount;
-    private GetProductAttCount getProductAttCount;
+    private List<Object> getProductImg;
+    private List<GetProductInfo> getProductInfo;
+    private List<Object>  getProductChatCount;
+    private List<Object>  getProductAttCount;
 
     @Autowired
     public void setDataSource(DataSource dataSource){
@@ -139,31 +140,33 @@ public class ProductDao {
 //                "group by P.productPostId\n" +
 //                "order by P.createdAt DESC;";
 //
-//        List<GetProductPostRes> getProductPostRes = new ArrayList <>();
+//        List<String> imgList = this.jdbcTemplate.query(Query1,
+//                                        (rs, rowNum) -> {
+//                                        return rs.getString("firstImg");});
 //
-//        return new GetProductPostRes(
-//                getProductImg = this.jdbcTemplate.queryForObject(Query1,
-//                        (rs, rowNum)-> new GetProductImg(
-//                                rs.getString("firstImg")
-//                        )),
-//                getProductInfo = this.jdbcTemplate.queryForObject(Query2,
-//                            (rs2,rowNum2) -> new GetProductInfo(
-//                                rs2.getInt("productPostId"),
-//                                rs2.getString("title"),
-//                                rs2.getString("jusoName"),
-//                                rs2.getInt("price"),
-//                                rs2.getString("state"),
-//                                rs2.getString("uploadTime")
-//                        )),
-//                getProductChatCount = this.jdbcTemplate.queryForObject(Query3,
-//                        (rs, rowNum)-> new GetProductChatCount(
-//                                rs.getInt("chatCount")
-//                        )),
-//                getProductAttCount = this.jdbcTemplate.queryForObject(Query4,
-//                        (rs, rowNum) -> new GetProductAttCount(
-//                                rs.getInt("attCount")
-//                        )
-//                ));
+//        List<Integer> chatList = this.jdbcTemplate.query(Query3,
+//                                (rs, rowNum) -> {
+//                                return rs.getInt("chatCount");});
+//
+//        List<Integer> attList = this.jdbcTemplate.query(Query4,
+//                                (rs, rowNum) -> {
+//                                return rs.getInt("attCount");});
+//
+//        List<GetProductInfo> getProductInfoList = this.jdbcTemplate.query(Query2,
+//                                        (rs2, rowNum2) -> {
+//                                            int productPostId = rs2.getInt("productPostId");
+//                                            String title = rs2.getString("title");
+//                                            String jusoName = rs2.getString("jusoName");
+//                                            int price = rs2.getInt("price");
+//                                            String state = rs2.getString("state");
+//                                            String uploadTime = rs2.getString("uploadTime");
+//                                            return new GetProductInfo(productPostId, title, jusoName, price, state, uploadTime);
+//                                        });
+//        System.out.println("여기");
+//        return (List<GetProductPostRes>) new GetProductPostRes(imgList, chatList, attList, getProductInfoList);
+//
+//    }
+
 
 //                getProductImg = this.jdbcTemplate.queryForObject(Query1,
 //                    (rs,rowNum) -> new GetProductImg(
@@ -267,10 +270,10 @@ public class ProductDao {
      * [POST] /products/new
      * @return BaseResponse<PostProductNewRes>
      */
-    public int createProduct(PostProductNewReq postProductNewReq) {
-        String createProductQuery = "insert into ProductPost (userId, title, productPostCategoryId, price,content) VALUES(?,?,?,?,?)";
-        Object[] createProductParams = new Object[]{postProductNewReq.getUserId(), postProductNewReq.getTitle(), postProductNewReq.getCategoryId(),
-                                                    postProductNewReq.getPrice(), postProductNewReq.getContent()};
+    public int createProduct(int userJusoCodeId, PostProductNewReq postProductNewReq) {
+        String createProductQuery = "insert into ProductPost (userId, title, productPostCategoryId, isProposal, content, price, jusoCodeId) VALUES(?,?,?,?,?,?,?)";
+        Object[] createProductParams = new Object[]{postProductNewReq.getUserId(), postProductNewReq.getTitle(), postProductNewReq.getCategoryId(), postProductNewReq.getIsProposal(),
+                                                    postProductNewReq.getContent(), postProductNewReq.getPrice(), userJusoCodeId};
         this.jdbcTemplate.update(createProductQuery, createProductParams);
 
         String lastInsertIdQuery = "select last_insert_id()";
@@ -691,6 +694,22 @@ public class ProductDao {
                 Params);
     }
 
+    // 사용자 주소 코드 찾기
+    public int findUserJusoCodeId(int userId) {
+        String Query = "select jusoCodeId from UserArea where userId=?;";
+        int Params = userId;
+        return this.jdbcTemplate.queryForObject(Query,
+                int.class,
+                Params);
 
+    }
 
+    // 게시글 존재 확인
+    public int checkPostExists(int postId) {
+        String Query = "select exists(select * from ProductPost where productPostId=? and status='Y');";
+        int Params = postId;
+        return this.jdbcTemplate.queryForObject(Query,
+                int.class,
+                Params);
+    }
 }

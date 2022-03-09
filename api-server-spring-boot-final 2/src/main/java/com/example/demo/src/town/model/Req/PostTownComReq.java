@@ -10,8 +10,6 @@ import lombok.Setter;
 
 // 동네 생활 댓글 작성 시 필요한 것들
 public class PostTownComReq {
-    private int townPostId;
-    private int userId;
     private String content;
     private int refId;
 

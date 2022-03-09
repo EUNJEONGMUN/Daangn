@@ -1,6 +1,7 @@
 package com.example.demo.src.product;
 
 import com.example.demo.config.BaseException;
+import com.example.demo.src.product.model.Res.GetProductPostRes;
 import com.example.demo.src.product.model.Res.GetProductRes;
 
 import org.slf4j.Logger;
@@ -38,7 +39,7 @@ public class ProductProvider {
     }
 //    public List<GetProductPostRes> getProducts() throws BaseException {
 //        try{
-//            GetProductPostRes getProductPostRes = productDao.getProducts();
+//            List<GetProductPostRes> getProductPostRes = productDao.getProducts();
 //            return getProductPostRes;
 //        } catch (Exception exception){
 //            throw new BaseException(DATABASE_ERROR);
@@ -135,5 +136,11 @@ public class ProductProvider {
     }
 
 
-
+    public int checkPostExists(int postId) throws BaseException {
+        try {
+            return productDao.checkPostExists(postId);
+        } catch(Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 }
