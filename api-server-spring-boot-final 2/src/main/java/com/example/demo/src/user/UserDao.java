@@ -480,6 +480,32 @@ public class UserDao {
                 Params);
     }
 
+    /**
+     * 회원 탈퇴 API
+     * [PATCH] /users/:userId/deletion
+     * @return BaseResponse<String>
+     */
+    public int deleteUser(PatchUserReq patchUserReq) {
+        String Query = "update User set status=? where userId=?;";
+        Object[] Params = new Object[]{patchUserReq.getStatus(), patchUserReq.getUserId()};
+        return this.jdbcTemplate.update(Query, Params);
 
+    }
+
+    public int checkUser(int userId) {
+        String Query = "select exists(select * from User where userId=?);";
+        int Params = userId;
+        return this.jdbcTemplate.queryForObject(Query,
+                int.class,
+                Params);
+    }
+
+    public String checkUserState(int userId) {
+        String Query = "select status from User where userId=?;";
+        int Params = userId;
+        return this.jdbcTemplate.queryForObject(Query,
+                String.class,
+                Params);
+    }
 
 }

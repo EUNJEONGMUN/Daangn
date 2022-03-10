@@ -139,4 +139,21 @@ public class UserProvider {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
+    // 계정 확인
+    public int checkUser(int userId) throws BaseException {
+        try {
+            return userDao.checkUser(userId);
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public String checkUserState(int userId) throws BaseException {
+        try{
+            return userDao.checkUserState(userId);
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 }

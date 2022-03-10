@@ -25,6 +25,7 @@ public enum BaseResponseStatus {
     EMPTY_CATEGORY(false, 2005, "카테고리를 선택해주세요."),
     NOT_CORRECT_STATUS(false, 2006, "상태값을 올바르게 입력해주세요"),
     INVALID_USER_POST(false,2007,"권한이 없는 유저의 접근입니다."),
+    EMPTY_STATUS(false, 2008, "상태 값을 입력해주세요."),
     // users
     USERS_EMPTY_USER_ID(false, 2010, "유저 아이디 값을 확인해주세요."),
     FAIL_MESSAGE_AUTH(false, 2011, "휴대폰 인증에 실패하였습니다."),
@@ -39,6 +40,7 @@ public enum BaseResponseStatus {
     POST_USERS_NOT_EXISTS_PHONENUMBER(false, 2022, "회원가입을 먼저 진행해주세요."),
     POST_USERS_EMPTY_NAME(false, 2023, "닉네임을 입력해주세요."),
     POST_USERS_EMPTY_JUSOCODE(false, 2024, "동네를 선택해주세요."),
+
     // [POST] /towns
     POST_TOWNS_EMPTY_CONTENT(false, 2100, "내용을 입력해주세요."),
 
@@ -89,8 +91,10 @@ public enum BaseResponseStatus {
     FAILED_TO_LOGIN(false,3011,"없는 아이디거나 비밀번호가 틀렸습니다."),
     DUPLICATED_KEYWORDS(false, 3012, "중복된 키워드가 존재합니다."),
     POST_USERS_EXISTS_PHONE_NUMBER(false, 3013, "이미 가입한 적이 있거나 탈퇴한 번호입니다."),
-    POST_USERS_SECESSION(false, 3014, "탈퇴한 계정입니다."),
+    USERS_SECESSION(false, 3014, "탈퇴한 계정입니다."),
     KEYWORD_NOT_EXISTS(false, 3015, "해당 키워드가 없습니다."),
+    USER_NOT_EXISTS(false, 3016, "존재하지 않는 사용자입니다."),
+
     // products
     POST_ATTENTION_DUPLICATED(false, 3100, "이미 관심 등록한 글입니다."),
     POST_ATTENTION_EMPTY(false, 3101, "관심 등록한 기록이 없습니다."),
@@ -121,6 +125,7 @@ public enum BaseResponseStatus {
     POST_FAIL_INSERT_INFO(false, 5107, "사용자 정보 입력에 실패했습니다."),
     POST_FAIL_SIGNUP(false, 5108, "회원가입에 실패하였습니다."),
     PATCH_FAIL_MYINFO_AREA(false, 5109,"사용자 동네 수정에 실패했습니다."),
+    PATCH_FAIL_DEL_USER(false, 5110, "회원 탈퇴에 실패했습니다."),
     ///towns
     CREATE_FAIL_TOWN_POST_LIKED(false, 5200, "동네 생활 글 좋아요 생성에 실패하였습니다."),
     CREATE_FAIL_TOWN_POST_COM_LIKED(false, 5201, "동네 생활 댓글 좋아요 생성에 실패하였습니다."),

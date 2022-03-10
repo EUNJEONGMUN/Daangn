@@ -128,7 +128,7 @@ public class UserService {
 
         // 삭제된 계정일 때
         if(userProvider.checkExistsUser(encryptPhone) == 'N'){
-            throw new BaseException(POST_USERS_SECESSION);
+            throw new BaseException(USERS_SECESSION);
         }
 
         // DB로부터 정보를 가져옴
@@ -142,6 +142,23 @@ public class UserService {
             throw new BaseException(FAILED_TO_LOGIN);
         }
     }
+
+    /**
+     * 회원 탈퇴 API
+     * [PATCH] /users/:userId/deletion
+     * @return BaseResponse<String>
+     */
+    public void deleteUser(PatchUserReq patchUserReq) throws BaseException {
+        try{
+            int result = userDao.deleteUser(patchUserReq);
+            if (result == 0){
+                throw new BaseException(PATCH_FAIL_DEL_USER);
+            }
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
 
     /**
      * 프로필 수정 API
@@ -203,9 +220,6 @@ public class UserService {
             throw new BaseException(DATABASE_ERROR);
         }
     }
-
-
-
 
 
 }

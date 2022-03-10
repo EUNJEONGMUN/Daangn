@@ -7,8 +7,6 @@ import com.example.demo.src.user.model.*;
 import com.example.demo.src.user.model.Req.*;
 import com.example.demo.src.user.model.Res.*;
 import com.example.demo.utils.JwtService;
-import com.example.demo.utils.SHA256;
-import com.fasterxml.jackson.databind.ser.Serializers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +37,6 @@ public class UserController {
         this.userService = userService;
         this.jwtService = jwtService;
     }
-
     /**
      * 휴대폰 인증 API
      * [POST] /users/message
@@ -134,6 +131,44 @@ public class UserController {
             return new BaseResponse<>(postSignInRes);
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    /**
+     * 회원 탈퇴 API
+     * [PATCH] /users/:userId/deletion
+     * @return BaseResponse<String>
+     */
+    @ResponseBody
+    @PatchMapping("/{userId}/deletion")
+    public BaseResponse<String> deleteUser(@PathVariable int userId, @RequestBody PatchUser patchUser){
+        try {
+            //jwt에서 idx 추출.
+            int userIdxByJwt = jwtService.getUserIdx();
+            //userIdx와 접근한 유저가 같은지 확인
+            if(userId != userIdxByJwt){
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+
+            if (userProvider.checkUser(userId)==0){
+                return new BaseResponse<>(USER_NOT_EXISTS);
+            }
+
+            if (userProvider.checkUserState(userId).equals("N")){
+                return new BaseResponse<>(USERS_SECESSION);
+            }
+
+            if(patchUser.getStatus()==null){
+                return new BaseResponse<>(EMPTY_STATUS);
+            }
+            PatchUserReq patchUserReq = new PatchUserReq(userId, patchUser.getStatus());
+            userService.deleteUser(patchUserReq);
+            String result = "";
+            return new BaseResponse<>(result);
+
+
+        } catch (BaseException exception) {
+            return new BaseResponse<>((exception.getStatus()));
         }
     }
 
