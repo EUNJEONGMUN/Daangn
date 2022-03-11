@@ -73,22 +73,6 @@ public class ProductService {
         }
     }
 
-//    /**
-//     * 중고 거래 글 삭제 API
-//     * [PATCH] /products/:postId/:userId/status
-//     * @return BaseResponse<String>
-//     */
-//    public void deleteProduct(PatchPostDelReq patchPostDelReq) throws BaseException {
-//        try {
-//            int result = productDao.deleteProduct(patchPostDelReq);
-//            if (result == 0){
-//                throw new BaseException(DELETE_FAIL_PRODUCT_POST);
-//            }
-//        } catch(Exception exception){
-//            throw new BaseException(DATABASE_ERROR);
-//        }
-//    }
-
 
     /**
      * 중고 거래 글 관심 등록 API

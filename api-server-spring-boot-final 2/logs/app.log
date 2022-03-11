@@ -1,0 +1,2 @@
+11:49:28.273 WARN  [File:ProductController.java] [Func:getAll] [Line:450] [Message:Warn Level 테스트]- Warn Level 테스트
+11:49:28.279 ERROR [File:ProductController.java] [Func:getAll] [Line:453] [Message:ERROR Level 테스트]- ERROR Level 테스트

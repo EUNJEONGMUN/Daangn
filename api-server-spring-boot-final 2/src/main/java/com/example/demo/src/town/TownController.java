@@ -4,10 +4,7 @@ import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponse;
 import com.example.demo.src.town.model.*;
 import com.example.demo.src.town.model.Req.*;
-import com.example.demo.src.town.model.Res.GetTownComRes;
-import com.example.demo.src.town.model.Res.GetTownRes;
-import com.example.demo.src.town.model.Res.PostTownComRes;
-import com.example.demo.src.town.model.Res.PostTownNewRes;
+import com.example.demo.src.town.model.Res.*;
 import com.example.demo.utils.JwtService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,9 +42,9 @@ public class TownController {
      */
     @ResponseBody
     @GetMapping("/home") // (GET) 127.0.0.1:9000/towns/home
-    public BaseResponse<List<GetTownRes>> getTowns() {
+    public BaseResponse<List<GetTownListRes>> getTowns() {
         try {
-            List<GetTownRes> getTownsRes = townProvider.getTowns();
+            List<GetTownListRes> getTownsRes = townProvider.getTowns();
 
             return new BaseResponse<>(getTownsRes);
         } catch (BaseException exception) {
@@ -59,22 +56,47 @@ public class TownController {
      * 동네 생활 카테고리별 조회 API
      * [GET] /towns/home/:categoryId
      *
-     * @return BaseResponse<List<GetTownRes>>
+     * @return BaseResponse<List<GetTownListRes>>
      */
     @ResponseBody
     @GetMapping("/home/{categoryId}") // (GET) 127.0.0.1:9000/towns/home/:categoryId
-    public BaseResponse<List<GetTownRes>> getTown(@PathVariable("categoryId") int categoryId) {
+    public BaseResponse<List<GetTownListRes>> getTown(@PathVariable("categoryId") int categoryId) {
         try {
             if (townProvider.checkTopCategory(categoryId)!=2){
                 return new BaseResponse<>(CATEGORY_RANGE_ERROR);
             }
 
-            List<GetTownRes> getTownRes = townProvider.getTown(categoryId);
-            return new BaseResponse<>(getTownRes);
+            List<GetTownListRes> getTownListRes = townProvider.getTown(categoryId);
+            return new BaseResponse<>(getTownListRes);
         } catch (BaseException exception) {
             return new BaseResponse<>((exception.getStatus()));
         }
     }
+
+    /**
+     * 동네 생활 글 개별 API
+     * [GET] /towns/:postId
+     * @return BaseResponse<GetTownPostRes>
+     */
+    @ResponseBody
+    @GetMapping("/{postId}")
+    public BaseResponse<GetTownPostRes> getTownPost(@PathVariable int postId) {
+        try {
+            if (postId == 0){
+                return new BaseResponse<>(EMPTY_POSTID);
+            }
+
+            if (townProvider.checkPostExists(postId) == 0){
+                return new BaseResponse<>(POST_NOT_EXISTS);
+            }
+
+            GetTownPostRes getTownPostRes = townProvider.getTownPost(postId);
+            return new BaseResponse<>(getTownPostRes);
+        } catch (BaseException exception) {
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
 
     /**
      * 동네 생활 글 작성 API
@@ -427,7 +449,7 @@ public class TownController {
      */
     @ResponseBody
     @GetMapping("/user-post/{userId}")
-    public BaseResponse<List<GetTownRes>> getUserTownPosts(@PathVariable int userId) {
+    public BaseResponse<List<GetTownListRes>> getUserTownPosts(@PathVariable int userId) {
         try {
             //jwt에서 idx 추출.
             int userIdxByJwt = jwtService.getUserIdx();
@@ -436,7 +458,7 @@ public class TownController {
                 return new BaseResponse<>(INVALID_USER_JWT);
             }
 
-            List<GetTownRes> getTownsRes = townProvider.getUserTownPosts(userId);
+            List<GetTownListRes> getTownsRes = townProvider.getUserTownPosts(userId);
 
             return new BaseResponse<>(getTownsRes);
         } catch (BaseException exception) {

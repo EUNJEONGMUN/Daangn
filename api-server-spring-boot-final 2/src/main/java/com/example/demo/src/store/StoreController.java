@@ -6,6 +6,7 @@ import com.example.demo.src.store.model.Req.PostNewsReq;
 import com.example.demo.src.store.model.Req.PostStoreReq;
 import com.example.demo.src.store.model.Res.PostNewsRes;
 import com.example.demo.src.store.model.Res.PostStoreRes;
+import com.example.demo.utils.JwtService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,29 +24,39 @@ public class StoreController {
     private final StoreProvider storeProvider;
     @Autowired
     private final StoreService storeService;
+    @Autowired
+    private final JwtService jwtService;
 
 
-    public StoreController(StoreProvider storeProvider, StoreService storeService){
+    public StoreController(StoreProvider storeProvider, StoreService storeService, JwtService jwtService){
         this.storeProvider = storeProvider;
         this.storeService = storeService;
+        this.jwtService = jwtService;
     }
 
     /**
      * 비즈 프로필 생성 API
-     * [POST] /stores/account
+     * [POST] /stores/account/:userId
      * @return BaseResponse<PostStoreRes>
      */
     @ResponseBody
-    @PostMapping("/account")
-    public BaseResponse<PostStoreRes> createStore(@RequestBody PostStoreReq postStoreReq){
-        if (postStoreReq.getStoreName() == null){
-            return new BaseResponse<>(POST_STORE_EMPTY_STORENAME);
-        }
-        if (postStoreReq.getStoreCategoryId() == 0){
-            return new BaseResponse<>(EMPTY_CATEGORY);
-        }
-
+    @PostMapping("/account/{userId}")
+    public BaseResponse<PostStoreRes> createStore(@PathVariable int userId, @RequestBody PostStoreReq postStoreReq){
         try {
+            //jwt에서 idx 추출.
+            int userIdxByJwt = jwtService.getUserIdx();
+            //userIdx와 접근한 유저가 같은지 확인
+            if(userId != userIdxByJwt){
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+
+            if (postStoreReq.getStoreName() == null){
+                return new BaseResponse<>(POST_STORE_EMPTY_STORENAME);
+            }
+            if (postStoreReq.getStoreCategoryId() == 0){
+                return new BaseResponse<>(EMPTY_CATEGORY);
+            }
+
             PostStoreRes postStoreRes = storeService.createStore(postStoreReq);
             return new BaseResponse<>(postStoreRes);
 

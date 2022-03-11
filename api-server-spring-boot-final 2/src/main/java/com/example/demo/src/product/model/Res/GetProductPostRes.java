@@ -15,15 +15,15 @@ import java.util.List;
 @AllArgsConstructor
 public class GetProductPostRes {
 ////    private String firstImg;
-//    private GetProductImg getProductImg;
-//    private GetProductInfo getProductInfo;
+    private GetProductImg getProductImg;
+    private GetProductInfo getProductInfo;
 ////    private int chatCount;
 ////    private int attCount;
-//    private GetProductChatCount getProductChatCount;
-//    private GetProductAttCount getProductAttCount;
+    private GetProductChatCount getProductChatCount;
+    private GetProductAttCount getProductAttCount;
 //
-private List<String> imgList;
-private List<Integer> chatList;
-private List<Integer> attList;
-private List<GetProductInfo> getProductInfoList;
+//private List<String> imgList;
+//private List<Integer> chatList;
+//private List<Integer> attList;
+//private List<GetProductInfo> getProductInfoList;
 }

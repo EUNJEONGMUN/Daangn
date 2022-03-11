@@ -26,6 +26,7 @@ public enum BaseResponseStatus {
     NOT_CORRECT_STATUS(false, 2006, "상태값을 올바르게 입력해주세요"),
     INVALID_USER_POST(false,2007,"권한이 없는 유저의 접근입니다."),
     EMPTY_STATUS(false, 2008, "상태 값을 입력해주세요."),
+    EMPTY_POSTID(false, 2009, "글 아이디를 입력해주세요"),
     // users
     USERS_EMPTY_USER_ID(false, 2010, "유저 아이디 값을 확인해주세요."),
     FAIL_MESSAGE_AUTH(false, 2011, "휴대폰 인증에 실패하였습니다."),

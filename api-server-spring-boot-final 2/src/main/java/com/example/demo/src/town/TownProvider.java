@@ -2,7 +2,8 @@ package com.example.demo.src.town;
 
 import com.example.demo.config.BaseException;
 import com.example.demo.src.town.model.Res.GetTownComRes;
-import com.example.demo.src.town.model.Res.GetTownRes;
+import com.example.demo.src.town.model.Res.GetTownListRes;
+import com.example.demo.src.town.model.Res.GetTownPostRes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,11 +31,11 @@ public class TownProvider {
      * [GET] /towns/home
      * @return BaseResponse<List<GetTownRes>>
      */
-    public List<GetTownRes> getTowns() throws BaseException{
+    public List<GetTownListRes> getTowns() throws BaseException{
 
         try{
-            List<GetTownRes> getTownRes = townDao.getTowns();
-            return getTownRes;
+            List<GetTownListRes> getTownListRes = townDao.getTowns();
+            return getTownListRes;
         } catch (Exception exception){
             throw new BaseException(DATABASE_ERROR);
         }
@@ -46,10 +47,10 @@ public class TownProvider {
      * @return BaseResponse<List<GetTownRes>>
      */
     @ResponseBody
-    public List<GetTownRes> getTown(int categoryId) throws BaseException {
+    public List<GetTownListRes> getTown(int categoryId) throws BaseException {
         try {
-            List<GetTownRes> getTownRes = townDao.getTown(categoryId);
-            return getTownRes;
+            List<GetTownListRes> getTownListRes = townDao.getTown(categoryId);
+            return getTownListRes;
         } catch (Exception exception){
             throw new BaseException(DATABASE_ERROR);
         }
@@ -78,10 +79,10 @@ public class TownProvider {
      * [GET] /towns/user-post/:userId
      * @return BaseResponse<List<GetTownRes>>
      */
-    public List<GetTownRes> getUserTownPosts(int userId) throws BaseException {
+    public List<GetTownListRes> getUserTownPosts(int userId) throws BaseException {
         try{
-            List<GetTownRes> getTownRes = townDao.getUserTownPosts(userId);
-            return getTownRes;
+            List<GetTownListRes> getTownListRes = townDao.getUserTownPosts(userId);
+            return getTownListRes;
         } catch (Exception exception){
             throw new BaseException(DATABASE_ERROR);
         }
@@ -161,5 +162,20 @@ public class TownProvider {
         } catch (Exception exception){
             throw new BaseException(DATABASE_ERROR);
         }
+    }
+
+    /**
+     * 동네 생활 글 개별 API
+     * [GET] /towns/:postId
+     * @return BaseResponse<GetTownPostRes>
+     */
+    public GetTownPostRes getTownPost(int postId) throws BaseException {
+        try{
+            GetTownPostRes getTownPostRes = townDao.getTownPost(postId);
+            return getTownPostRes;
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+
     }
 }

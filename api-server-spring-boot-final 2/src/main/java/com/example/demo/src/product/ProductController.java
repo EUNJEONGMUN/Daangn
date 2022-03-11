@@ -5,7 +5,7 @@ import com.example.demo.config.BaseResponse;
 import com.example.demo.config.BaseResponseStatus;
 import com.example.demo.src.product.model.*;
 import com.example.demo.src.product.model.Req.*;
-import com.example.demo.src.product.model.Res.GetProductPostRes;
+import com.example.demo.src.product.model.Res.GetProductListRes;
 import com.example.demo.src.product.model.Res.GetProductRes;
 import com.example.demo.src.product.model.Res.PostProductNewRes;
 import com.example.demo.utils.JwtService;
@@ -43,10 +43,10 @@ public class ProductController {
 
     @ResponseBody
     @GetMapping("/home") // (GET) 127.0.0.1:9000/products/home
-    public BaseResponse<List<GetProductRes>> getProducts(){
+    public BaseResponse<List<GetProductListRes>> getProducts(){
         try {
-            List<GetProductRes> getProductRes = productProvider.getProducts();
-            return new BaseResponse<>(getProductRes);
+            List<GetProductListRes> getProductListRes = productProvider.getProducts();
+            return new BaseResponse<>(getProductListRes);
         } catch (BaseException exception){
             return new BaseResponse<>((exception.getStatus()));
         }
@@ -68,13 +68,13 @@ public class ProductController {
      */
     @ResponseBody
     @GetMapping("/home/{categoryId}") // (GET) 127.0.0.1:9000/products/home/:categoryId
-    public BaseResponse<List<GetProductRes>> getProduct(@PathVariable("categoryId") int categoryId){
+    public BaseResponse<List<GetProductListRes>> getProduct(@PathVariable("categoryId") int categoryId){
         try{
             if (productProvider.checkTopCategory(categoryId) != 1){
                 // 중고거래 refId=1
                 return new BaseResponse<>(CATEGORY_RANGE_ERROR);
             }
-            List<GetProductRes> getProductsRes = productProvider.getProduct(categoryId);
+            List<GetProductListRes> getProductsRes = productProvider.getProduct(categoryId);
             return new BaseResponse<>(getProductsRes);
         } catch(BaseException exception){
             return new BaseResponse<>((exception.getStatus()));
@@ -205,23 +205,6 @@ public class ProductController {
         }
     }
 
-//    /**
-//     * 중고 거래 글 삭제 API
-//     * [PATCH] /products/:postId/:userId/deletion
-//     * @return BaseResponse<String>
-//     */
-//    @ResponseBody
-//    @PatchMapping("/{postId}/{userId}/deletion")
-//    public BaseResponse<String> deleteProduct(@PathVariable int postId, @PathVariable int userId, @RequestBody ProductPostDel productPostDel){
-//        try{
-//            PatchPostDelReq patchPostDelReq = new PatchPostDelReq(postId, userId, productPostDel.getIsExistence());
-//            productService.deleteProduct(patchPostDelReq);
-//            String result = "";
-//            return new BaseResponse<>(result);
-//        } catch (BaseException exception) {
-//            return new BaseResponse<>((exception.getStatus()));
-//        }
-//    }
 
     /**
      * 중고 거래 성사 API
@@ -385,7 +368,7 @@ public class ProductController {
      */
     @ResponseBody
     @GetMapping("/user-post/{userId}")
-    public BaseResponse<List<GetProductRes>> getUserProductPost(@PathVariable int userId, @RequestParam(required = false) String status){
+    public BaseResponse<List<GetProductListRes>> getUserProductPost(@PathVariable int userId, @RequestParam(required = false) String status){
         try{
 
             int userIdxByJwt = jwtService.getUserIdx();
@@ -395,14 +378,14 @@ public class ProductController {
             }
 
             if (status == null){
-                List<GetProductRes> getProductsRes = productProvider.getUserProductPost(userId, "doing");
+                List<GetProductListRes> getProductsRes = productProvider.getUserProductPost(userId, "doing");
                 return new BaseResponse<>(getProductsRes);
             }
 
             if (!(status.equals("doing") || status.equals("finish") || status.equals("hidden"))){
                 return new BaseResponse<>(NOT_CORRECT_STATUS);
             }
-            List<GetProductRes> getProductsRes = productProvider.getUserProductPost(userId, status);
+            List<GetProductListRes> getProductsRes = productProvider.getUserProductPost(userId, status);
             return new BaseResponse<>(getProductsRes);
         } catch(BaseException exception){
             return new BaseResponse<>((exception.getStatus()));
@@ -416,7 +399,7 @@ public class ProductController {
      */
     @ResponseBody
     @GetMapping("/buylist/{userId}")
-    public BaseResponse<List<GetProductRes>> getUserBuyList(@PathVariable int userId){
+    public BaseResponse<List<GetProductListRes>> getUserBuyList(@PathVariable int userId){
         try{
             int userIdxByJwt = jwtService.getUserIdx();
             //userIdx와 접근한 유저가 같은지 확인
@@ -424,11 +407,61 @@ public class ProductController {
                 return new BaseResponse<>(INVALID_USER_JWT);
             }
 
-            List<GetProductRes> getProductsRes = productProvider.getUserBuyList(userId);
+            List<GetProductListRes> getProductsRes = productProvider.getUserBuyList(userId);
             return new BaseResponse<>(getProductsRes);
         } catch(BaseException exception){
             return new BaseResponse<>((exception.getStatus()));
         }
+    }
+
+    /**
+     * 중고 거래 글 조회 API
+     * [GET] /products/:postId
+     * @return BaseResponse<GetProductRes>
+     */
+    @ResponseBody
+    @GetMapping("/{postId}") // (GET) 127.0.0.1:9000/products/home
+    public BaseResponse<GetProductRes> getPost(@PathVariable int postId){
+        try {
+            if(postId==0){
+                return new BaseResponse<>(EMPTY_POSTID);
+            }
+
+            if (productProvider.checkPostExists(postId) == 0){
+                return new BaseResponse<>(POST_NOT_EXISTS);
+            }
+
+            GetProductRes getProductRes = productProvider.getPost(postId);
+            return new BaseResponse<>(getProductRes);
+        } catch (BaseException exception){
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
+
+
+    /**
+     * 로그 테스트 API
+     * [GET] /test/log
+     * @return String
+     */
+    @ResponseBody
+    @GetMapping("/log")
+    public String getAll() {
+        System.out.println("테스트");
+//        trace, debug 레벨은 Console X, 파일 로깅 X
+//        logger.trace("TRACE Level 테스트");
+//        logger.debug("DEBUG Level 테스트");
+
+//        info 레벨은 Console 로깅 O, 파일 로깅 X
+        logger.info("INFO Level 테스트");
+//        warn 레벨은 Console 로깅 O, 파일 로깅 O
+        logger.warn("Warn Level 테스트");
+//        error 레벨은 Console 로깅 O, 파일 로깅 O (app.log 뿐만 아니라 error.log 에도 로깅 됨)
+//        app.log 와 error.log 는 날짜가 바뀌면 자동으로 *.gz 으로 압축 백업됨
+        logger.error("ERROR Level 테스트");
+
+        return "Success Test";
     }
 
 

@@ -1,9 +1,9 @@
 package com.example.demo.src.product;
 
 import com.example.demo.config.BaseException;
-import com.example.demo.src.product.model.Res.GetProductPostRes;
-import com.example.demo.src.product.model.Res.GetProductRes;
+import com.example.demo.src.product.model.Res.GetProductListRes;
 
+import com.example.demo.src.product.model.Res.GetProductRes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +29,10 @@ public class ProductProvider {
      * [GET] /products/home
      * @return BaseResponse<GetProductRes>
      */
-    public List<GetProductRes> getProducts() throws BaseException {
+    public List<GetProductListRes> getProducts() throws BaseException {
         try{
-            List<GetProductRes> getProductRes = productDao.getProducts();
-            return getProductRes;
+            List<GetProductListRes> getProductListRes = productDao.getProducts();
+            return getProductListRes;
         } catch (Exception exception){
             throw new BaseException(DATABASE_ERROR);
         }
@@ -51,10 +51,10 @@ public class ProductProvider {
      * [GET] /products/home/:categoryId
      * @return BaseResponse<GetProductRes>
      */
-    public List<GetProductRes> getProduct(int categoryId) throws BaseException {
+    public List<GetProductListRes> getProduct(int categoryId) throws BaseException {
         try {
-            List<GetProductRes> getProductRes = productDao.getProduct(categoryId);
-            return getProductRes;
+            List<GetProductListRes> getProductListRes = productDao.getProduct(categoryId);
+            return getProductListRes;
         } catch (Exception exception){
             throw new BaseException(DATABASE_ERROR);
         }
@@ -104,10 +104,10 @@ public class ProductProvider {
      * /:userId?status=?
      * @return BaseResponse<List<GetProductRes>>
      */
-    public List<GetProductRes> getUserProductPost(int userId, String status) throws BaseException {
+    public List<GetProductListRes> getUserProductPost(int userId, String status) throws BaseException {
         try {
-            List<GetProductRes> getProductRes = productDao.getUserProductPost(userId, status);
-            return getProductRes;
+            List<GetProductListRes> getProductListRes = productDao.getUserProductPost(userId, status);
+            return getProductListRes;
         } catch (Exception exception){
             throw new BaseException(DATABASE_ERROR);
         }
@@ -126,10 +126,10 @@ public class ProductProvider {
      * [GET] /products/buylist/:userId
      * @return BaseResponse<List<GetProductRes>>
      */
-    public List<GetProductRes> getUserBuyList(int userId) throws BaseException {
+    public List<GetProductListRes> getUserBuyList(int userId) throws BaseException {
         try {
-            List<GetProductRes> getProductRes = productDao.getUserBuyList(userId);
-            return getProductRes;
+            List<GetProductListRes> getProductListRes = productDao.getUserBuyList(userId);
+            return getProductListRes;
         } catch (Exception exception){
             throw new BaseException(DATABASE_ERROR);
         }
@@ -142,5 +142,20 @@ public class ProductProvider {
         } catch(Exception exception){
             throw new BaseException(DATABASE_ERROR);
         }
+    }
+
+    /**
+     * 중고 거래 글 조회 API
+     * [GET] /products/:postId
+     * @return BaseResponse<GetProductRes>
+     */
+    public GetProductRes getPost(int postId) throws BaseException {
+        try{
+            GetProductRes getProductRes = productDao.getPost(postId);
+            return getProductRes;
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+
     }
 }

@@ -1,6 +1,6 @@
 package com.example.demo.src.user;
 
-import com.example.demo.src.product.model.Res.GetProductRes;
+import com.example.demo.src.product.model.Res.GetProductListRes;
 import com.example.demo.src.user.model.*;
 import com.example.demo.src.user.model.Req.*;
 import com.example.demo.src.user.model.Res.*;
@@ -405,7 +405,7 @@ public class UserDao {
      * [GET] /users/:userId/attention
      * @return BaseResponse<List<GetUserAttentionRes>>
      */
-    public List<GetProductRes> getAttention(int userId) {
+    public List<GetProductListRes> getAttention(int userId) {
 
         String Query = "select P.productPostId, img.firstImg, P.title, JusoCode.jusoName, P.price,\n" +
                 "                       case\n" +
@@ -455,7 +455,7 @@ public class UserDao {
 
         int Params = userId;
         return this.jdbcTemplate.query(Query,
-                (rs,rowNum) -> new GetProductRes(
+                (rs,rowNum) -> new GetProductListRes(
                         rs.getString("firstImg"),
                         rs.getInt("productPostId"),
                         rs.getString("title"),

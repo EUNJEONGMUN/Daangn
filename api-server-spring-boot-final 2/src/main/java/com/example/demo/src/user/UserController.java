@@ -2,7 +2,7 @@ package com.example.demo.src.user;
 
 import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponse;
-import com.example.demo.src.product.model.Res.GetProductRes;
+import com.example.demo.src.product.model.Res.GetProductListRes;
 import com.example.demo.src.user.model.*;
 import com.example.demo.src.user.model.Req.*;
 import com.example.demo.src.user.model.Res.*;
@@ -305,7 +305,7 @@ public class UserController {
      */
     @ResponseBody
     @GetMapping("/{userId}/attention")
-    public BaseResponse<List<GetProductRes>> getAttention(@PathVariable int userId){
+    public BaseResponse<List<GetProductListRes>> getAttention(@PathVariable int userId){
         try{
             //jwt에서 idx 추출.
             int userIdxByJwt = jwtService.getUserIdx();
@@ -314,8 +314,8 @@ public class UserController {
                 return new BaseResponse<>(INVALID_USER_JWT);
             }
 
-            List<GetProductRes> getProductRes = userProvider.getAttention(userId);
-            return new BaseResponse<>(getProductRes);
+            List<GetProductListRes> getProductListRes = userProvider.getAttention(userId);
+            return new BaseResponse<>(getProductListRes);
         } catch(BaseException exception){
             return new BaseResponse<>((exception.getStatus()));
         }

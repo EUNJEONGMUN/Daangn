@@ -1,8 +1,7 @@
 package com.example.demo.src.user;
 
 import com.example.demo.config.BaseException;
-import com.example.demo.src.product.model.Res.GetProductRes;
-import com.example.demo.src.user.model.Req.PostSignInReq;
+import com.example.demo.src.product.model.Res.GetProductListRes;
 import com.example.demo.src.user.model.Res.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,10 +95,10 @@ public class UserProvider {
      * [GET] /users/:userId/attention
      * @return BaseResponse<List<GetProductRes>>
      */
-    public List<GetProductRes> getAttention(int userId) throws BaseException {
+    public List<GetProductListRes> getAttention(int userId) throws BaseException {
     try {
-            List<GetProductRes> getProductRes = userDao.getAttention(userId);
-            return getProductRes;
+            List<GetProductListRes> getProductListRes = userDao.getAttention(userId);
+            return getProductListRes;
         } catch (Exception exception){
             throw new BaseException(DATABASE_ERROR);
         }

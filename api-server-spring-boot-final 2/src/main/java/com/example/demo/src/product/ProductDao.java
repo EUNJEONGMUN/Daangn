@@ -2,7 +2,7 @@ package com.example.demo.src.product;
 
 import com.example.demo.src.product.model.*;
 import com.example.demo.src.product.model.Req.*;
-import com.example.demo.src.product.model.Res.GetProductPostRes;
+import com.example.demo.src.product.model.Res.GetProductListRes;
 import com.example.demo.src.product.model.Res.GetProductRes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -30,7 +30,7 @@ public class ProductDao {
      * [GET] /products/home
      * @return BaseResponse<GetProductRes>
      */
-    public List<GetProductRes> getProducts() {
+    public List<GetProductListRes> getProducts() {
 
         String Query = "select P.productPostId, img.firstImg, P.title, JusoCode.jusoName, P.price,\n" +
                 "       case\n" +
@@ -75,7 +75,7 @@ public class ProductDao {
 
 
         return this.jdbcTemplate.query(Query,
-                (rs,rowNum) -> new GetProductRes(
+                (rs,rowNum) -> new GetProductListRes(
                         rs.getString("firstImg"),
                         rs.getInt("productPostId"),
                         rs.getString("title"),
@@ -199,7 +199,7 @@ public class ProductDao {
      * [GET] /products/home/:categoryId
      * @return BaseResponse<GetProductRes>
      */
-    public List<GetProductRes> getProduct(int categoryId) {
+    public List<GetProductListRes> getProduct(int categoryId) {
         String Query = "select P.productPostId, img.firstImg, P.title, JusoCode.jusoName, P.price,\n" +
                 "       case\n" +
                 "           when TIMESTAMPDIFF(SECOND, P.createdAt, current_timestamp())<60\n" +
@@ -243,7 +243,7 @@ public class ProductDao {
 
         int Params = categoryId;
         return this.jdbcTemplate.query(Query,
-                (rs,rowNum) -> new GetProductRes(
+                (rs,rowNum) -> new GetProductListRes(
                         rs.getString("firstImg"),
                         rs.getInt("productPostId"),
                         rs.getString("title"),
@@ -332,21 +332,6 @@ public class ProductDao {
 
         return this.jdbcTemplate.update(Query, Params);
     }
-
-//    /**
-//     * 중고 거래 글 삭제 API
-//     * [PATCH] /products/:postId/:userId/status
-//     * @return BaseResponse<String>
-//     */
-//    public int deleteProduct(PatchPostDelReq patchPostDelReq) {
-//        String Query = "update ProductPost P " +
-//                "set P.isExistence=?" +
-//                "where P.userId=? and P.productPostId=?;";
-//        Object[] Params = new Object[]{patchPostDelReq.getIsExistence(), patchPostDelReq.getUserId(), patchPostDelReq.getPostId()};
-//        return this.jdbcTemplate.update(Query, Params);
-//    }
-
-
 
 
     // 중고 거래 관심 등록 확인
@@ -455,7 +440,7 @@ public class ProductDao {
      * /:userId?status=?
      * @return BaseResponse<List<GetProductRes>>
      */
-    public List<GetProductRes> getUserProductPost(int userId, String status) {
+    public List<GetProductListRes> getUserProductPost(int userId, String status) {
 
         // 판매중
         String Query1 = "select P.productPostId, img.firstImg, P.title, JusoCode.jusoName, P.price,\n" +
@@ -585,7 +570,7 @@ public class ProductDao {
 
         if (status.equals("finish")){
             return this.jdbcTemplate.query(Query2,
-                    (rs,rowNum) -> new GetProductRes(
+                    (rs,rowNum) -> new GetProductListRes(
                             rs.getString("firstImg"),
                             rs.getInt("productPostId"),
                             rs.getString("title"),
@@ -599,7 +584,7 @@ public class ProductDao {
         }
         if (status.equals("hidden")){
             return this.jdbcTemplate.query(Query3,
-                    (rs,rowNum) -> new GetProductRes(
+                    (rs,rowNum) -> new GetProductListRes(
                             rs.getString("firstImg"),
                             rs.getInt("productPostId"),
                             rs.getString("title"),
@@ -613,7 +598,7 @@ public class ProductDao {
         }
 
         return this.jdbcTemplate.query(Query1,
-                    (rs,rowNum) -> new GetProductRes(
+                    (rs,rowNum) -> new GetProductListRes(
                             rs.getString("firstImg"),
                             rs.getInt("productPostId"),
                             rs.getString("title"),
@@ -632,7 +617,7 @@ public class ProductDao {
      * [GET] /products/buylist/:userId
      * @return BaseResponse<List<GetProductRes>>
      */
-    public List<GetProductRes> getUserBuyList(int userId) {
+    public List<GetProductListRes> getUserBuyList(int userId) {
         String Query = "select P.productPostId, img.firstImg, P.title, JusoCode.jusoName, P.price,\n" +
                 "                       case\n" +
                 "                           when TIMESTAMPDIFF(SECOND, P.createdAt, current_timestamp())<60\n" +
@@ -681,7 +666,7 @@ public class ProductDao {
         int Params = userId;
 
         return this.jdbcTemplate.query(Query,
-                (rs,rowNum) -> new GetProductRes(
+                (rs,rowNum) -> new GetProductListRes(
                         rs.getString("firstImg"),
                         rs.getInt("productPostId"),
                         rs.getString("title"),
@@ -711,5 +696,70 @@ public class ProductDao {
         return this.jdbcTemplate.queryForObject(Query,
                 int.class,
                 Params);
+    }
+
+    /**
+     * 중고 거래 글 조회 API
+     * [GET] /products/:postId
+     * @return BaseResponse<GetProductRes>
+     */
+    public GetProductRes getPost(int postId) {
+
+        String Query = "select P.productPostId, img.firstImg, P.title, JusoCode.jusoName, P.price, P.content,\n" +
+                "       case\n" +
+                "           when TIMESTAMPDIFF(SECOND, P.createdAt, current_timestamp())<60\n" +
+                "            then concat(TIMESTAMPDIFF(SECOND, P.createdAt, current_timestamp()),'초 전')\n" +
+                "           when TIMESTAMPDIFF(MINUTE, P.createdAt, current_timestamp())<60\n" +
+                "            then concat(TIMESTAMPDIFF(MINUTE, P.createdAt, current_timestamp()),'분 전')\n" +
+                "            when TIMESTAMPDIFF(HOUR, P.createdAt, current_timestamp())<24\n" +
+                "            then concat(TIMESTAMPDIFF(HOUR, P.createdAt, current_timestamp()), '시간 전')\n" +
+                "            else concat(TIMESTAMPDIFF(DAY, P.createdAt, current_timestamp()), '일 전')\n" +
+                "        end as uploadTime\n" +
+                "       ,\n" +
+                "       case\n" +
+                "       when P.status = 'B'\n" +
+                "           then '예약중'\n" +
+                "        when P.status = 'C'\n" +
+                "            then '거래완료'\n" +
+                "        else '판매중'\n" +
+                "            end as state, attChat.chatCount, attChat.attCount\n" +
+                "from ProductPost P\n" +
+                "    left join JusoCode on P.jusoCodeId = JusoCode.jusoCodeId\n" +
+                "    left join (\n" +
+                "            select P.productPostId, count(PA.postId) as attCount, chat.chatCount\n" +
+                "            from ProductPost P\n" +
+                "                left join ProductAttention PA on PA.postId = P.productPostId\n" +
+                "                left join (\n" +
+                "                    select P.productPostId, count(PC.postId) div 2 as chatCount\n" +
+                "                    from ProductPost P\n" +
+                "                        left join ProductChatList PC on PC.postId = P.productPostId\n" +
+                "                group by P.productPostId) chat on chat.productPostId = P.productPostId where PA.status = 'Y'\n" +
+                "            group by P.productPostId) attChat on attChat.productPostId = P.productPostId\n" +
+                "    left join(\n" +
+                "        select P.productPostId, imageSelect.firstImg\n" +
+                "        from ProductPost P\n" +
+                "            left join(\n" +
+                "                select Img.productPostId, min(Img.productImageId), Img.imageUrl as firstImg\n" +
+                "                from ProductImage Img\n" +
+                "                group by Img.productPostId) imageSelect on imageSelect.productPostId = P.productPostId\n" +
+                "        ) img on img.productPostId = P.productPostId\n" +
+                "where P.isHidden = 'N' and P.isExistence = 'Y' and P.productPostId=?\n" +
+                "order by P.createdAt DESC;";
+
+        int Params = postId;
+        return this.jdbcTemplate.queryForObject(Query,
+                (rs,rowNum) -> new GetProductRes(
+                        rs.getString("firstImg"),
+                        rs.getInt("productPostId"),
+                        rs.getString("title"),
+                        rs.getString("jusoName"),
+                        rs.getInt("price"),
+                        rs.getString("state"),
+                        rs.getInt("chatCount"),
+                        rs.getInt("attCount"),
+                        rs.getString("uploadTime"),
+                        rs.getString("content")),
+                        Params);
+
     }
 }

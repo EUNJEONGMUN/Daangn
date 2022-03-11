@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class GetProductRes {
+public class GetProductListRes {
     private String firstImg;
     private int productPostId;
     private String title;
@@ -17,5 +17,5 @@ public class GetProductRes {
     private int chatCount;
     private int attCount;
     private String uploadTime;
-    private String content;
+
 }
