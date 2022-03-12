@@ -3,6 +3,7 @@ package com.example.demo.src.product;
 import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponse;
 import com.example.demo.config.BaseResponseStatus;
+import com.example.demo.src.UnAuth;
 import com.example.demo.src.product.model.*;
 import com.example.demo.src.product.model.Req.*;
 import com.example.demo.src.product.model.Res.GetProductListRes;
@@ -14,11 +15,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.List;
 import static com.example.demo.config.BaseResponseStatus.*;
 
 @RestController
-@RequestMapping("/products")
+@RequestMapping(value = "/products")
 public class ProductController {
     final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -40,7 +43,7 @@ public class ProductController {
      * [GET] /products/home
      * @return BaseResponse<List<GetProductRes>>
      */
-
+    @UnAuth
     @ResponseBody
     @GetMapping("/home") // (GET) 127.0.0.1:9000/products/home
     public BaseResponse<List<GetProductListRes>> getProducts(){
@@ -66,6 +69,7 @@ public class ProductController {
      * [GET] /products/home/:categoryId
      * @return BaseResponse<List<GetProductRes>>
      */
+    @UnAuth
     @ResponseBody
     @GetMapping("/home/{categoryId}") // (GET) 127.0.0.1:9000/products/home/:categoryId
     public BaseResponse<List<GetProductListRes>> getProduct(@PathVariable("categoryId") int categoryId){
@@ -83,33 +87,14 @@ public class ProductController {
 
     /**
      * 중고 거래 글 작성 API
-     * [POST] /products/new/:userId
+     * [POST] /products/new
      * @return BaseResponse<PostProductNewRes>
      */
     @ResponseBody
-    @PostMapping("/new/{userId}")
-    public BaseResponse<PostProductNewRes> createProduct(@PathVariable int userId, @RequestBody PostProductNew postProductNew){
-        try{
-            int userIdxByJwt = jwtService.getUserIdx();
-            //userIdx와 접근한 유저가 같은지 확인
-            if(userId != userIdxByJwt){
-                return new BaseResponse<>(INVALID_USER_JWT);
-            }
+    @PostMapping("/post/new")
+    public BaseResponse<PostProductNewRes> createProduct(HttpServletRequest request, @Valid @RequestBody PostProductNew postProductNew){
 
-        } catch (BaseException exception){
-            return new BaseResponse<>((exception.getStatus()));
-        }
-
-        if (postProductNew.getTitle() == null){
-            return new BaseResponse<>(POST_PRODUCTS_EMPTY_TITLE);
-        }
-
-        if (postProductNew.getCategoryId() == 0){
-            return new BaseResponse<>(EMPTY_CATEGORY);
-        }
-        if (postProductNew.getContent() == null){
-            return new BaseResponse<>(POST_PRODUCTS_EMPTY_CONTENT);
-        }
+        int userId = (int) request.getAttribute("userId");
 
         try{
             PostProductNewReq postProductNewReq = new PostProductNewReq(userId, postProductNew.getTitle(), postProductNew.getCategoryId(), postProductNew.getIsProposal(), postProductNew.getContent(), postProductNew.getPrice());
@@ -120,74 +105,18 @@ public class ProductController {
             return new BaseResponse<>((exception.getStatus()));
         }
     }
-//    @ResponseBody
-//    @PostMapping("/new") // (POST) 127.0.0.1:9000/products/new
-//    public BaseResponse<PostProductNewRes> createProduct(@RequestBody String postProductNewReq){
-//        String title = "";
-//        String categoryId = "";
-//        String content = "";
-//        try {
-//            JSONParser jsonParser = new JSONParser();
-//            JSONObject jsonObj = (JSONObject)jsonParser.parse(postProductNewReq);
-//            title = (String)jsonObj.get("title");
-//            categoryId = (String)jsonObj.get("categoryId");
-//            content = (String)jsonObj.get("content");
-//
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//        }
-//
-//        if (title == null){
-//            return new BaseResponse<>(POST_PRODUCTS_EMPTY_TITLE);
-//        }
-//
-//        if (categoryId == null){
-//            return new BaseResponse<>(BaseResponseStatus.EMPTY_CATEGORY);
-//        }
-//        if (content == null){
-//            return new BaseResponse<>(POST_PRODUCTS_EMPTY_CONTENT);
-//        }
-//
-//        try {
-//            JSONParser jsonParser = new JSONParser();
-//            JSONObject jsonObj = (JSONObject)jsonParser.parse(postProductNewReq);
-//            PostProductNewRes postProductNewRes = productService.createProduct(jsonObj);
-//            return new BaseResponse<>(postProductNewRes);
-//        } catch (ParseException | BaseException e) {
-//            e.printStackTrace();
-//        }
-//
-//        return new BaseResponse<>(DATABASE_ERROR);
-//    }
-//
-
-
 
     /**
      * 중고 거래 글 수정 API
-     * [PATCH] /products/:postId/:userId
+     * [PATCH] /products/:postId
      * @return BaseResponse<String>
      */
     @ResponseBody
-    @PatchMapping("/{postId}/{userId}")
-    public BaseResponse<String> modifyProduct(@PathVariable int postId, @PathVariable int userId, @RequestBody ProductPost productPost) {
+    @PatchMapping("/post/{postId}")
+    public BaseResponse<String> modifyProduct(HttpServletRequest request, @PathVariable int postId, @Valid @RequestBody ProductPost productPost) {
         try {
 
-            int userIdxByJwt = jwtService.getUserIdx();
-            //userIdx와 접근한 유저가 같은지 확인
-            if(userId != userIdxByJwt){
-                return new BaseResponse<>(INVALID_USER_JWT);
-            }
-            if (productPost.getTitle() == null){
-                return new BaseResponse<>(POST_PRODUCTS_EMPTY_TITLE);
-            }
-
-            if (productPost.getCategoryId() == 0){
-                return new BaseResponse<>(BaseResponseStatus.EMPTY_CATEGORY);
-            }
-            if (productPost.getContent() == null){
-                return new BaseResponse<>(POST_PRODUCTS_EMPTY_CONTENT);
-            }
+            int userId = (int) request.getAttribute("userId");
 
             if (productProvider.checkPostExists(postId) == 0){
                 return new BaseResponse<>(POST_NOT_EXISTS);
@@ -205,95 +134,22 @@ public class ProductController {
         }
     }
 
-
-    /**
-     * 중고 거래 성사 API
-     * [POST] /products/:postId/:userId/deals
-     * @return BaseResponse<String>
-     */
-    @ResponseBody
-    @PostMapping ("/{postId}/{userId}/deals")
-    public BaseResponse<String> createDeal(@PathVariable int postId, @PathVariable int userId, @RequestBody PostDealReq postDealReq) {
-        try {
-            int userIdxByJwt = jwtService.getUserIdx();
-            //userIdx와 접근한 유저가 같은지 확인
-            if(userId != userIdxByJwt){
-                return new BaseResponse<>(INVALID_USER_JWT);
-            }
-
-            if (postDealReq.getStatus() == null) {
-                return new BaseResponse<>(POST_DEAL_EMPTY_STATUS);
-            }
-            if (productProvider.checkDeal(postId) != 0) {
-                // 이미 거래된 글이라면
-                return new BaseResponse<>(POST_DEAL_DUPLICATE);
-            }
-            productService.createDeal(postId, userId, postDealReq);
-            String result = "";
-            return new BaseResponse<>(result);
-
-
-        } catch (BaseException exception) {
-            return new BaseResponse<>((exception.getStatus()));
-        }
-
-
-    }
-    /**
-     * 중고 거래 취소 API
-     * [PATCH] /products/:postId/:userId/deals/status
-     * @return BaseResponse<String>
-     */
-    @ResponseBody
-    @PatchMapping ("/{postId}/{userId}/deals")
-    public BaseResponse<String> deleteDeal(@PathVariable int postId, @PathVariable int userId, @RequestBody Deal deal){
-        try{
-            int userIdxByJwt = jwtService.getUserIdx();
-            //userIdx와 접근한 유저가 같은지 확인
-            if(userId != userIdxByJwt) {
-                return new BaseResponse<>(INVALID_USER_JWT);
-            }
-            System.out.println(deal.getStatus());
-            if (deal.getStatus()==null) {
-                return new BaseResponse<>(POST_DEAL_EMPTY_STATUS);
-            }
-
-            if (productProvider.checkDeal(postId) == 0) {
-                return new BaseResponse<>(POST_DEAL_EMPTY);
-            }
-
-            if (productProvider.checkDealUser(postId, userId).equals(deal.getStatus())){
-                return new BaseResponse<>(POST_DEAL_DUPLICATE_STATE);
-            }
-
-            PatchDealReq patchDealReq = new PatchDealReq(postId, userId, deal.getStatus());
-            productService.deleteDeal(patchDealReq);
-            String result = "";
-            return new BaseResponse<>(result);
-        } catch (BaseException exception) {
-            return new BaseResponse<>((exception.getStatus()));
-        }
-    }
     /**
      * 중고 거래 글 관심 등록 API
-     * [POST] /products/:postId/:userId/attention
+     * [POST] /products/:postId/attention
      * @return BaseResponse<String>
      */
     @ResponseBody
-    @PostMapping("/{postId}/{userId}/attention")
-    public BaseResponse<String> createProductAtt(@PathVariable int postId, @PathVariable int userId, @RequestBody PostProductAttReq postProductAttReq) {
+    @PostMapping("/{postId}/attention")
+    public BaseResponse<String> createProductAtt(HttpServletRequest request, @PathVariable int postId, @Valid @RequestBody PostProductAttReq postProductAttReq) {
         try {
-            int userIdxByJwt = jwtService.getUserIdx();
-            //userIdx와 접근한 유저가 같은지 확인
-            if (userId != userIdxByJwt) {
-                return new BaseResponse<>(INVALID_USER_JWT);
-            }
+            int userId = (int) request.getAttribute("userId");
 
-            if (postProductAttReq.getStatus() == null) {
-                return new BaseResponse<>(POST_ATTENTION_EMPTY_STATUS);
-            }
             if (postProductAttReq.getStatus().equals("N")){
                 return new BaseResponse<>(NOT_CORRECT_STATUS);
+            }
+            if (productProvider.checkPostExists(postId) == 0){
+                return new BaseResponse<>(POST_NOT_EXISTS);
             }
 
             if (productProvider.checkAtt(postId, userId) != 0) {
@@ -320,23 +176,16 @@ public class ProductController {
 
     /**
      * 중고 거래 글 관심 변경 API
-     * [PATCH] /products/:postId/:userId/attention
+     * [PATCH] /products/:postId/attention
      * @return BaseResponse<String>
      */
     @ResponseBody
-    @PatchMapping("/{postId}/{userId}/attention")
-    public BaseResponse<String> modifyProductAtt(@PathVariable int postId, @PathVariable int userId, @RequestBody PatchProductAtt patchProductAtt){
+    @PatchMapping("/{postId}/attention/deletion")
+    public BaseResponse<String> modifyProductAtt(HttpServletRequest request, @PathVariable int postId, @Valid @RequestBody PatchProductAtt patchProductAtt){
         try{
 
-            int userIdxByJwt = jwtService.getUserIdx();
-            //userIdx와 접근한 유저가 같은지 확인
-            if (userId != userIdxByJwt) {
-                return new BaseResponse<>(INVALID_USER_JWT);
-            }
+            int userId = (int) request.getAttribute("userId");
 
-            if (patchProductAtt.getStatus() == null){
-                return new BaseResponse<>(PATCH_ATTENTION_EMPTY_STATUS);
-            }
             if (productProvider.checkAtt(postId, userId) == 0){
                 // 관심 등록한 기록이 없다면
                 return new BaseResponse<>(POST_ATTENTION_EMPTY);
@@ -357,6 +206,65 @@ public class ProductController {
     }
 
 
+    /**
+     * 중고 거래 성사 API
+     * [POST] /products/:postId/:userId/deals
+     * @return BaseResponse<String>
+     */
+    @ResponseBody
+    @PostMapping ("/{postId}/deals")
+    public BaseResponse<String> createDeal(HttpServletRequest request, @PathVariable int postId, @Valid @RequestBody PostDealReq postDealReq) {
+        try {
+            int userId = (int) request.getAttribute("userId");
+
+            if (postDealReq.getStatus().equals("N")){
+                return new BaseResponse<>(NOT_CORRECT_STATUS);
+            }
+
+            if (productProvider.checkDeal(postId) != 0) {
+                // 이미 거래된 글이라면
+                return new BaseResponse<>(POST_DEAL_DUPLICATE);
+            }
+            productService.createDeal(postId, userId, postDealReq);
+            String result = "";
+            return new BaseResponse<>(result);
+
+
+        } catch (BaseException exception) {
+            return new BaseResponse<>((exception.getStatus()));
+        }
+
+
+    }
+    /**
+     * 중고 거래 취소 API
+     * [PATCH] /products/:postId/deals/status
+     * @return BaseResponse<String>
+     */
+    @ResponseBody
+    @PatchMapping ("/{postId}/deals")
+    public BaseResponse<String> deleteDeal(HttpServletRequest request, @PathVariable int postId, @Valid @RequestBody Deal deal){
+        try{
+            int userId = (int) request.getAttribute("userId");
+
+            if (productProvider.checkDeal(postId) == 0) {
+                return new BaseResponse<>(POST_DEAL_EMPTY);
+            }
+
+            if (productProvider.checkDealUser(postId, userId).equals(deal.getStatus())){
+                return new BaseResponse<>(POST_DEAL_DUPLICATE_STATE);
+            }
+
+            PatchDealReq patchDealReq = new PatchDealReq(postId, userId, deal.getStatus());
+            productService.deleteDeal(patchDealReq);
+            String result = "";
+            return new BaseResponse<>(result);
+        } catch (BaseException exception) {
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+
+
 
 
 
@@ -367,15 +275,11 @@ public class ProductController {
      * @return BaseResponse<List<GetProductRes>>
      */
     @ResponseBody
-    @GetMapping("/user-post/{userId}")
-    public BaseResponse<List<GetProductListRes>> getUserProductPost(@PathVariable int userId, @RequestParam(required = false) String status){
+    @GetMapping("/user-post")
+    public BaseResponse<List<GetProductListRes>> getUserProductPost(HttpServletRequest request, @RequestParam(required = false) String status){
         try{
 
-            int userIdxByJwt = jwtService.getUserIdx();
-            //userIdx와 접근한 유저가 같은지 확인
-            if (userId != userIdxByJwt) {
-                return new BaseResponse<>(INVALID_USER_JWT);
-            }
+            int userId = (int) request.getAttribute("userId");
 
             if (status == null){
                 List<GetProductListRes> getProductsRes = productProvider.getUserProductPost(userId, "doing");
@@ -394,18 +298,14 @@ public class ProductController {
 
     /**
      * 구매 내역 조회 API
-     * [GET] /products/buylist/:userId
+     * [GET] /products/buylist
      * @return BaseResponse<List<GetProductRes>>
      */
     @ResponseBody
-    @GetMapping("/buylist/{userId}")
-    public BaseResponse<List<GetProductListRes>> getUserBuyList(@PathVariable int userId){
+    @GetMapping("/buylist")
+    public BaseResponse<List<GetProductListRes>> getUserBuyList(HttpServletRequest request){
         try{
-            int userIdxByJwt = jwtService.getUserIdx();
-            //userIdx와 접근한 유저가 같은지 확인
-            if (userId != userIdxByJwt) {
-                return new BaseResponse<>(INVALID_USER_JWT);
-            }
+            int userId = (int) request.getAttribute("userId");
 
             List<GetProductListRes> getProductsRes = productProvider.getUserBuyList(userId);
             return new BaseResponse<>(getProductsRes);
@@ -419,6 +319,7 @@ public class ProductController {
      * [GET] /products/:postId
      * @return BaseResponse<GetProductRes>
      */
+    @UnAuth
     @ResponseBody
     @GetMapping("/{postId}") // (GET) 127.0.0.1:9000/products/home
     public BaseResponse<GetProductRes> getPost(@PathVariable int postId){
@@ -437,32 +338,5 @@ public class ProductController {
             return new BaseResponse<>((exception.getStatus()));
         }
     }
-
-
-
-    /**
-     * 로그 테스트 API
-     * [GET] /test/log
-     * @return String
-     */
-    @ResponseBody
-    @GetMapping("/log")
-    public String getAll() {
-        System.out.println("테스트");
-//        trace, debug 레벨은 Console X, 파일 로깅 X
-//        logger.trace("TRACE Level 테스트");
-//        logger.debug("DEBUG Level 테스트");
-
-//        info 레벨은 Console 로깅 O, 파일 로깅 X
-        logger.info("INFO Level 테스트");
-//        warn 레벨은 Console 로깅 O, 파일 로깅 O
-        logger.warn("Warn Level 테스트");
-//        error 레벨은 Console 로깅 O, 파일 로깅 O (app.log 뿐만 아니라 error.log 에도 로깅 됨)
-//        app.log 와 error.log 는 날짜가 바뀌면 자동으로 *.gz 으로 압축 백업됨
-        logger.error("ERROR Level 테스트");
-
-        return "Success Test";
-    }
-
 
 }

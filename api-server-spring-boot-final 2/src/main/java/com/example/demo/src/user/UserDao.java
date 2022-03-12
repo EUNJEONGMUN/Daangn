@@ -352,35 +352,24 @@ public class UserDao {
 
     // 키워드 확인
     public int checkKeyword(int userId, String keyword) {
-        String Query = "select exists (select * from KeywordList where userId=? and content=?);";
+        String Query = "select exists (select * from KeywordList where userId=? and content=? and status='Y');";
         Object[] Params = new Object[]{userId, keyword};
-        return this.jdbcTemplate.queryForObject(
+        int result = this.jdbcTemplate.queryForObject(
                 Query, int.class, Params
         );
+        System.out.println(result);
+        return result;
     }
 
-    /**
-     * 키워드 알림설정 API
-     * [PUT] /users/:userIdx/keywords
-     * @return BaseResponse<String>
-     */
-//    public int modifyKeywords(int userId, String keyword) {
-//        String Query = "UPDATE KeywordList SET status = IF(status='Y', 'N', 'Y') where userId=? and content=?;";
-//        Object[] Params = new Object[]{userId, keyword};
-//        this.jdbcTemplate.update(Query, Params);
-//
-//        String lastInsertIdQuery = "select last_insert_id()";
-//        return this.jdbcTemplate.queryForObject(lastInsertIdQuery,int.class);
-//    }
 
     /**
      * 키워드 알림설정 API
      * [POST] /users/:userIdx/keywords
      * @return BaseResponse<PostUserKeywordsRes>
      */
-    public int createKeywords(int userId, PostUserKeywordsReq postUserKeywordsReq) {
+    public int createKeywords(int userId, String keyword) {
         String Query = "insert into KeywordList (userId, content) values(?,?);";
-        Object[] Params = new Object[]{userId, postUserKeywordsReq.getKeyword()};
+        Object[] Params = new Object[]{userId, keyword};
         this.jdbcTemplate.update(Query, Params);
 
         String lastInsertIdQuery = "select last_insert_id()";
@@ -468,8 +457,6 @@ public class UserDao {
                 Params);
 
     }
-
-
 
 
     public char checkExistsUser(String encryptPhone) {

@@ -113,7 +113,7 @@ public class UserService {
     public PostSignInRes signIn(PostSignInReq postSignInReq) throws BaseException {
         String encryptPhone;
         try {
-            // 사용자에게 바디값을 받은 전화번호 암호화
+            // 사용자에게 바디값으로 받은 전화번호 암호화
             encryptPhone = new SHA256().encrypt(postSignInReq.getPhoneNumber());
             postSignInReq.setPhoneNumber(encryptPhone);
         } catch (Exception ignored) {
@@ -186,17 +186,20 @@ public class UserService {
      * [POST] /users/:userIdx/keywords
      * @return BaseResponse<PostUserKeywordsRes>
      */
-    public PostUserKeywordsRes createKeywords(int userId, PostUserKeywordsReq postUserKeywordsReq) throws BaseException {
+    public PostUserKeywordsRes createKeywords(int userId, String keyword) throws BaseException {
+        if (userProvider.checkKeyword(userId, keyword) == 1) {
+            System.out.println("키워드가 있을 경우");
+            // 요청한 키워드가 있을 경우
+            throw new BaseException(DUPLICATED_KEYWORDS);
+        }
         try{
-            if (userProvider.checkKeyword(userId, postUserKeywordsReq.getKeyword()) != 0){
-                // 요청한 키워드가 있을 경우
-                throw new BaseException(DUPLICATED_KEYWORDS);
-            } else {
-                // 요청한 키워드가 없을 경우
-                int keywordsId = userDao.createKeywords(userId, postUserKeywordsReq);
-                return new PostUserKeywordsRes(keywordsId);
-            }
+            System.out.println("키워드가 없을 경우");
+            // 요청한 키워드가 없을 경우
+            int keywordsId = userDao.createKeywords(userId, keyword);
+            return new PostUserKeywordsRes(keywordsId);
+
         } catch (Exception exception) {
+            System.out.println("???");
             throw new BaseException(DATABASE_ERROR);
         }
 
@@ -208,10 +211,10 @@ public class UserService {
      * @return BaseResponse<String>
      */
     public void deleteKeywords(DeleteKeywordReq deleteKeywordReq) throws BaseException {
+        if (userDao.checkKeyword(deleteKeywordReq.getUserId(), deleteKeywordReq.getKeyword()) == 0){
+            throw new BaseException(KEYWORD_NOT_EXISTS);
+        }
         try {
-            if (userDao.checkKeyword(deleteKeywordReq.getUserId(), deleteKeywordReq.getKeyword()) == 0){
-                throw new BaseException(KEYWORD_NOT_EXISTS);
-            }
             int result = userDao.deleteKeywords(deleteKeywordReq);
             if (result == FAIL){
                 throw new BaseException(DELETE_FAIL_KEYWORDS);

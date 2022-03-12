@@ -691,13 +691,15 @@ public class ProductDao {
 
     // 게시글 존재 확인
     public int checkPostExists(int postId) {
-        String Query = "select exists(select * from ProductPost where productPostId=? and status='Y');";
+        String Query = "select exists(select * from ProductPost where productPostId=? and isExistence='Y');";
         int Params = postId;
-        return this.jdbcTemplate.queryForObject(Query,
+        int result = this.jdbcTemplate.queryForObject(Query,
                 int.class,
                 Params);
-    }
 
+        System.out.println(result);
+        return result;
+    }
     /**
      * 중고 거래 글 조회 API
      * [GET] /products/:postId

@@ -1,5 +1,6 @@
 package com.example.demo.src.member;
 
+import com.example.demo.src.UnAuth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.example.demo.config.BaseException;

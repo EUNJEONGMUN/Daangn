@@ -2,6 +2,7 @@ package com.example.demo.src.town;
 
 import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponse;
+import com.example.demo.src.UnAuth;
 import com.example.demo.src.town.model.*;
 import com.example.demo.src.town.model.Req.*;
 import com.example.demo.src.town.model.Res.*;
@@ -11,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.List;
 
 import static com.example.demo.config.BaseResponseStatus.*;
@@ -40,6 +43,7 @@ public class TownController {
      *
      * @return BaseResponse<List <GetTownRes>>
      */
+    @UnAuth
     @ResponseBody
     @GetMapping("/home") // (GET) 127.0.0.1:9000/towns/home
     public BaseResponse<List<GetTownListRes>> getTowns() {
@@ -58,6 +62,7 @@ public class TownController {
      *
      * @return BaseResponse<List<GetTownListRes>>
      */
+    @UnAuth
     @ResponseBody
     @GetMapping("/home/{categoryId}") // (GET) 127.0.0.1:9000/towns/home/:categoryId
     public BaseResponse<List<GetTownListRes>> getTown(@PathVariable("categoryId") int categoryId) {
@@ -74,10 +79,11 @@ public class TownController {
     }
 
     /**
-     * 동네 생활 글 개별 API
+     * 동네 생활 글 개별 조회 API
      * [GET] /towns/:postId
      * @return BaseResponse<GetTownPostRes>
      */
+    @UnAuth
     @ResponseBody
     @GetMapping("/{postId}")
     public BaseResponse<GetTownPostRes> getTownPost(@PathVariable int postId) {
@@ -100,27 +106,15 @@ public class TownController {
 
     /**
      * 동네 생활 글 작성 API
-     * [POST] /towns/new/:userId
+     * [POST] /towns/post/new
      * @return BaseResponse<PostTownNewRes>
      */
     @ResponseBody
-    @PostMapping("/new/{userId}")
-    public BaseResponse<PostTownNewRes> createTown(@PathVariable int userId, @RequestBody PostTownNew postTownNew) {
+    @PostMapping("/post/new")
+    public BaseResponse<PostTownNewRes> createTown(HttpServletRequest request, @Valid @RequestBody PostTownNew postTownNew) {
         try {
 
-            //jwt에서 idx 추출.
-            int userIdxByJwt = jwtService.getUserIdx();
-            //userIdx와 접근한 유저가 같은지 확인
-            if(userId != userIdxByJwt){
-                return new BaseResponse<>(INVALID_USER_JWT);
-            }
-
-            if (postTownNew.getTownPostCategoryId() == 0) {
-            return new BaseResponse<>(EMPTY_CATEGORY);
-            }
-            if (postTownNew.getContent() == null) {
-                return new BaseResponse<>(POST_TOWNS_EMPTY_CONTENT);
-            }
+            int userId = (int) request.getAttribute("userId");
 
             if (townProvider.checkTopCategory(postTownNew.getTownPostCategoryId())!=2){
                 return new BaseResponse<>(CATEGORY_RANGE_ERROR);
@@ -135,19 +129,14 @@ public class TownController {
 
     /**
      * 동네 생활 글 수정 API
-     * [PATCH] /towns/:postId/:userId
+     * [PATCH] /towns/post/:postId
      * @return BaseResponse<String>
      */
     @ResponseBody
-    @PatchMapping("/{postId}/{userId}")
-    public BaseResponse<String> modifyTownPost(@PathVariable int postId, @PathVariable int userId, @RequestBody Town town) {
+    @PatchMapping("/post/{postId}")
+    public BaseResponse<String> modifyTownPost(HttpServletRequest request, @PathVariable int postId, @Valid @RequestBody Town town) {
         try {
-            //jwt에서 idx 추출.
-            int userIdxByJwt = jwtService.getUserIdx();
-            //userIdx와 접근한 유저가 같은지 확인
-            if(userId != userIdxByJwt){
-                return new BaseResponse<>(INVALID_USER_JWT);
-            }
+            int userId = (int) request.getAttribute("userId");
             // 글 존재여부 확인
             if (townProvider.checkPostExists(postId) == 0){
                 return new BaseResponse<>(POST_NOT_EXISTS);
@@ -155,12 +144,6 @@ public class TownController {
             // 자신의 글인지 확인
             if(townProvider.checkPostUser(postId)!=userId){
                 return new BaseResponse<>(INVALID_USER_POST);
-            }
-            if (town.getTownPostCategoryId() == 0) {
-                return new BaseResponse<>(EMPTY_CATEGORY);
-            }
-            if (town.getContent() == null) {
-                return new BaseResponse<>(POST_TOWNS_EMPTY_CONTENT);
             }
 
             if (townProvider.checkTopCategory(town.getTownPostCategoryId())!=2){
@@ -184,16 +167,11 @@ public class TownController {
      * @return BaseResponse<PostTownComRes>
      */
     @ResponseBody
-    @PostMapping("/{postId}/comment/{userId}") // (POST) 127.0.0.1:9000/towns/:postId/comment
-    public BaseResponse<PostTownComRes> createTownCom(@PathVariable int postId, @PathVariable int userId, @RequestBody PostTownComReq postTownComReq) {
+    @PostMapping("/{postId}/comment") // (POST) 127.0.0.1:9000/towns/:postId/comment
+    public BaseResponse<PostTownComRes> createTownCom(HttpServletRequest request, @PathVariable int postId, @Valid @RequestBody PostTownComReq postTownComReq) {
 
         try{
-            //jwt에서 idx 추출.
-            int userIdxByJwt = jwtService.getUserIdx();
-            //userIdx와 접근한 유저가 같은지 확인
-            if(userId != userIdxByJwt){
-                return new BaseResponse<>(INVALID_USER_JWT);
-            }
+            int userId = (int) request.getAttribute("userId");
 
             // 글 존재여부 확인
             if (townProvider.checkPostExists(postId) == 0){
@@ -202,10 +180,6 @@ public class TownController {
             // 대댓글일 때, 상위 댓글 존재 여부 확인
             if (postTownComReq.getRefId() != 0 && townProvider.checkComExists(postTownComReq.getRefId())==0){
                 return new BaseResponse<>(POST_COM_NOT_EXISTS);
-            }
-
-            if (postTownComReq.getContent() == null) {
-                return new BaseResponse<>(POST_TOWNS_EMPTY_CONTENT);
             }
 
             PostTownComRes postTownComRes = townService.createTownCom(postId, userId, postTownComReq);
@@ -219,20 +193,15 @@ public class TownController {
 
     /**
      * 동네 생활 댓글 수정 API
-     * [PATCH] /towns/:postId/comment/:comId/:userId
+     * [PATCH] /towns/:postId/comment/:comId
      * @return BaseResponse<String>
      */
     @ResponseBody
-    @PatchMapping("/{postId}/comment/{comId}/{userId}")
-    public BaseResponse<String> modifyTownCom(@PathVariable int postId, @PathVariable int comId, @PathVariable int userId,
-                                              @RequestBody TownPostCom townPostCom) {
+    @PatchMapping("/{postId}/comment/{comId}")
+    public BaseResponse<String> modifyTownCom(HttpServletRequest request, @PathVariable int postId, @PathVariable int comId,
+                                              @Valid @RequestBody TownPostCom townPostCom) {
         try {
-            //jwt에서 idx 추출.
-            int userIdxByJwt = jwtService.getUserIdx();
-            //userIdx와 접근한 유저가 같은지 확인
-            if(userId != userIdxByJwt){
-                return new BaseResponse<>(INVALID_USER_JWT);
-            }
+            int userId = (int) request.getAttribute("userId");
 
 
             // 글 존재여부 확인
@@ -250,9 +219,6 @@ public class TownController {
                 return new BaseResponse<>(INVALID_USER_POST);
             }
 
-            if (townPostCom.getContent() == null) {
-                return new BaseResponse<>(POST_TOWNS_EMPTY_CONTENT);
-            }
 
             PatchTownPostComReq patchTownPostComReq = new PatchTownPostComReq(postId, comId, userId, townPostCom.getContent(), townPostCom.getStatus());
             townService.modifyTownCom(patchTownPostComReq);
@@ -267,19 +233,14 @@ public class TownController {
 
     /**
      * 동네 생활 글 좋아요 설정 API
-     * [POST] /towns/:postId/liked/:userId
+     * [POST] /towns/:postId/liked
      * @return BaseResponse<String>
      */
     @ResponseBody
-    @PostMapping("/{postId}/liked/{userId}")
-    public BaseResponse<String> createTownPostLiked(@PathVariable int postId, @PathVariable int userId) {
+    @PostMapping("/{postId}/liked")
+    public BaseResponse<String> createTownPostLiked(HttpServletRequest request, @PathVariable int postId) {
         try {
-            //jwt에서 idx 추출.
-            int userIdxByJwt = jwtService.getUserIdx();
-            //userIdx와 접근한 유저가 같은지 확인
-            if(userId != userIdxByJwt){
-                return new BaseResponse<>(INVALID_USER_JWT);
-            }
+            int userId = (int) request.getAttribute("userId");
 
             // 글 존재여부 확인
             if (townProvider.checkPostExists(postId) == 0){
@@ -310,19 +271,14 @@ public class TownController {
 
     /**
      * 동네 생활 글 좋아요 변경 API
-     * [PATCH] /towns/:postId/liked/:userId
+     * [PATCH] /towns/:postId/liked
      * @return BaseResponse<String>
      */
     @ResponseBody
-    @PatchMapping("/{postId}/liked/{userId}")
-    public BaseResponse<String> modifyTownPostLiked(@PathVariable int postId, @PathVariable int userId, @RequestBody TownLiked townLiked) {
+    @PatchMapping("/{postId}/liked")
+    public BaseResponse<String> modifyTownPostLiked(HttpServletRequest request, @PathVariable int postId, @RequestBody TownLiked townLiked) {
         try {
-            //jwt에서 idx 추출.
-            int userIdxByJwt = jwtService.getUserIdx();
-            //userIdx와 접근한 유저가 같은지 확인
-            if(userId != userIdxByJwt){
-                return new BaseResponse<>(INVALID_USER_JWT);
-            }
+            int userId = (int) request.getAttribute("userId");
 
             // 글 존재여부 확인
             if (townProvider.checkPostExists(postId) == 0){
@@ -350,19 +306,14 @@ public class TownController {
 
     /**
      * 동네 생활 댓글 좋아요 설정 API
-     * [POST] /towns/:postId/:comId/liked/:userId
+     * [POST] /towns/:postId/:comId/liked
      * @return BaseResponse<String>
      */
     @ResponseBody
-    @PostMapping("/{postId}/{comId}/liked/{userId}")
-    public BaseResponse<String> createTownComLiked(@PathVariable int postId, @PathVariable int comId, @PathVariable int userId) {
+    @PostMapping("/{postId}/{comId}/liked")
+    public BaseResponse<String> createTownComLiked(HttpServletRequest request, @PathVariable int postId, @PathVariable int comId) {
         try {
-            //jwt에서 idx 추출.
-            int userIdxByJwt = jwtService.getUserIdx();
-            //userIdx와 접근한 유저가 같은지 확인
-            if(userId != userIdxByJwt){
-                return new BaseResponse<>(INVALID_USER_JWT);
-            }
+            int userId = (int) request.getAttribute("userId");
 
             // 글 존재여부 확인
             if (townProvider.checkPostExists(postId) == 0){
@@ -398,20 +349,15 @@ public class TownController {
 
     /**
      * 동네 생활 댓글 좋아요 변경 API
-     * [PATCH] /towns/:postId/:comId/liked/:userId
+     * [PATCH] /towns/:postId/:comId/liked
      * @return BaseResponse<String>
      */
     @ResponseBody
-    @PatchMapping("/{postId}/{comId}/liked/{userId}")
-    public BaseResponse<String> modifyTownComLiked(@PathVariable int postId, @PathVariable int comId, @PathVariable int userId,
-                                                   @RequestBody TownComLiked townComLiked) {
+    @PatchMapping("/{postId}/{comId}/liked")
+    public BaseResponse<String> modifyTownComLiked(HttpServletRequest request, @PathVariable int postId, @PathVariable int comId,
+                                                   @Valid @RequestBody TownComLiked townComLiked) {
         try {
-            //jwt에서 idx 추출.
-            int userIdxByJwt = jwtService.getUserIdx();
-            //userIdx와 접근한 유저가 같은지 확인
-            if(userId != userIdxByJwt){
-                return new BaseResponse<>(INVALID_USER_JWT);
-            }
+            int userId = (int) request.getAttribute("userId");
 
             // 글 존재여부 확인
             if (townProvider.checkPostExists(postId) == 0){
@@ -444,19 +390,14 @@ public class TownController {
 
     /**
      * 작성한 동네 생활 글 조회 API
-     * [GET] /towns/user-post/:userId
+     * [GET] /towns/user-post
      * @return BaseResponse<List<GetTownRes>>
      */
     @ResponseBody
-    @GetMapping("/user-post/{userId}")
-    public BaseResponse<List<GetTownListRes>> getUserTownPosts(@PathVariable int userId) {
+    @GetMapping("/user-post")
+    public BaseResponse<List<GetTownListRes>> getUserTownPosts(HttpServletRequest request) {
         try {
-            //jwt에서 idx 추출.
-            int userIdxByJwt = jwtService.getUserIdx();
-            //userIdx와 접근한 유저가 같은지 확인
-            if(userId != userIdxByJwt){
-                return new BaseResponse<>(INVALID_USER_JWT);
-            }
+            int userId = (int) request.getAttribute("userId");
 
             List<GetTownListRes> getTownsRes = townProvider.getUserTownPosts(userId);
 
@@ -468,20 +409,15 @@ public class TownController {
 
     /**
      * 작성한 동네 생활 댓글 조회 API
-     * [GET] /towns/user-comment/:userId
+     * [GET] /towns/user-comment
      * @return BaseResponse<List<GetTownComRes>>
      */
     @ResponseBody
-    @GetMapping("/user-comment/{userId}")
-    public BaseResponse<List<GetTownComRes>> getUserTownComs(@PathVariable int userId) {
+    @GetMapping("/user-comment")
+    public BaseResponse<List<GetTownComRes>> getUserTownComs(HttpServletRequest request) {
         try {
 
-            //jwt에서 idx 추출.
-            int userIdxByJwt = jwtService.getUserIdx();
-            //userIdx와 접근한 유저가 같은지 확인
-            if(userId != userIdxByJwt){
-                return new BaseResponse<>(INVALID_USER_JWT);
-            }
+            int userId = (int) request.getAttribute("userId");
 
             List<GetTownComRes> getTownComRes = townProvider.getUserTownComs(userId);
 
