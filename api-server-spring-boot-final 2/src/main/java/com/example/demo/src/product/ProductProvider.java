@@ -27,35 +27,31 @@ public class ProductProvider {
     /**
      * 홈 화면 조회 API
      * [GET] /products/home
-     * @return BaseResponse<GetProductRes>
+     * @return BaseResponse<List<GetProductRes>>
      */
     public List<GetProductListRes> getProducts() throws BaseException {
         try{
             List<GetProductListRes> getProductListRes = productDao.getProducts();
             return getProductListRes;
         } catch (Exception exception){
+            System.out.println("home provider -> "+exception);
+            exception.getStackTrace();
             throw new BaseException(DATABASE_ERROR);
         }
     }
-//    public List<GetProductPostRes> getProducts() throws BaseException {
-//        try{
-//            List<GetProductPostRes> getProductPostRes = productDao.getProducts();
-//            return getProductPostRes;
-//        } catch (Exception exception){
-//            throw new BaseException(DATABASE_ERROR);
-//        }
-//    }
+
 
     /**
      * 홈 화면 카테고리별 조회 API
      * [GET] /products/home/:categoryId
-     * @return BaseResponse<GetProductRes>
+     * @return BaseResponse<List<GetProductRes>>
      */
     public List<GetProductListRes> getProduct(int categoryId) throws BaseException {
         try {
             List<GetProductListRes> getProductListRes = productDao.getProduct(categoryId);
             return getProductListRes;
         } catch (Exception exception){
+            System.out.println("home category provider -> "+exception);
             throw new BaseException(DATABASE_ERROR);
         }
 

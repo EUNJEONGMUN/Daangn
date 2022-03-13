@@ -46,24 +46,11 @@ public class ProductController {
     @UnAuth
     @ResponseBody
     @GetMapping("/home") // (GET) 127.0.0.1:9000/products/home
-    public BaseResponse<List<GetProductListRes>> getProducts(){
-        try {
-            List<GetProductListRes> getProductListRes = productProvider.getProducts();
-            return new BaseResponse<>(getProductListRes);
-        } catch (BaseException exception){
-            return new BaseResponse<>((exception.getStatus()));
-        }
+    public BaseResponse<List<GetProductListRes>> getProducts() throws BaseException{
+        List<GetProductListRes> getProductListRes = productProvider.getProducts();
+        return new BaseResponse<>(getProductListRes);
     }
-//    @ResponseBody
-//    @GetMapping("/home") // (GET) 127.0.0.1:9000/products/home
-//    public BaseResponse<List<GetProductPostRes>> getProducts(){
-//        try {
-//            GetProductPostRes getProductPostRes = (GetProductPostRes) productProvider.getProducts();
-//            return new BaseResponse(getProductPostRes);
-//        } catch (BaseException exception){
-//            return new BaseResponse<>((exception.getStatus()));
-//        }
-//    }
+
     /**
      * 홈 화면 카테고리별 조회 API
      * [GET] /products/home/:categoryId
@@ -72,17 +59,14 @@ public class ProductController {
     @UnAuth
     @ResponseBody
     @GetMapping("/home/{categoryId}") // (GET) 127.0.0.1:9000/products/home/:categoryId
-    public BaseResponse<List<GetProductListRes>> getProduct(@PathVariable("categoryId") int categoryId){
-        try{
-            if (productProvider.checkTopCategory(categoryId) != 1){
-                // 중고거래 refId=1
-                return new BaseResponse<>(CATEGORY_RANGE_ERROR);
-            }
-            List<GetProductListRes> getProductsRes = productProvider.getProduct(categoryId);
-            return new BaseResponse<>(getProductsRes);
-        } catch(BaseException exception){
-            return new BaseResponse<>((exception.getStatus()));
+    public BaseResponse<List<GetProductListRes>> getProduct(@PathVariable("categoryId") int categoryId) throws BaseException {
+        if (productProvider.checkTopCategory(categoryId) != 1){
+            // 중고거래 refId=1
+            return new BaseResponse<>(CATEGORY_RANGE_ERROR);
         }
+        List<GetProductListRes> getProductsRes = productProvider.getProduct(categoryId);
+        return new BaseResponse<>(getProductsRes);
+
     }
 
     /**
@@ -92,18 +76,13 @@ public class ProductController {
      */
     @ResponseBody
     @PostMapping("/post/new")
-    public BaseResponse<PostProductNewRes> createProduct(HttpServletRequest request, @Valid @RequestBody PostProductNew postProductNew){
+    public BaseResponse<PostProductNewRes> createProduct(HttpServletRequest request, @Valid @RequestBody PostProductNew postProductNew) throws BaseException {
 
         int userId = (int) request.getAttribute("userId");
 
-        try{
-            PostProductNewReq postProductNewReq = new PostProductNewReq(userId, postProductNew.getTitle(), postProductNew.getCategoryId(), postProductNew.getIsProposal(), postProductNew.getContent(), postProductNew.getPrice());
-            PostProductNewRes postProductNewRes = productService.createProduct(postProductNewReq);
-            return new BaseResponse<>(postProductNewRes);
-
-        } catch (BaseException exception){
-            return new BaseResponse<>((exception.getStatus()));
-        }
+        PostProductNewReq postProductNewReq = new PostProductNewReq(userId, postProductNew.getTitle(), postProductNew.getCategoryId(), postProductNew.getIsProposal(), postProductNew.getContent(), postProductNew.getPrice());
+        PostProductNewRes postProductNewRes = productService.createProduct(postProductNewReq);
+        return new BaseResponse<>(postProductNewRes);
     }
 
     /**
@@ -113,25 +92,21 @@ public class ProductController {
      */
     @ResponseBody
     @PatchMapping("/post/{postId}")
-    public BaseResponse<String> modifyProduct(HttpServletRequest request, @PathVariable int postId, @Valid @RequestBody ProductPost productPost) {
-        try {
+    public BaseResponse<String> modifyProduct(HttpServletRequest request, @PathVariable int postId, @Valid @RequestBody ProductPost productPost) throws BaseException {
 
-            int userId = (int) request.getAttribute("userId");
+        int userId = (int) request.getAttribute("userId");
 
-            if (productProvider.checkPostExists(postId) == 0){
-                return new BaseResponse<>(POST_NOT_EXISTS);
-            }
-
-            PatchPostReq patchPostReq = new PatchPostReq(postId, userId, productPost.getTitle(), productPost.getCategoryId(),
-                    productPost.getJusoCodeId(), productPost.getIsProposal(), productPost.getContent(), productPost.getPrice(),
-                    productPost.getStatus(), productPost.getIsHidden(), productPost.getIsExistence());
-
-            productService.modifyProduct(patchPostReq);
-            String result = "";
-            return new BaseResponse<>(result);
-        } catch (BaseException exception) {
-            return new BaseResponse<>((exception.getStatus()));
+        if (productProvider.checkPostExists(postId) == 0){
+            return new BaseResponse<>(POST_NOT_EXISTS);
         }
+
+        PatchPostReq patchPostReq = new PatchPostReq(postId, userId, productPost.getTitle(), productPost.getCategoryId(),
+                productPost.getJusoCodeId(), productPost.getIsProposal(), productPost.getContent(), productPost.getPrice(),
+                productPost.getStatus(), productPost.getIsHidden(), productPost.getIsExistence());
+
+        productService.modifyProduct(patchPostReq);
+        String result = "";
+        return new BaseResponse<>(result);
     }
 
     /**
@@ -141,37 +116,35 @@ public class ProductController {
      */
     @ResponseBody
     @PostMapping("/{postId}/attention")
-    public BaseResponse<String> createProductAtt(HttpServletRequest request, @PathVariable int postId, @Valid @RequestBody PostProductAttReq postProductAttReq) {
-        try {
-            int userId = (int) request.getAttribute("userId");
+    public BaseResponse<String> createProductAtt(HttpServletRequest request, @PathVariable int postId, @Valid @RequestBody PostProductAttReq postProductAttReq) throws BaseException {
 
-            if (postProductAttReq.getStatus().equals("N")){
-                return new BaseResponse<>(NOT_CORRECT_STATUS);
-            }
-            if (productProvider.checkPostExists(postId) == 0){
-                return new BaseResponse<>(POST_NOT_EXISTS);
-            }
+        int userId = (int) request.getAttribute("userId");
 
-            if (productProvider.checkAtt(postId, userId) != 0) {
-                // 이미 관심 등록한 기록이 있다면
-                if (productProvider.checkAttStatus(postId, userId).equals("Y")){
-                    return new BaseResponse<>(POST_ATTENTION_DUPLICATED);
-                }
-                PatchProductAttReq patchProductAttReq = new PatchProductAttReq(postId, userId, postProductAttReq.getStatus());
-                productService.modifyProductAtt(patchProductAttReq);
-                String result = "";
-                return new BaseResponse<>(result);
-
-            } else {
-                // 관심 등록한 기록이 없다면
-                productService.createProductAtt(postId, userId, postProductAttReq.getStatus());
-                String result = "";
-                return new BaseResponse<>(result);
-            }
-
-        } catch (BaseException exception) {
-            return new BaseResponse<>((exception.getStatus()));
+        if (postProductAttReq.getStatus().equals("N")){
+            return new BaseResponse<>(NOT_CORRECT_STATUS);
         }
+        if (productProvider.checkPostExists(postId) == 0){
+            return new BaseResponse<>(POST_NOT_EXISTS);
+        }
+
+        if (productProvider.checkAtt(postId, userId) != 0) {
+            // 이미 관심 등록한 기록이 있다면
+            if (productProvider.checkAttStatus(postId, userId).equals("Y")){
+                return new BaseResponse<>(POST_ATTENTION_DUPLICATED);
+            }
+            PatchProductAttReq patchProductAttReq = new PatchProductAttReq(postId, userId, postProductAttReq.getStatus());
+            productService.modifyProductAtt(patchProductAttReq);
+            String result = "";
+            return new BaseResponse<>(result);
+
+        } else {
+            // 관심 등록한 기록이 없다면
+            productService.createProductAtt(postId, userId, postProductAttReq.getStatus());
+            String result = "";
+            return new BaseResponse<>(result);
+        }
+
+
     }
 
     /**
@@ -181,28 +154,22 @@ public class ProductController {
      */
     @ResponseBody
     @PatchMapping("/{postId}/attention/deletion")
-    public BaseResponse<String> modifyProductAtt(HttpServletRequest request, @PathVariable int postId, @Valid @RequestBody PatchProductAtt patchProductAtt){
-        try{
+    public BaseResponse<String> modifyProductAtt(HttpServletRequest request, @PathVariable int postId, @Valid @RequestBody PatchProductAtt patchProductAtt) throws BaseException {
+        int userId = (int) request.getAttribute("userId");
 
-            int userId = (int) request.getAttribute("userId");
-
-            if (productProvider.checkAtt(postId, userId) == 0){
-                // 관심 등록한 기록이 없다면
-                return new BaseResponse<>(POST_ATTENTION_EMPTY);
-            }
-
-            if (patchProductAtt.getStatus().equals("N") && productProvider.checkAttStatus(postId, userId).equals("N")){
-                return new BaseResponse<>(POST_ATTENTION_DEL_DUPLICATED);
-            }
-
-            PatchProductAttReq patchProductAttReq = new PatchProductAttReq(postId, userId, patchProductAtt.getStatus());
-            productService.modifyProductAtt(patchProductAttReq);
-            String result = "";
-            return new BaseResponse<>(result);
-        } catch (BaseException exception) {
-            return new BaseResponse<>((exception.getStatus()));
+        if (productProvider.checkAtt(postId, userId) == 0){
+            // 관심 등록한 기록이 없다면
+            return new BaseResponse<>(POST_ATTENTION_EMPTY);
         }
 
+        if (patchProductAtt.getStatus().equals("N") && productProvider.checkAttStatus(postId, userId).equals("N")){
+            return new BaseResponse<>(POST_ATTENTION_DEL_DUPLICATED);
+        }
+
+        PatchProductAttReq patchProductAttReq = new PatchProductAttReq(postId, userId, patchProductAtt.getStatus());
+        productService.modifyProductAtt(patchProductAttReq);
+        String result = "";
+        return new BaseResponse<>(result);
     }
 
 
@@ -213,27 +180,21 @@ public class ProductController {
      */
     @ResponseBody
     @PostMapping ("/{postId}/deals")
-    public BaseResponse<String> createDeal(HttpServletRequest request, @PathVariable int postId, @Valid @RequestBody PostDealReq postDealReq) {
-        try {
-            int userId = (int) request.getAttribute("userId");
+    public BaseResponse<String> createDeal(HttpServletRequest request, @PathVariable int postId, @Valid @RequestBody PostDealReq postDealReq) throws BaseException {
 
-            if (postDealReq.getStatus().equals("N")){
-                return new BaseResponse<>(NOT_CORRECT_STATUS);
-            }
+        int userId = (int) request.getAttribute("userId");
 
-            if (productProvider.checkDeal(postId) != 0) {
-                // 이미 거래된 글이라면
-                return new BaseResponse<>(POST_DEAL_DUPLICATE);
-            }
-            productService.createDeal(postId, userId, postDealReq);
-            String result = "";
-            return new BaseResponse<>(result);
-
-
-        } catch (BaseException exception) {
-            return new BaseResponse<>((exception.getStatus()));
+        if (postDealReq.getStatus().equals("N")){
+            return new BaseResponse<>(NOT_CORRECT_STATUS);
         }
 
+        if (productProvider.checkDeal(postId) != 0) {
+            // 이미 거래된 글이라면
+            return new BaseResponse<>(POST_DEAL_DUPLICATE);
+        }
+        productService.createDeal(postId, userId, postDealReq);
+        String result = "";
+        return new BaseResponse<>(result);
 
     }
     /**
@@ -243,25 +204,22 @@ public class ProductController {
      */
     @ResponseBody
     @PatchMapping ("/{postId}/deals")
-    public BaseResponse<String> deleteDeal(HttpServletRequest request, @PathVariable int postId, @Valid @RequestBody Deal deal){
-        try{
-            int userId = (int) request.getAttribute("userId");
+    public BaseResponse<String> deleteDeal(HttpServletRequest request, @PathVariable int postId, @Valid @RequestBody Deal deal) throws BaseException {
+        int userId = (int) request.getAttribute("userId");
 
-            if (productProvider.checkDeal(postId) == 0) {
-                return new BaseResponse<>(POST_DEAL_EMPTY);
-            }
-
-            if (productProvider.checkDealUser(postId, userId).equals(deal.getStatus())){
-                return new BaseResponse<>(POST_DEAL_DUPLICATE_STATE);
-            }
-
-            PatchDealReq patchDealReq = new PatchDealReq(postId, userId, deal.getStatus());
-            productService.deleteDeal(patchDealReq);
-            String result = "";
-            return new BaseResponse<>(result);
-        } catch (BaseException exception) {
-            return new BaseResponse<>((exception.getStatus()));
+        if (productProvider.checkDeal(postId) == 0) {
+            return new BaseResponse<>(POST_DEAL_EMPTY);
         }
+
+        if (productProvider.checkDealUser(postId, userId).equals(deal.getStatus())){
+            return new BaseResponse<>(POST_DEAL_DUPLICATE_STATE);
+        }
+
+        PatchDealReq patchDealReq = new PatchDealReq(postId, userId, deal.getStatus());
+        productService.deleteDeal(patchDealReq);
+        String result = "";
+        return new BaseResponse<>(result);
+
     }
 
 
@@ -276,24 +234,20 @@ public class ProductController {
      */
     @ResponseBody
     @GetMapping("/user-post")
-    public BaseResponse<List<GetProductListRes>> getUserProductPost(HttpServletRequest request, @RequestParam(required = false) String status){
-        try{
+    public BaseResponse<List<GetProductListRes>> getUserProductPost(HttpServletRequest request, @RequestParam(required = false) String status) throws BaseException {
+        int userId = (int) request.getAttribute("userId");
 
-            int userId = (int) request.getAttribute("userId");
-
-            if (status == null){
-                List<GetProductListRes> getProductsRes = productProvider.getUserProductPost(userId, "doing");
-                return new BaseResponse<>(getProductsRes);
-            }
-
-            if (!(status.equals("doing") || status.equals("finish") || status.equals("hidden"))){
-                return new BaseResponse<>(NOT_CORRECT_STATUS);
-            }
-            List<GetProductListRes> getProductsRes = productProvider.getUserProductPost(userId, status);
+        if (status == null){
+            List<GetProductListRes> getProductsRes = productProvider.getUserProductPost(userId, "doing");
             return new BaseResponse<>(getProductsRes);
-        } catch(BaseException exception){
-            return new BaseResponse<>((exception.getStatus()));
         }
+
+        if (!(status.equals("doing") || status.equals("finish") || status.equals("hidden"))){
+            return new BaseResponse<>(NOT_CORRECT_STATUS);
+        }
+        List<GetProductListRes> getProductsRes = productProvider.getUserProductPost(userId, status);
+        return new BaseResponse<>(getProductsRes);
+
     }
 
     /**
@@ -303,15 +257,11 @@ public class ProductController {
      */
     @ResponseBody
     @GetMapping("/buylist")
-    public BaseResponse<List<GetProductListRes>> getUserBuyList(HttpServletRequest request){
-        try{
-            int userId = (int) request.getAttribute("userId");
+    public BaseResponse<List<GetProductListRes>> getUserBuyList(HttpServletRequest request) throws BaseException {
+        int userId = (int) request.getAttribute("userId");
 
-            List<GetProductListRes> getProductsRes = productProvider.getUserBuyList(userId);
-            return new BaseResponse<>(getProductsRes);
-        } catch(BaseException exception){
-            return new BaseResponse<>((exception.getStatus()));
-        }
+        List<GetProductListRes> getProductsRes = productProvider.getUserBuyList(userId);
+        return new BaseResponse<>(getProductsRes);
     }
 
     /**
@@ -322,21 +272,17 @@ public class ProductController {
     @UnAuth
     @ResponseBody
     @GetMapping("/{postId}") // (GET) 127.0.0.1:9000/products/home
-    public BaseResponse<GetProductRes> getPost(@PathVariable int postId){
-        try {
-            if(postId==0){
-                return new BaseResponse<>(EMPTY_POSTID);
-            }
-
-            if (productProvider.checkPostExists(postId) == 0){
-                return new BaseResponse<>(POST_NOT_EXISTS);
-            }
-
-            GetProductRes getProductRes = productProvider.getPost(postId);
-            return new BaseResponse<>(getProductRes);
-        } catch (BaseException exception){
-            return new BaseResponse<>((exception.getStatus()));
+    public BaseResponse<GetProductRes> getPost(@PathVariable int postId) throws BaseException {
+        if(postId==0){
+            return new BaseResponse<>(EMPTY_POSTID);
         }
+
+        if (productProvider.checkPostExists(postId) == 0){
+            return new BaseResponse<>(POST_NOT_EXISTS);
+        }
+
+        GetProductRes getProductRes = productProvider.getPost(postId);
+        return new BaseResponse<>(getProductRes);
     }
 
 }

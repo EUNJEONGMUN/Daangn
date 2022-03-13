@@ -46,7 +46,7 @@ public class UserController {
     @UnAuth
     @ResponseBody
     @PostMapping("/message")
-    public BaseResponse<String> messageUser(@Valid @RequestBody PostMessageReq postMessageReq){
+    public BaseResponse<String> messageUser(@Valid @RequestBody PostMessageReq postMessageReq) throws BaseException {
 
         String phoneNumber = postMessageReq.getPhoneNumber();
 
@@ -61,13 +61,10 @@ public class UserController {
         System.out.println("수신자 번호 : " + phoneNumber);
         System.out.println("인증번호 : " + numStr);
 
-        try {
-            userService.certifiedPhoneNumber(phoneNumber,numStr);
-            String result = "";
-            return new BaseResponse<>(result);
-        } catch (BaseException exception) {
-            return new BaseResponse<>((exception.getStatus()));
-        }
+        userService.certifiedPhoneNumber(phoneNumber,numStr);
+        String result = "";
+        return new BaseResponse<>(result);
+
     }
 
     /**
@@ -78,14 +75,11 @@ public class UserController {
     @UnAuth
     @ResponseBody
     @PostMapping("/sign-up")
-    public BaseResponse<String> createUser(@Valid @RequestBody PostUserReq postUserReq){
-        try {
-            userService.createUser(postUserReq);
-            String result = "";
-            return new BaseResponse<>(result);
-        } catch(BaseException exception){
-            return new BaseResponse<>((exception.getStatus()));
-        }
+    public BaseResponse<String> createUser(@Valid @RequestBody PostUserReq postUserReq) throws BaseException {
+        userService.createUser(postUserReq);
+        String result = "";
+        return new BaseResponse<>(result);
+
     }
 
     /**
@@ -96,13 +90,9 @@ public class UserController {
     @UnAuth
     @ResponseBody
     @PostMapping("/sign-in")
-    public BaseResponse<PostSignInRes> signIn(@Valid @RequestBody PostSignInReq postSignInReq){
-        try {
-            PostSignInRes postSignInRes = userService.signIn(postSignInReq);
-            return new BaseResponse<>(postSignInRes);
-        } catch (BaseException exception) {
-            return new BaseResponse<>(exception.getStatus());
-        }
+    public BaseResponse<PostSignInRes> signIn(@Valid @RequestBody PostSignInReq postSignInReq) throws BaseException {
+        PostSignInRes postSignInRes = userService.signIn(postSignInReq);
+        return new BaseResponse<>(postSignInRes);
     }
 
     /**
@@ -112,27 +102,23 @@ public class UserController {
      */
     @ResponseBody
     @PatchMapping("/deletion")
-    public BaseResponse<String> deleteUser(HttpServletRequest request, @Valid @RequestBody PatchUser patchUser){
-        try {
-            int userId = (int) request.getAttribute("userId");
+    public BaseResponse<String> deleteUser(HttpServletRequest request, @Valid @RequestBody PatchUser patchUser) throws BaseException {
 
-            if (userProvider.checkUser(userId)==0){
-                return new BaseResponse<>(USER_NOT_EXISTS);
-            }
+        int userId = (int) request.getAttribute("userId");
 
-            if (userProvider.checkUserState(userId).equals("N")){
-                return new BaseResponse<>(USERS_SECESSION);
-            }
-
-            PatchUserReq patchUserReq = new PatchUserReq(userId, patchUser.getStatus());
-            userService.deleteUser(patchUserReq);
-            String result = "";
-            return new BaseResponse<>(result);
-
-
-        } catch (BaseException exception) {
-            return new BaseResponse<>((exception.getStatus()));
+        if (userProvider.checkUser(userId)==0){
+            return new BaseResponse<>(USER_NOT_EXISTS);
         }
+
+        if (userProvider.checkUserState(userId).equals("N")){
+            return new BaseResponse<>(USERS_SECESSION);
+        }
+
+        PatchUserReq patchUserReq = new PatchUserReq(userId, patchUser.getStatus());
+        userService.deleteUser(patchUserReq);
+        String result = "";
+        return new BaseResponse<>(result);
+
     }
 
 
@@ -143,15 +129,13 @@ public class UserController {
      */
     @ResponseBody
     @GetMapping("")
-    public BaseResponse<GetUserInfoRes> getUserInfo(HttpServletRequest request){
-        try{
-            int userId = (int) request.getAttribute("userId");
+    public BaseResponse<GetUserInfoRes> getUserInfo(HttpServletRequest request) throws BaseException {
 
-            GetUserInfoRes getUserInfoRes = userProvider.getUserInfo(userId);
-            return new BaseResponse<>(getUserInfoRes);
-        } catch (BaseException exception){
-            return new BaseResponse<>((exception.getStatus()));
-        }
+        int userId = (int) request.getAttribute("userId");
+
+        GetUserInfoRes getUserInfoRes = userProvider.getUserInfo(userId);
+        return new BaseResponse<>(getUserInfoRes);
+
     }
 
     /**
@@ -161,18 +145,16 @@ public class UserController {
      */
     @ResponseBody
     @PatchMapping("")
-    public BaseResponse<String> modifyMyInfo(HttpServletRequest request, @RequestBody Myinfo myinfo){
-        try {
-            int userId = (int) request.getAttribute("userId");
+    public BaseResponse<String> modifyMyInfo(HttpServletRequest request, @RequestBody Myinfo myinfo) throws BaseException {
 
-            PatchMyInfoReq patchMyInfoReq = new PatchMyInfoReq(userId, myinfo.getProfileImg(), myinfo.getUserName(), myinfo.getJusoCodeId());
-            userService.modifyMyInfo(patchMyInfoReq);
+        int userId = (int) request.getAttribute("userId");
 
-            String result = "";
-            return new BaseResponse<>(result);
-        } catch (BaseException exception){
-            return new BaseResponse<>((exception.getStatus()));
-        }
+        PatchMyInfoReq patchMyInfoReq = new PatchMyInfoReq(userId, myinfo.getProfileImg(), myinfo.getUserName(), myinfo.getJusoCodeId());
+        userService.modifyMyInfo(patchMyInfoReq);
+
+        String result = "";
+        return new BaseResponse<>(result);
+
     }
 
     /**
@@ -182,16 +164,11 @@ public class UserController {
      */
     @ResponseBody
     @GetMapping("/badge")
-    public BaseResponse<List<GetUserBadgeRes>> getUserBadges(HttpServletRequest request){
-        try{
-            int userId = (int) request.getAttribute("userId");
+    public BaseResponse<List<GetUserBadgeRes>> getUserBadges(HttpServletRequest request) throws BaseException {
+        int userId = (int) request.getAttribute("userId");
 
-            List<GetUserBadgeRes> getUserBadgeRes = userProvider.getUserBadges(userId);
-            return new BaseResponse<>(getUserBadgeRes);
-
-        } catch (BaseException exception) {
-            return new BaseResponse<>((exception.getStatus()));
-        }
+        List<GetUserBadgeRes> getUserBadgeRes = userProvider.getUserBadges(userId);
+        return new BaseResponse<>(getUserBadgeRes);
 
     }
 
@@ -202,15 +179,12 @@ public class UserController {
      */
     @ResponseBody
     @GetMapping("/likestores")
-    public BaseResponse<List<GetUserLikeStoreRes>> GetUserLikeStoreRes(HttpServletRequest request){
-        try{
-            int userId = (int) request.getAttribute("userId");
+    public BaseResponse<List<GetUserLikeStoreRes>> GetUserLikeStoreRes(HttpServletRequest request) throws BaseException {
+        int userId = (int) request.getAttribute("userId");
 
-            List<GetUserLikeStoreRes> getUserLikeStoreRes = userProvider.getUserLikeStores(userId);
-            return new BaseResponse<>(getUserLikeStoreRes);
-        } catch (BaseException exception) {
-            return new BaseResponse<>((exception.getStatus()));
-        }
+        List<GetUserLikeStoreRes> getUserLikeStoreRes = userProvider.getUserLikeStores(userId);
+        return new BaseResponse<>(getUserLikeStoreRes);
+
     }
 
     /**
@@ -221,19 +195,15 @@ public class UserController {
      */
     @ResponseBody
     @GetMapping("/coupons")
-    public BaseResponse<List<GetUserCouponRes>> getAttention(HttpServletRequest request, @RequestParam(required = false) String status){
-        try{
-            int userId = (int) request.getAttribute("userId");
+    public BaseResponse<List<GetUserCouponRes>> getAttention(HttpServletRequest request, @RequestParam(required = false) String status) throws BaseException {
+        int userId = (int) request.getAttribute("userId");
 
-            if(status == null){
-                List<GetUserCouponRes> getUserCouponRes = userProvider.getCoupon(userId, "Y");
-                return new BaseResponse<>(getUserCouponRes);
-            }
-            List<GetUserCouponRes> getUserCouponRes = userProvider.getCoupon(userId, status);
+        if(status == null){
+            List<GetUserCouponRes> getUserCouponRes = userProvider.getCoupon(userId, "Y");
             return new BaseResponse<>(getUserCouponRes);
-        } catch(BaseException exception){
-            return new BaseResponse<>((exception.getStatus()));
         }
+        List<GetUserCouponRes> getUserCouponRes = userProvider.getCoupon(userId, status);
+        return new BaseResponse<>(getUserCouponRes);
     }
 
     /**
@@ -243,15 +213,12 @@ public class UserController {
      */
     @ResponseBody
     @GetMapping("/attention")
-    public BaseResponse<List<GetProductListRes>> getAttention(HttpServletRequest request){
-        try{
-            int userId = (int) request.getAttribute("userId");
+    public BaseResponse<List<GetProductListRes>> getAttention(HttpServletRequest request) throws BaseException {
+        int userId = (int) request.getAttribute("userId");
 
-            List<GetProductListRes> getProductListRes = userProvider.getAttention(userId);
-            return new BaseResponse<>(getProductListRes);
-        } catch(BaseException exception){
-            return new BaseResponse<>((exception.getStatus()));
-        }
+        List<GetProductListRes> getProductListRes = userProvider.getAttention(userId);
+        return new BaseResponse<>(getProductListRes);
+
     }
 
     /**
@@ -261,15 +228,12 @@ public class UserController {
      */
     @ResponseBody
     @GetMapping("/manner")
-    public BaseResponse<List<GetUserMannerRes>> getUserManner(HttpServletRequest request){
-        try{
-            int userId = (int) request.getAttribute("userId");
+    public BaseResponse<List<GetUserMannerRes>> getUserManner(HttpServletRequest request) throws BaseException {
+        int userId = (int) request.getAttribute("userId");
 
-            List<GetUserMannerRes> getUserMannerRes = userProvider.getUserManner(userId);
-            return new BaseResponse<>(getUserMannerRes);
-        } catch (BaseException exception){
-            return new BaseResponse<>((exception.getStatus()));
-        }
+        List<GetUserMannerRes> getUserMannerRes = userProvider.getUserManner(userId);
+        return new BaseResponse<>(getUserMannerRes);
+
     }
 
 
@@ -280,15 +244,13 @@ public class UserController {
      */
     @ResponseBody
     @PostMapping("/keywords")
-    public BaseResponse<PostUserKeywordsRes> createKeywords(HttpServletRequest request, @Valid @RequestBody PostUserKeywordsReq postUserKeywordsReq){
-        try {
-            int userId = (int) request.getAttribute("userId");
+    public BaseResponse<PostUserKeywordsRes> createKeywords(HttpServletRequest request, @Valid @RequestBody PostUserKeywordsReq postUserKeywordsReq) throws BaseException {
 
-            PostUserKeywordsRes postUserKeywords = userService.createKeywords(userId, postUserKeywordsReq.getKeyword());
-            return new BaseResponse<>(postUserKeywords);
-        } catch (BaseException exception){
-            return new BaseResponse<>((exception.getStatus()));
-        }
+        int userId = (int) request.getAttribute("userId");
+
+        PostUserKeywordsRes postUserKeywords = userService.createKeywords(userId, postUserKeywordsReq.getKeyword());
+        return new BaseResponse<>(postUserKeywords);
+
     }
 
     /**
@@ -298,17 +260,14 @@ public class UserController {
      */
     @ResponseBody
     @PatchMapping("/keywords")
-    public BaseResponse<String> deleteKeywords(HttpServletRequest request, @Valid @RequestBody DeleteKeyword deleteKeyword){
-        try {
-            int userId = (int) request.getAttribute("userId");
+    public BaseResponse<String> deleteKeywords(HttpServletRequest request, @Valid @RequestBody DeleteKeyword deleteKeyword) throws BaseException {
+        int userId = (int) request.getAttribute("userId");
 
-            DeleteKeywordReq deleteKeywordReq = new DeleteKeywordReq(userId, deleteKeyword.getKeyword());
-            userService.deleteKeywords(deleteKeywordReq);
-            String result = "";
-            return new BaseResponse<>(result);
-        } catch (BaseException exception){
-            return new BaseResponse<>((exception.getStatus()));
-        }
+        DeleteKeywordReq deleteKeywordReq = new DeleteKeywordReq(userId, deleteKeyword.getKeyword());
+        userService.deleteKeywords(deleteKeywordReq);
+        String result = "";
+        return new BaseResponse<>(result);
+
     }
 
 

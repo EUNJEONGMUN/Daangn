@@ -31,6 +31,11 @@ public enum BaseResponseStatus {
     USERS_EMPTY_USER_ID(false, 2010, "유저 아이디 값을 확인해주세요."),
     FAIL_MESSAGE_AUTH(false, 2011, "휴대폰 인증에 실패하였습니다."),
 
+    NOT_BLANK(false, 2012, "NOT_NULL"),
+    NOT_EMPTY(false, 2023, "NOT_EMPTY"),
+    PATTERN(false, 2014, "PATTERN"),
+    MIN_VALUE(false, 2015, "MIN"),
+
     // [POST] /users
     POST_USERS_EMPTY_EMAIL(false, 2015, "이메일을 입력해주세요."),
     POST_USERS_INVALID_EMAIL(false, 2016, "이메일 형식을 확인해주세요."),

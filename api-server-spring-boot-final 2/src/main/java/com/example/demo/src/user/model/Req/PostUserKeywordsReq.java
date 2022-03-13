@@ -14,8 +14,8 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 public class PostUserKeywordsReq {
 
-    @Size(min=1)
     @NotBlank(message="한 글자 이상의 키워드를 입력해주세요.")
+    @Size(min=1)
     private String keyword;
 
 }

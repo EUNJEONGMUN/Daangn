@@ -28,7 +28,7 @@ public class ProductDao {
     /**
      * 홈 화면 조회 API
      * [GET] /products/home
-     * @return BaseResponse<GetProductRes>
+     * @return BaseResponse<List<GetProductRes>>
      */
     public List<GetProductListRes> getProducts() {
 
@@ -197,7 +197,7 @@ public class ProductDao {
     /**
      * 홈 화면 카테고리별 조회 API
      * [GET] /products/home/:categoryId
-     * @return BaseResponse<GetProductRes>
+     * @return BaseResponse<List<GetProductRes>>
      */
     public List<GetProductListRes> getProduct(int categoryId) {
         String Query = "select P.productPostId, img.firstImg, P.title, JusoCode.jusoName, P.price,\n" +
@@ -255,6 +255,8 @@ public class ProductDao {
                         rs.getString("uploadTime")),
                 Params);
     }
+
+
 
     // 카테고리 범위 체크
     public int checkTopCategory(int categoryId) {

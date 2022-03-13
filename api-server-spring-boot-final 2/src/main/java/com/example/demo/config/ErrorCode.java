@@ -2,11 +2,14 @@ package com.example.demo.config;
 
 import lombok.Getter;
 
-public enum ErrorCodeDTO {
-    NOT_BLANK(false, 2010, "NOT_NULL"),
-    NOT_EMPTY(false, 2011, "NOT_EMPTY"),
-    PATTERN(false, 2012, "PATTERN"),
-    MIN_VALUE(false, 2013, "MIN");
+public enum ErrorCode {
+    /**
+     * 삭제해도 됨.
+     */
+    NOT_BLANK(false, 2012, "NOT_NULL"),
+    NOT_EMPTY(false, 2013, "NOT_EMPTY"),
+    PATTERN(false, 2014, "PATTERN"),
+    MIN_VALUE(false, 2015, "MIN");
 
 
     @Getter
@@ -16,7 +19,7 @@ public enum ErrorCodeDTO {
     @Getter
     private String message;
 
-    ErrorCodeDTO(boolean isSuccess, int code, String message){
+    ErrorCode(boolean isSuccess, int code, String message){
         this.isSuccess = isSuccess;
         this.code = code;
         this.message = message;
