@@ -38,6 +38,7 @@ public class UserController {
         this.userService = userService;
         this.jwtService = jwtService;
     }
+
     /**
      * 휴대폰 인증 API
      * [POST] /users/message
@@ -189,7 +190,7 @@ public class UserController {
 
     /**
      * 보유 쿠폰 상태별 조회 API
-     * [GET] /users/:userId/coupons
+     * [GET] /users/coupons
      * [GET] /coupons?status=?
      * @return BaseResponse<List<GetUserCouponRes>>
      */

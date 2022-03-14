@@ -25,9 +25,8 @@ public class UserDao {
     }
 
     /**
-     * 회원가입 API
+     * 회원가입 API - User table insert
      * [POST] /users/sign-up
-     *
      * @return BaseResponse<String>
      */
     public int createUser(PostUserReq postUserReq) {
@@ -41,24 +40,24 @@ public class UserDao {
 
     }
 
-    // 사용자 동네 입력
+    /**
+     * 회원가입 API - UserArea table insert
+     * [POST] /users/sign-up
+     * @return BaseResponse<String>
+     */
     public int createUserArea(int userId, int jusoCodeId) {
         String Query = "insert into UserArea (userId, jusoCodeId) values (?,?);";
         Object[] Params = new Object[]{userId, jusoCodeId};
         return this.jdbcTemplate.update(Query, Params);
     }
 
-    // 휴대폰 번호 중복체크
-    public int checkPhoneNumber(String phoneNumber) {
-        String Query = "select exists(select * from User where UserPhoneNumber = ?);";
-        String Params = phoneNumber;
-        return this.jdbcTemplate.queryForObject(Query,
-                int.class,
-                Params);
-    }
 
 
-    // 사용자 정보 가져오기
+    /**
+     * 로그인 API - 사용자 정보 가져오기
+     * [POST] /users/sign-in
+     * @return BaseResponse<PostSignInRes>
+     */
     public User getPhoneNumber(PostSignInReq postSignInReq) {
         // User에 담길 정보들
         String Query = "select User.userId, User.userName, User.userProfileImageUrl as profileImg from User where userPhoneNumber = ?;";
@@ -74,9 +73,20 @@ public class UserDao {
     }
 
     /**
+     * 회원 탈퇴 API
+     * [PATCH] /users/deletion
+     * @return BaseResponse<String>
+     */
+    public int deleteUser(PatchUserReq patchUserReq) {
+        String Query = "update User set status=? where userId=?;";
+        Object[] Params = new Object[]{patchUserReq.getStatus(), patchUserReq.getUserId()};
+        return this.jdbcTemplate.update(Query, Params);
+
+    }
+
+    /**
      * 프로필 조회 API
-     * [GET] /users/:userId
-     *
+     * [GET] /users
      * @return BaseResponse<GetUserInfoRes>
      */
     public GetUserInfoRes getUserInfo(int userId) {
@@ -175,8 +185,8 @@ public class UserDao {
     }
 
     /**
-     * 프로필 수정 API
-     * [PATCH] /users/:userId
+     * 프로필 수정 API - update User table
+     * [PATCH] /users
      *
      * @return BaseResponse<String>
      */
@@ -186,11 +196,18 @@ public class UserDao {
         return this.jdbcTemplate.update(Query, Params);
     }
 
+    /**
+     * 프로필 수정 API - update UserArea table
+     * [PATCH] /users
+     *
+     * @return BaseResponse<String>
+     */
     public int modifyMyArea(PatchMyInfoReq patchMyInfoReq) {
         String Query = "update UserArea set jusoCodeId=? where userId=?;";
         Object[] Params = new Object[]{patchMyInfoReq.getJusoCodeId(), patchMyInfoReq.getUserId()};
         return this.jdbcTemplate.update(Query, Params);
     }
+
     /**
      * 유저 배지 조회 API
      * [GET] /users/badge
@@ -210,7 +227,7 @@ public class UserDao {
 
     /**
      * 유저 단골 가게 조회 API
-     * [GET] /users/:userIdx/likestores
+     * [GET] /users/likestores
      * @return BaseResponse<List<GetUserLikeStoreRes>>
      */
     public List<GetUserLikeStoreRes> getUserLikeStores(int userId) {
@@ -250,7 +267,7 @@ public class UserDao {
 
     /**
      * 보유 쿠폰 상태별 조회 API
-     * [GET] /users/:userId/coupons
+     * [GET] /users/coupons
      * [GET] /coupons?status=?
      * @return BaseResponse<List<GetUserCouponRes>>
      */
@@ -334,65 +351,9 @@ public class UserDao {
     }
 
     /**
-     * 키워드 알림설정 API
-     * [GET] /users/:userIdx/keywords
-     * @return BaseResponse<String>
-     */
-    public int setKeyWords(int userId, String keyword) {
-        String Query = "insert into KeywordList (userId, content) values (?,?);";
-        Object[] Params = new Object[]{userId, keyword};
-
-        this.jdbcTemplate.update(Query, Params);
-
-        String lastInsertIdQuery = "select last_insert_id()";
-        return this.jdbcTemplate.queryForObject(lastInsertIdQuery,int.class);
-
-
-    }
-
-    // 키워드 확인
-    public int checkKeyword(int userId, String keyword) {
-        String Query = "select exists (select * from KeywordList where userId=? and content=? and status='Y');";
-        Object[] Params = new Object[]{userId, keyword};
-        int result = this.jdbcTemplate.queryForObject(
-                Query, int.class, Params
-        );
-        System.out.println(result);
-        return result;
-    }
-
-
-    /**
-     * 키워드 알림설정 API
-     * [POST] /users/:userIdx/keywords
-     * @return BaseResponse<PostUserKeywordsRes>
-     */
-    public int createKeywords(int userId, String keyword) {
-        String Query = "insert into KeywordList (userId, content) values(?,?);";
-        Object[] Params = new Object[]{userId, keyword};
-        this.jdbcTemplate.update(Query, Params);
-
-        String lastInsertIdQuery = "select last_insert_id()";
-        return this.jdbcTemplate.queryForObject(lastInsertIdQuery,int.class);
-    }
-
-
-
-    /**
-     * 키워드 알림해제 API
-     * [PATCH] /users/:userIdx/keywords
-     * @return BaseResponse<String>
-     */
-    public int deleteKeywords(DeleteKeywordReq deleteKeywordReq) {
-        String Query = "update KeywordList set status='N' where userId=? and content=?;";
-        Object[] Params = new Object[]{deleteKeywordReq.getUserId(), deleteKeywordReq.getKeyword()};
-        return this.jdbcTemplate.update(Query, Params);
-    }
-
-    /**
      * 관심 목록 전체 조회 API
-     * [GET] /users/:userId/attention
-     * @return BaseResponse<List<GetUserAttentionRes>>
+     * [GET] /users/attention
+     * @return BaseResponse<List<GetProductRes>>
      */
     public List<GetProductListRes> getAttention(int userId) {
 
@@ -459,6 +420,42 @@ public class UserDao {
     }
 
 
+    /**
+     * 키워드 알림설정 API
+     * [POST] /users/keywords
+     * @return BaseResponse<PostUserKeywordsRes>
+     */
+    public int createKeywords(int userId, String keyword) {
+        String Query = "insert into KeywordList (userId, content) values(?,?);";
+        Object[] Params = new Object[]{userId, keyword};
+        this.jdbcTemplate.update(Query, Params);
+
+        String lastInsertIdQuery = "select last_insert_id()";
+        return this.jdbcTemplate.queryForObject(lastInsertIdQuery,int.class);
+    }
+
+
+    /**
+     * 키워드 알림해제 API
+     * [DELETE] /users/keywords
+     * @return BaseResponse<String>
+     */
+    public int deleteKeywords(DeleteKeywordReq deleteKeywordReq) {
+        String Query = "update KeywordList set status='N' where userId=? and content=?;";
+        Object[] Params = new Object[]{deleteKeywordReq.getUserId(), deleteKeywordReq.getKeyword()};
+        return this.jdbcTemplate.update(Query, Params);
+    }
+
+
+    // 휴대폰 번호 중복체크
+    public int checkPhoneNumber(String phoneNumber) {
+        String Query = "select exists(select * from User where UserPhoneNumber = ?);";
+        String Params = phoneNumber;
+        return this.jdbcTemplate.queryForObject(Query,
+                int.class,
+                Params);
+    }
+
     public char checkExistsUser(String encryptPhone) {
         String Query = "select status from User where UserPhoneNumber = ?;";
         String Params = encryptPhone;
@@ -467,17 +464,7 @@ public class UserDao {
                 Params);
     }
 
-    /**
-     * 회원 탈퇴 API
-     * [PATCH] /users/:userId/deletion
-     * @return BaseResponse<String>
-     */
-    public int deleteUser(PatchUserReq patchUserReq) {
-        String Query = "update User set status=? where userId=?;";
-        Object[] Params = new Object[]{patchUserReq.getStatus(), patchUserReq.getUserId()};
-        return this.jdbcTemplate.update(Query, Params);
 
-    }
 
     public int checkUser(int userId) {
         String Query = "select exists(select * from User where userId=?);";
@@ -495,4 +482,14 @@ public class UserDao {
                 Params);
     }
 
+    // 키워드 확인
+    public int checkKeyword(int userId, String keyword) {
+        String Query = "select exists (select * from KeywordList where userId=? and content=? and status='Y');";
+        Object[] Params = new Object[]{userId, keyword};
+        int result = this.jdbcTemplate.queryForObject(
+                Query, int.class, Params
+        );
+        System.out.println(result);
+        return result;
+    }
 }

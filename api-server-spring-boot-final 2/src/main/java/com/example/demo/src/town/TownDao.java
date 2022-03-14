@@ -127,19 +127,116 @@ public class TownDao {
                 getTownParams);
     }
 
+    /**
+     * 동네 생활 글 개별 API
+     * [GET] /towns/:postId
+     * @return BaseResponse<GetTownPostRes>
+     */
+    public GetTownPostRes getTownPost(int postId) {
+        String Query1 = "select C.categoryName, TP.townPostId, TP.content, User.userName,\n" +
+                "                       case\n" +
+                "                           when TIMESTAMPDIFF(SECOND, TP.createdAt, current_timestamp())<60\n" +
+                "                            then concat(TIMESTAMPDIFF(SECOND, TP.createdAt, current_timestamp()),'초 전')\n" +
+                "                           when TIMESTAMPDIFF(MINUTE, TP.createdAt, current_timestamp())<60\n" +
+                "                            then concat(TIMESTAMPDIFF(MINUTE, TP.createdAt, current_timestamp()),'분 전')\n" +
+                "                            when TIMESTAMPDIFF(HOUR, TP.createdAt, current_timestamp())<24\n" +
+                "                            then concat(TIMESTAMPDIFF(HOUR, TP.createdAt, current_timestamp()), '시간 전')\n" +
+                "                            else concat(TIMESTAMPDIFF(DAY, TP.createdAt, current_timestamp()), '일 전')\n" +
+                "                        end as uploadTime, likeCom.likeCount, likeCom.comCount\n" +
+                "                from TownPost TP\n" +
+                "                    join User on TP.userId = User.userId\n" +
+                "                    join (select Category.categoryName, TP.townPostId\n" +
+                "                            from TownPost TP\n" +
+                "                            left join Category on Category.categoryId = TP.townPostCategoryId) C on C.townPostId = TP.townPostId\n" +
+                "                    left join (select TP.townPostId, count(TPcom.townPostId) as comCount, LC.likeCount\n" +
+                "                                from TownPost TP\n" +
+                "                                left join TownPostCom TPcom on TP.townPostId = TPcom.townPostId\n" +
+                "                                left join (select TP.townPostId, count(TPlike.postId) as likeCount\n" +
+                "                                            from TownPost TP\n" +
+                "                                            left join TownPostLike TPlike on TP.townPostId = TPlike.postId\n" +
+                "                                            where TPlike.status='Y'\n" +
+                "                                            group by TP.townPostId) LC on LC.townPostId = TP.townPostId\n" +
+                "                                where TPcom.status='Y'\n" +
+                "                                group by TP.townPostId) likeCom on likeCom.townPostId = TP.townPostId\n" +
+                "                where TP.status='Y' and TP.townPostId=?\n" +
+                "                order by TP.createdAt DESC;";
 
-    // 카테고리 범위 체크
-    public int checkTopCategory(int categoryId) {
-        String checkTopCategoryQuery = "select refId from Category where categoryId=?";
-        int checkTopCategoryParam = categoryId;
-        return this.jdbcTemplate.queryForObject(checkTopCategoryQuery,
-                int.class,
-                checkTopCategoryParam);
+        String Query2 = "select T.townPostComId, T.content, U.userName, U.userProfileImageUrl as userImg,\n" +
+                "       case\n" +
+                "           when TIMESTAMPDIFF(SECOND, T.createdAt, current_timestamp())<60\n" +
+                "            then concat(TIMESTAMPDIFF(SECOND, T.createdAt, current_timestamp()),'초 전')\n" +
+                "           when TIMESTAMPDIFF(MINUTE, T.createdAt, current_timestamp())<60\n" +
+                "            then concat(TIMESTAMPDIFF(MINUTE, T.createdAt, current_timestamp()),'분 전')\n" +
+                "            when TIMESTAMPDIFF(HOUR, T.createdAt, current_timestamp())<24\n" +
+                "            then concat(TIMESTAMPDIFF(HOUR, T.createdAt, current_timestamp()), '시간 전')\n" +
+                "            else concat(TIMESTAMPDIFF(DAY, T.createdAt, current_timestamp()), '일 전')\n" +
+                "        end as uploadTime, juso.jusoName\n" +
+                "from TownPostCom T join User U on T.userId = U.userId\n" +
+                "join (\n" +
+                "    select User.userId, JC.jusoName\n" +
+                "    from UserArea UA\n" +
+                "        inner join JusoCode as JC on UA.jusoCodeId = JC.jusoCodeId\n" +
+                "        inner join User on UA.userId = User.userId\n" +
+                "    ) juso on juso.userId = T.userId\n" +
+                "where T.townPostId=? and T.refId=0 and T.status='Y'\n" +
+                "order by T.createdAt DESC;";
+
+        String Query3 = "select T.content, U.userName, U.userProfileImageUrl as userImg,\n" +
+                "       case\n" +
+                "           when TIMESTAMPDIFF(SECOND, T.createdAt, current_timestamp())<60\n" +
+                "            then concat(TIMESTAMPDIFF(SECOND, T.createdAt, current_timestamp()),'초 전')\n" +
+                "           when TIMESTAMPDIFF(MINUTE, T.createdAt, current_timestamp())<60\n" +
+                "            then concat(TIMESTAMPDIFF(MINUTE, T.createdAt, current_timestamp()),'분 전')\n" +
+                "            when TIMESTAMPDIFF(HOUR, T.createdAt, current_timestamp())<24\n" +
+                "            then concat(TIMESTAMPDIFF(HOUR, T.createdAt, current_timestamp()), '시간 전')\n" +
+                "            else concat(TIMESTAMPDIFF(DAY, T.createdAt, current_timestamp()), '일 전')\n" +
+                "        end as uploadTime, juso.jusoName\n" +
+                "from TownPostCom T join User U on T.userId = U.userId\n" +
+                "join (\n" +
+                "    select User.userId, JC.jusoName\n" +
+                "    from UserArea UA\n" +
+                "        inner join JusoCode as JC on UA.jusoCodeId = JC.jusoCodeId\n" +
+                "        inner join User on UA.userId = User.userId\n" +
+                "    ) juso on juso.userId = T.userId\n" +
+                "where T.refId=? and T.status='Y'\n" +
+                "order by T.createdAt DESC;";
+
+        int Params = postId;
+
+        return this.jdbcTemplate.queryForObject(Query1,
+                (rs1, rowNum1) -> new GetTownPostRes(
+                        rs1.getString("categoryName"),
+                        rs1.getInt("townPostId"),
+                        rs1.getString("content"),
+                        rs1.getString("userName"),
+                        rs1.getString("uploadTime"),
+                        rs1.getInt("likeCount"),
+                        rs1.getInt("comCount"),
+                        this.jdbcTemplate.query(Query2,
+                                (rs2, nowNum2) -> new TownCom(
+                                        rs2.getString("content"),
+                                        rs2.getString("userName"),
+                                        rs2.getString("userImg"),
+                                        rs2.getString("uploadTime"),
+                                        rs2.getString("jusoName"),
+                                        this.jdbcTemplate.query(Query3,
+                                                (rs3, nowNum3) -> new TownComCom(
+                                                        rs3.getString("content"),
+                                                        rs3.getString("userName"),
+                                                        rs3.getString("userImg"),
+                                                        rs3.getString("uploadTime"),
+                                                        rs3.getString("jusoName"))
+                                                , rs2.getInt("townPostComId")
+                                        ))
+                                , Params)
+                ), Params);
+
     }
+
 
     /**
      * 동네 생활 글 작성 API
-     * [POST] /towns/new/:userId
+     * [POST] /towns/post/new
      * @return BaseResponse<PostTownNewRes>
      */
     public int createTown(int jusoCodeId, PostTownNewReq postTownNewReq) {
@@ -153,7 +250,7 @@ public class TownDao {
 
     /**
      * 동네 생활 글 수정 API
-     * [PATCH] /towns/:postId/:userId
+     * [PATCH] /towns/post/:postId
      * @return BaseResponse<String>
      */
     public int modifyTownPost(PatchTownPostReq patchTownPostReq) {
@@ -169,7 +266,7 @@ public class TownDao {
 
     /**
      * 동네 생활 댓글 작성 API
-     * [POST] /towns/:postId/:userId/comment
+     * [POST] /towns/:postId/comment
      * @return BaseResponse<PostTownComRes>
      */
     public int createTownCom(int postId, int userId, PostTownComReq postTownComReq) {
@@ -183,7 +280,7 @@ public class TownDao {
 
     /**
      * 동네 생활 댓글 수정 API
-     * [PATCH] /towns/:postId/comment/:comId/:userId
+     * [PATCH] /towns/:postId/comment/:comId
      * @return BaseResponse<String>
      */
     public int modifyTownCom(PatchTownPostComReq patchTownPostComReq) {
@@ -207,7 +304,7 @@ public class TownDao {
 
     /**
      * 동네 생활 글 좋아요 설정 API
-     * [POST] /towns/:postId/liked/:userId
+     * [POST] /towns/:postId/liked
      * @return BaseResponse<String>
      */
     public int createTownPostLiked(int postId, int userId) {
@@ -218,7 +315,7 @@ public class TownDao {
 
     /**
      * 동네 생활 글 좋아요 변경 API
-     * [PATCH] /towns/:postId/liked/:userId
+     * [PATCH] /towns/:postId/liked
      * @return BaseResponse<String>
      */
     public int modifyTownPostLiked(PatchTownLikedReq patchTownLikedReq) {
@@ -228,18 +325,11 @@ public class TownDao {
     }
 
 
-    // 동네 생활 댓글 좋아요 체크
-    public int checkComLiked(int postId, int comId, int userId) {
-       String checkLikedQuery = "select exists(select postId, comId, userId from TownPostComLike where postId=? and comId =? and userId=?);";
-       Object[] checkLikedParams = new Object[]{postId, comId, userId};
-       return this.jdbcTemplate.queryForObject(checkLikedQuery,
-               int.class,
-               checkLikedParams);
-    }
+
 
     /**
      * 동네 생활 댓글 좋아요 설정 API
-     * [POST] /towns/:postId/:comId/liked/:userId
+     * [POST] /towns/:postId/:comId/liked
      * @return BaseResponse<String>
      */
     public int createTownComLiked(int postId, int comId, int userId) {
@@ -250,7 +340,7 @@ public class TownDao {
 
     /**
      * 동네 생활 댓글 좋아요 변경 API
-     * [PATCH] /towns/:postId/:comId/liked/:userId
+     * [PATCH] /towns/:postId/:comId/liked
      * @return BaseResponse<String>
      */
     public int modifyTownComLiked(PatchTownComLikedReq patchTownComLikedReq) {
@@ -262,7 +352,7 @@ public class TownDao {
 
     /**
      * 작성한 동네 생활 글 조회 API
-     * [GET] /towns/user-post/:userId
+     * [GET] /towns/user-post
      * @return BaseResponse<List<GetTownRes>>
      */
     public List<GetTownListRes> getUserTownPosts(int userId) {
@@ -310,7 +400,7 @@ public class TownDao {
 
     /**
      * 작성한 동네 생활 댓글 조회 API
-     * [GET] /towns/user-comment/:userId
+     * [GET] /towns/user-comment
      * @return BaseResponse<List<GetTownComRes>>
      */
     public List<GetTownComRes> getUserTownComs(int userId) {
@@ -399,109 +489,21 @@ public class TownDao {
                 Params);
     }
 
-    /**
-     * 동네 생활 글 개별 API
-     * [GET] /towns/:postId
-     * @return BaseResponse<GetTownPostRes>
-     */
-    public GetTownPostRes getTownPost(int postId) {
-        String Query1 = "select C.categoryName, TP.townPostId, TP.content, User.userName,\n" +
-                "                       case\n" +
-                "                           when TIMESTAMPDIFF(SECOND, TP.createdAt, current_timestamp())<60\n" +
-                "                            then concat(TIMESTAMPDIFF(SECOND, TP.createdAt, current_timestamp()),'초 전')\n" +
-                "                           when TIMESTAMPDIFF(MINUTE, TP.createdAt, current_timestamp())<60\n" +
-                "                            then concat(TIMESTAMPDIFF(MINUTE, TP.createdAt, current_timestamp()),'분 전')\n" +
-                "                            when TIMESTAMPDIFF(HOUR, TP.createdAt, current_timestamp())<24\n" +
-                "                            then concat(TIMESTAMPDIFF(HOUR, TP.createdAt, current_timestamp()), '시간 전')\n" +
-                "                            else concat(TIMESTAMPDIFF(DAY, TP.createdAt, current_timestamp()), '일 전')\n" +
-                "                        end as uploadTime, likeCom.likeCount, likeCom.comCount\n" +
-                "                from TownPost TP\n" +
-                "                    join User on TP.userId = User.userId\n" +
-                "                    join (select Category.categoryName, TP.townPostId\n" +
-                "                            from TownPost TP\n" +
-                "                            left join Category on Category.categoryId = TP.townPostCategoryId) C on C.townPostId = TP.townPostId\n" +
-                "                    left join (select TP.townPostId, count(TPcom.townPostId) as comCount, LC.likeCount\n" +
-                "                                from TownPost TP\n" +
-                "                                left join TownPostCom TPcom on TP.townPostId = TPcom.townPostId\n" +
-                "                                left join (select TP.townPostId, count(TPlike.postId) as likeCount\n" +
-                "                                            from TownPost TP\n" +
-                "                                            left join TownPostLike TPlike on TP.townPostId = TPlike.postId\n" +
-                "                                            where TPlike.status='Y'\n" +
-                "                                            group by TP.townPostId) LC on LC.townPostId = TP.townPostId\n" +
-                "                                where TPcom.status='Y'\n" +
-                "                                group by TP.townPostId) likeCom on likeCom.townPostId = TP.townPostId\n" +
-                "                where TP.status='Y' and TP.townPostId=?\n" +
-                "                order by TP.createdAt DESC;";
+    // 카테고리 범위 체크
+    public int checkTopCategory(int categoryId) {
+        String checkTopCategoryQuery = "select refId from Category where categoryId=?";
+        int checkTopCategoryParam = categoryId;
+        return this.jdbcTemplate.queryForObject(checkTopCategoryQuery,
+                int.class,
+                checkTopCategoryParam);
+    }
 
-        String Query2 = "select T.townPostComId, T.content, U.userName, U.userProfileImageUrl as userImg,\n" +
-                "       case\n" +
-                "           when TIMESTAMPDIFF(SECOND, T.createdAt, current_timestamp())<60\n" +
-                "            then concat(TIMESTAMPDIFF(SECOND, T.createdAt, current_timestamp()),'초 전')\n" +
-                "           when TIMESTAMPDIFF(MINUTE, T.createdAt, current_timestamp())<60\n" +
-                "            then concat(TIMESTAMPDIFF(MINUTE, T.createdAt, current_timestamp()),'분 전')\n" +
-                "            when TIMESTAMPDIFF(HOUR, T.createdAt, current_timestamp())<24\n" +
-                "            then concat(TIMESTAMPDIFF(HOUR, T.createdAt, current_timestamp()), '시간 전')\n" +
-                "            else concat(TIMESTAMPDIFF(DAY, T.createdAt, current_timestamp()), '일 전')\n" +
-                "        end as uploadTime, juso.jusoName\n" +
-                "from TownPostCom T join User U on T.userId = U.userId\n" +
-                "join (\n" +
-                "    select User.userId, JC.jusoName\n" +
-                "    from UserArea UA\n" +
-                "        inner join JusoCode as JC on UA.jusoCodeId = JC.jusoCodeId\n" +
-                "        inner join User on UA.userId = User.userId\n" +
-                "    ) juso on juso.userId = T.userId\n" +
-                "where T.townPostId=? and T.refId=0 and T.status='Y'\n" +
-                "order by T.createdAt DESC;";
-
-        String Query3 = "select T.content, U.userName, U.userProfileImageUrl as userImg,\n" +
-                "       case\n" +
-                "           when TIMESTAMPDIFF(SECOND, T.createdAt, current_timestamp())<60\n" +
-                "            then concat(TIMESTAMPDIFF(SECOND, T.createdAt, current_timestamp()),'초 전')\n" +
-                "           when TIMESTAMPDIFF(MINUTE, T.createdAt, current_timestamp())<60\n" +
-                "            then concat(TIMESTAMPDIFF(MINUTE, T.createdAt, current_timestamp()),'분 전')\n" +
-                "            when TIMESTAMPDIFF(HOUR, T.createdAt, current_timestamp())<24\n" +
-                "            then concat(TIMESTAMPDIFF(HOUR, T.createdAt, current_timestamp()), '시간 전')\n" +
-                "            else concat(TIMESTAMPDIFF(DAY, T.createdAt, current_timestamp()), '일 전')\n" +
-                "        end as uploadTime, juso.jusoName\n" +
-                "from TownPostCom T join User U on T.userId = U.userId\n" +
-                "join (\n" +
-                "    select User.userId, JC.jusoName\n" +
-                "    from UserArea UA\n" +
-                "        inner join JusoCode as JC on UA.jusoCodeId = JC.jusoCodeId\n" +
-                "        inner join User on UA.userId = User.userId\n" +
-                "    ) juso on juso.userId = T.userId\n" +
-                "where T.refId=? and T.status='Y'\n" +
-                "order by T.createdAt DESC;";
-
-        int Params = postId;
-
-        return this.jdbcTemplate.queryForObject(Query1,
-                        (rs1, rowNum1) -> new GetTownPostRes(
-                                rs1.getString("categoryName"),
-                                rs1.getInt("townPostId"),
-                                rs1.getString("content"),
-                                rs1.getString("userName"),
-                                rs1.getString("uploadTime"),
-                                rs1.getInt("likeCount"),
-                                rs1.getInt("comCount"),
-                                this.jdbcTemplate.query(Query2,
-                                        (rs2, nowNum2) -> new TownCom(
-                                                rs2.getString("content"),
-                                                rs2.getString("userName"),
-                                                rs2.getString("userImg"),
-                                                rs2.getString("uploadTime"),
-                                                rs2.getString("jusoName"),
-                                                this.jdbcTemplate.query(Query3,
-                                                        (rs3, nowNum3) -> new TownComCom(
-                                                                rs3.getString("content"),
-                                                                rs3.getString("userName"),
-                                                                rs3.getString("userImg"),
-                                                                rs3.getString("uploadTime"),
-                                                                rs3.getString("jusoName"))
-                                                , rs2.getInt("townPostComId")
-                                                ))
-                                        , Params)
-                        ), Params);
-
+    // 동네 생활 댓글 좋아요 체크
+    public int checkComLiked(int postId, int comId, int userId) {
+        String checkLikedQuery = "select exists(select postId, comId, userId from TownPostComLike where postId=? and comId =? and userId=?);";
+        Object[] checkLikedParams = new Object[]{postId, comId, userId};
+        return this.jdbcTemplate.queryForObject(checkLikedQuery,
+                int.class,
+                checkLikedParams);
     }
 }

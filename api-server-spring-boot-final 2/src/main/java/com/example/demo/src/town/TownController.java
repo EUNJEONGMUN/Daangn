@@ -40,7 +40,6 @@ public class TownController {
     /**
      * 동네 생활 전체 글 조회 API
      * [GET] /towns/home
-     *
      * @return BaseResponse<List <GetTownRes>>
      */
     @UnAuth
@@ -55,7 +54,6 @@ public class TownController {
     /**
      * 동네 생활 카테고리별 조회 API
      * [GET] /towns/home/:categoryId
-     *
      * @return BaseResponse<List<GetTownListRes>>
      */
     @UnAuth
@@ -131,11 +129,11 @@ public class TownController {
             return new BaseResponse<>(INVALID_USER_POST);
         }
 
+        // 상위 카테고리 확인
         if (townProvider.checkTopCategory(town.getTownPostCategoryId())!=2){
             return new BaseResponse<>(CATEGORY_RANGE_ERROR);
         }
 
-        System.out.println(postId);
         PatchTownPostReq patchTownPostReq = new PatchTownPostReq(postId, userId, town.getTownPostCategoryId(),
                 town.getContent(), town.getStatus());
         townService.modifyTownPost(patchTownPostReq);
@@ -146,7 +144,7 @@ public class TownController {
 
     /**
      * 동네 생활 댓글 작성 API
-     * [POST] /towns/:postId/comment/:userId
+     * [POST] /towns/:postId/comment
      * @return BaseResponse<PostTownComRes>
      */
     @ResponseBody
@@ -263,6 +261,7 @@ public class TownController {
             }
             return new BaseResponse<>(POST_NOT_LIKE_DUPLICATED);
         }
+
 
         PatchTownLikedReq patchTownLikedReq = new PatchTownLikedReq(postId, userId, townLiked.getStatus());
         townService.modifyTownPostLiked(patchTownLikedReq);

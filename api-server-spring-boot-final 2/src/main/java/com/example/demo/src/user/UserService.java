@@ -145,7 +145,7 @@ public class UserService {
 
     /**
      * 회원 탈퇴 API
-     * [PATCH] /users/:userId/deletion
+     * [PATCH] /users/deletion
      * @return BaseResponse<String>
      */
     public void deleteUser(PatchUserReq patchUserReq) throws BaseException {
@@ -162,7 +162,7 @@ public class UserService {
 
     /**
      * 프로필 수정 API
-     * [PATCH] /users/:userId
+     * [PATCH] /users
      * @return BaseResponse<String>
      */
     public void modifyMyInfo(PatchMyInfoReq patchMyInfoReq) throws BaseException {
@@ -183,7 +183,7 @@ public class UserService {
 
     /**
      * 키워드 알림설정 API
-     * [POST] /users/:userIdx/keywords
+     * [POST] /users/keywords
      * @return BaseResponse<PostUserKeywordsRes>
      */
     public PostUserKeywordsRes createKeywords(int userId, String keyword) throws BaseException {
@@ -207,7 +207,7 @@ public class UserService {
 
     /**
      * 키워드 알림해제 API
-     * [DELETE] /users/:userIdx/keywords
+     * [DELETE] /users/keywords
      * @return BaseResponse<String>
      */
     public void deleteKeywords(DeleteKeywordReq deleteKeywordReq) throws BaseException {

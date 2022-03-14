@@ -47,19 +47,10 @@ public class ProductService {
         }
 
     }
-//    public PostProductNewRes createProduct(JSONObject jsonObj) throws BaseException {
-//
-//        try{
-//            int productPostId = productDao.createProduct(jsonObj);
-//            return new PostProductNewRes(productPostId);
-//        } catch (Exception exception) {
-//            throw new BaseException(DATABASE_ERROR);
-//        }
 
-//    }
     /**
      * 중고 거래 글 수정 API
-     * [PATCH] /products/:postId/:userId
+     * [PATCH] /products/:postId
      * @return BaseResponse<String>
      */
     public void modifyProduct(PatchPostReq patchPostReq) throws BaseException {
@@ -76,7 +67,7 @@ public class ProductService {
 
     /**
      * 중고 거래 글 관심 등록 API
-     * [POST] /products/:postId/:userId/attention
+     * [POST] /products/:postId/attention
      * @return BaseResponse<String>
      */
     public void createProductAtt(int postId, int userId, String status) throws BaseException {
@@ -93,7 +84,7 @@ public class ProductService {
 
     /**
      * 중고 거래 글 관심 변경 API
-     * [PATCH] /products/:postId/:userId/attention
+     * [PATCH] /products/:postId/attention
      * @return BaseResponse<String>
      */
     public void modifyProductAtt(PatchProductAttReq patchProductAttReq) throws BaseException {
@@ -112,8 +103,8 @@ public class ProductService {
 
     /**
      * 중고 거래 성사 API
-     * [POST] /products/:postId/:userId/deals
-     * @return BaseResponse<PostDealRes>
+     * [POST] /products/:postId/deals
+     * @return BaseResponse<String>
      */
     public void createDeal(int postId, int userId, PostDealReq postDealReq) throws BaseException {
         try{

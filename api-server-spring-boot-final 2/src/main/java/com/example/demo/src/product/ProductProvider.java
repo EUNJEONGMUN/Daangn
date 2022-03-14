@@ -57,6 +57,61 @@ public class ProductProvider {
 
     }
 
+    /**
+     * 판매 내역 상태별 조회 API
+     * [GET] /products/user-post
+     * /user-post?status=?
+     * @return BaseResponse<List<GetProductRes>>
+     */
+    public List<GetProductListRes> getUserProductPost(int userId, String status) throws BaseException {
+        try {
+            List<GetProductListRes> getProductListRes = productDao.getUserProductPost(userId, status);
+            return getProductListRes;
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+
+
+    /**
+     * 구매 내역 조회 API
+     * [GET] /products/buylist
+     * @return BaseResponse<List<GetProductRes>>
+     */
+    public List<GetProductListRes> getUserBuyList(int userId) throws BaseException {
+        try {
+            List<GetProductListRes> getProductListRes = productDao.getUserBuyList(userId);
+            return getProductListRes;
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+
+    /**
+     * 중고 거래 글 조회 API
+     * [GET] /products/:postId
+     * @return BaseResponse<GetProductRes>
+     */
+    public GetProductRes getPost(int postId) throws BaseException {
+        try{
+            GetProductRes getProductRes = productDao.getPost(postId);
+            return getProductRes;
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+
+    }
+
+    // 글 존재여부 확인
+    public int checkPostExists(int postId) throws BaseException {
+        try {
+            return productDao.checkPostExists(postId);
+        } catch(Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
     // 중고 거래 관심 등록 확인
     public int checkAtt(int postId, int userId) throws BaseException {
         try{
@@ -94,21 +149,7 @@ public class ProductProvider {
         }
     }
 
-    /**
-     * 판매 내역 상태별 조회 API
-     * [GET] /products/user-post/:userId
-     * /:userId?status=?
-     * @return BaseResponse<List<GetProductRes>>
-     */
-    public List<GetProductListRes> getUserProductPost(int userId, String status) throws BaseException {
-        try {
-            List<GetProductListRes> getProductListRes = productDao.getUserProductPost(userId, status);
-            return getProductListRes;
-        } catch (Exception exception){
-            throw new BaseException(DATABASE_ERROR);
-        }
-    }
-
+    // 상위 카테고리 확인
     public int checkTopCategory(int categoryId) throws BaseException  {
         try {
             return productDao.checkTopCategory(categoryId);
@@ -117,41 +158,5 @@ public class ProductProvider {
         }
     }
 
-    /**
-     * 구매 내역 조회 API
-     * [GET] /products/buylist/:userId
-     * @return BaseResponse<List<GetProductRes>>
-     */
-    public List<GetProductListRes> getUserBuyList(int userId) throws BaseException {
-        try {
-            List<GetProductListRes> getProductListRes = productDao.getUserBuyList(userId);
-            return getProductListRes;
-        } catch (Exception exception){
-            throw new BaseException(DATABASE_ERROR);
-        }
-    }
 
-
-    public int checkPostExists(int postId) throws BaseException {
-        try {
-            return productDao.checkPostExists(postId);
-        } catch(Exception exception){
-            throw new BaseException(DATABASE_ERROR);
-        }
-    }
-
-    /**
-     * 중고 거래 글 조회 API
-     * [GET] /products/:postId
-     * @return BaseResponse<GetProductRes>
-     */
-    public GetProductRes getPost(int postId) throws BaseException {
-        try{
-            GetProductRes getProductRes = productDao.getPost(postId);
-            return getProductRes;
-        } catch (Exception exception){
-            throw new BaseException(DATABASE_ERROR);
-        }
-
-    }
 }

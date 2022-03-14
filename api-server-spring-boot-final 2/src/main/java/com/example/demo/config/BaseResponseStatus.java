@@ -31,8 +31,8 @@ public enum BaseResponseStatus {
     USERS_EMPTY_USER_ID(false, 2010, "유저 아이디 값을 확인해주세요."),
     FAIL_MESSAGE_AUTH(false, 2011, "휴대폰 인증에 실패하였습니다."),
 
-    NOT_BLANK(false, 2012, "NOT_NULL"),
-    NOT_EMPTY(false, 2023, "NOT_EMPTY"),
+    NOT_BLANK(false, 2012, "NOT_BLANK"),
+    NOT_EMPTY(false, 2013, "NOT_EMPTY"),
     PATTERN(false, 2014, "PATTERN"),
     MIN_VALUE(false, 2015, "MIN"),
 
@@ -163,13 +163,6 @@ public enum BaseResponseStatus {
     POST_FAIL_AROUND_CHATLIST(false, 5601, "내 근처 글 채팅 방 생성 실패"),
     POST_FAIL_AROUND_CHAT(false, 5602, "내 근처 글 채팅 전송 실패"),
     FIND_FAIL_AROUND_POST_USER(false, 5603, "내 근처 글을 작성한 사용자가 없습니다");
-
-
-
-
-
-
-
 
 
     // 6000 : 필요시 만들어서 쓰세요

@@ -27,7 +27,7 @@ public class TownService {
 
     /**
      * 동네 생활 글 작성 API
-     * [POST] /towns/new/:userId
+     * [POST] /towns/post/new
      * @return BaseResponse<PostTownNewRes>
      */
     public PostTownNewRes createTown(PostTownNewReq postTownNewReq) throws BaseException {
@@ -43,7 +43,7 @@ public class TownService {
 
     /**
      * 동네 생활 글 수정 API
-     * [PATCH] /towns/:postId/:userId
+     * [PATCH] /towns/post/:postId
      * @return BaseResponse<String>
      */
     public void modifyTownPost(PatchTownPostReq patchTownPostReq) throws BaseException {
@@ -61,7 +61,7 @@ public class TownService {
 
     /**
      * 동네 생활 댓글 작성 API
-     * [POST] /towns/:postId/:userId/comment
+     * [POST] /towns/:postId/comment
      * @return BaseResponse<PostTownComRes>
      */
     public PostTownComRes createTownCom(int postId, int userId, PostTownComReq postTownComReq) throws BaseException {
@@ -77,7 +77,7 @@ public class TownService {
 
     /**
      * 동네 생활 댓글 수정 API
-     * [PATCH] /towns/:postId/comment/:comId/:userId
+     * [PATCH] /towns/:postId/comment/:comId
      * @return BaseResponse<String>
      */
     public void modifyTownCom(PatchTownPostComReq patchTownPostComReq) throws BaseException {
@@ -95,7 +95,7 @@ public class TownService {
 
     /**
      * 동네 생활 글 좋아요 설정 API
-     * [POST] /towns/:postId/liked/:userId
+     * [POST] /towns/:postId/liked
      * @return BaseResponse<String>
      */
     public void createTownPostLiked(int postId, int userId) throws BaseException {
@@ -112,7 +112,7 @@ public class TownService {
 
     /**
      * 동네 생활 글 좋아요 변경 API
-     * [PATCH] /towns/:postId/liked/:userId
+     * [PATCH] /towns/:postId/liked
      * @return BaseResponse<String>
      */
     public void modifyTownPostLiked(PatchTownLikedReq patchTownLikedReq) throws BaseException {
@@ -128,8 +128,7 @@ public class TownService {
 
     /**
      * 동네 생활 댓글 좋아요 설정 API
-     * [POST] /towns/:postId/:comId/liked/:userId
-     *
+     * [POST] /towns/:postId/:comId/liked
      * @return BaseResponse<String>
      */
     public void createTownComLiked(int postId, int comId, int userId) throws BaseException {
@@ -145,8 +144,7 @@ public class TownService {
 
     /**
      * 동네 생활 댓글 좋아요 변경 API
-     * [PATCH] /towns/:postId/:comId/liked/:userId
-     *
+     * [PATCH] /towns/:postId/:comId/liked
      * @return BaseResponse<String>
      */
     public void modifyTownComLiked(PatchTownComLikedReq patchTownComLikedReq) throws BaseException {

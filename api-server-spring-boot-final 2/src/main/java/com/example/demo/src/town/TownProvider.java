@@ -56,27 +56,24 @@ public class TownProvider {
         }
     }
 
-    // 동네 생활 글 좋아요 체크
-    public int checkLiked(int postId, int userId) throws BaseException {
+    /**
+     * 동네 생활 글 개별 API
+     * [GET] /towns/:postId
+     * @return BaseResponse<GetTownPostRes>
+     */
+    public GetTownPostRes getTownPost(int postId) throws BaseException {
         try{
-            return townDao.checkLiked(postId, userId);
+            GetTownPostRes getTownPostRes = townDao.getTownPost(postId);
+            return getTownPostRes;
         } catch (Exception exception){
             throw new BaseException(DATABASE_ERROR);
         }
-    }
 
-    // 동네 생활 댓글 좋아요 체크
-    public int checkComLiked(int postId, int comId, int userId) throws BaseException {
-        try{
-            return townDao.checkComLiked(postId, comId, userId);
-        } catch (Exception exception){
-            throw new BaseException(DATABASE_ERROR);
-        }
     }
 
     /**
      * 작성한 동네 생활 글 조회 API
-     * [GET] /towns/user-post/:userId
+     * [GET] /towns/user-post
      * @return BaseResponse<List<GetTownRes>>
      */
     public List<GetTownListRes> getUserTownPosts(int userId) throws BaseException {
@@ -89,9 +86,11 @@ public class TownProvider {
 
     }
 
+
+
     /**
      * 작성한 동네 생활 댓글 조회 API
-     * [GET] /towns/user-comment/:userId
+     * [GET] /towns/user-comment
      * @return BaseResponse<List<GetTownComRes>>
      */
     public List<GetTownComRes> getUserTownComs(int userId) throws BaseException  {
@@ -164,18 +163,22 @@ public class TownProvider {
         }
     }
 
-    /**
-     * 동네 생활 글 개별 API
-     * [GET] /towns/:postId
-     * @return BaseResponse<GetTownPostRes>
-     */
-    public GetTownPostRes getTownPost(int postId) throws BaseException {
+
+    // 동네 생활 글 좋아요 체크
+    public int checkLiked(int postId, int userId) throws BaseException {
         try{
-            GetTownPostRes getTownPostRes = townDao.getTownPost(postId);
-            return getTownPostRes;
+            return townDao.checkLiked(postId, userId);
         } catch (Exception exception){
             throw new BaseException(DATABASE_ERROR);
         }
+    }
 
+    // 동네 생활 댓글 좋아요 체크
+    public int checkComLiked(int postId, int comId, int userId) throws BaseException {
+        try{
+            return townDao.checkComLiked(postId, comId, userId);
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
     }
 }

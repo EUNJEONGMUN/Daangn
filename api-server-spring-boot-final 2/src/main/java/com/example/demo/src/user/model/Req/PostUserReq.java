@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 
@@ -14,10 +15,10 @@ import javax.validation.constraints.Pattern;
 @NoArgsConstructor
 public class PostUserReq {
 
-    @NotEmpty(message = "닉네임을 입력해주세요.")
+    @NotBlank(message = "닉네임을 입력해주세요.")
     private String userName;
 
-    @NotEmpty(message = "휴대폰 번호를 입력해주세요")
+    @NotBlank(message = "휴대폰 번호를 입력해주세요")
     @Pattern(regexp = "/^010([0-9]{3,4})([0-9]{4})$/", message = "휴대폰 번호 형식을 확인해주세요.")
     private String phoneNumber;
 

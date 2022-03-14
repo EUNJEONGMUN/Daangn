@@ -175,7 +175,7 @@ public class ProductController {
 
     /**
      * 중고 거래 성사 API
-     * [POST] /products/:postId/:userId/deals
+     * [POST] /products/:postId/deals
      * @return BaseResponse<String>
      */
     @ResponseBody
@@ -197,13 +197,14 @@ public class ProductController {
         return new BaseResponse<>(result);
 
     }
+
     /**
      * 중고 거래 취소 API
-     * [PATCH] /products/:postId/deals/status
+     * [PATCH] /products/:postId/deals/deletion
      * @return BaseResponse<String>
      */
     @ResponseBody
-    @PatchMapping ("/{postId}/deals")
+    @PatchMapping ("/{postId}/deals/deletion")
     public BaseResponse<String> deleteDeal(HttpServletRequest request, @PathVariable int postId, @Valid @RequestBody Deal deal) throws BaseException {
         int userId = (int) request.getAttribute("userId");
 
@@ -222,14 +223,10 @@ public class ProductController {
 
     }
 
-
-
-
-
     /**
      * 판매 내역 상태별 조회 API
-     * [GET] /products/user-post/:userId
-     * /:userId?status=?
+     * [GET] /products/user-post
+     * /user-post?status=?
      * @return BaseResponse<List<GetProductRes>>
      */
     @ResponseBody
