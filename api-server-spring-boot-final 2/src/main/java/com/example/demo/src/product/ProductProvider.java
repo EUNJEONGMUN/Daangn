@@ -3,6 +3,7 @@ package com.example.demo.src.product;
 import com.example.demo.config.BaseException;
 import com.example.demo.src.product.model.Res.GetProductListRes;
 
+import com.example.demo.src.product.model.Res.GetProductPostRes;
 import com.example.demo.src.product.model.Res.GetProductRes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +41,16 @@ public class ProductProvider {
         }
     }
 
+//    public List<GetProductPostRes> getProducts() throws BaseException {
+//        try{
+//            List<GetProductPostRes> getProductPostRes = productDao.getProducts();
+//            return getProductPostRes;
+//        } catch (Exception exception){
+//            System.out.println("home provider -> "+exception);
+//            exception.getStackTrace();
+//            throw new BaseException(DATABASE_ERROR);
+//        }
+//    }
 
     /**
      * 홈 화면 카테고리별 조회 API

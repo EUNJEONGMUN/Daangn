@@ -7,6 +7,7 @@ import com.example.demo.src.UnAuth;
 import com.example.demo.src.product.model.*;
 import com.example.demo.src.product.model.Req.*;
 import com.example.demo.src.product.model.Res.GetProductListRes;
+import com.example.demo.src.product.model.Res.GetProductPostRes;
 import com.example.demo.src.product.model.Res.GetProductRes;
 import com.example.demo.src.product.model.Res.PostProductNewRes;
 import com.example.demo.utils.JwtService;
@@ -51,6 +52,13 @@ public class ProductController {
         return new BaseResponse<>(getProductListRes);
     }
 
+//    @UnAuth
+//    @ResponseBody
+//    @GetMapping("/home") // (GET) 127.0.0.1:9000/products/home
+//    public BaseResponse<List<GetProductPostRes>> getProducts() throws BaseException{
+//        List<GetProductPostRes> getProductPostRes = productProvider.getProducts();
+//        return new BaseResponse<>(getProductPostRes);
+//    }
     /**
      * 홈 화면 카테고리별 조회 API
      * [GET] /products/home/:categoryId

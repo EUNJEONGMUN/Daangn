@@ -11,7 +11,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class GetProductInfo {
 
-    private int productPostId;
     private String title;
     private String jusoName;
     private int price;

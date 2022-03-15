@@ -3,22 +3,23 @@ package com.example.demo.src.product;
 import com.example.demo.src.product.model.*;
 import com.example.demo.src.product.model.Req.*;
 import com.example.demo.src.product.model.Res.GetProductListRes;
+import com.example.demo.src.product.model.Res.GetProductPostRes;
 import com.example.demo.src.product.model.Res.GetProductRes;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 @Repository
 public class ProductDao {
 
     private JdbcTemplate jdbcTemplate;
-    private List<Object> getProductImg;
-    private List<GetProductInfo> getProductInfo;
-    private List<Object>  getProductChatCount;
-    private List<Object>  getProductAttCount;
 
     @Autowired
     public void setDataSource(DataSource dataSource){
@@ -88,6 +89,75 @@ public class ProductDao {
                 );
 
     }
+//    public List<GetProductPostRes> getProducts() {
+//
+//        String Query1 = "SELECT P.productPostId, P.userId, P.title,P.price,\n" +
+//                "       case\n" +
+//                "            when TIMESTAMPDIFF(SECOND, P.createdAt, current_timestamp())<60\n" +
+//                "                then concat(TIMESTAMPDIFF(SECOND, P.createdAt, current_timestamp()),'초 전')\n" +
+//                "            when TIMESTAMPDIFF(MINUTE, P.createdAt, current_timestamp())<60\n" +
+//                "                then concat(TIMESTAMPDIFF(MINUTE, P.createdAt, current_timestamp()),'분 전')\n" +
+//                "            when TIMESTAMPDIFF(HOUR, P.createdAt, current_timestamp())<24\n" +
+//                "                then concat(TIMESTAMPDIFF(HOUR, P.createdAt, current_timestamp()), '시간 전')\n" +
+//                "            else concat(TIMESTAMPDIFF(DAY, P.createdAt, current_timestamp()), '일 전')\n" +
+//                "            end as uploadTime ,\n" +
+//                "        case\n" +
+//                "            when P.status = 'B'\n" +
+//                "                then '예약중'\n" +
+//                "            when P.status = 'C'\n" +
+//                "                then '거래완료'\n" +
+//                "            else '판매중'\n" +
+//                "            end as state\n" +
+//                "FROM ProductPost P\n" +
+//                "WHERE P.isExistence='Y' and P.isHidden='N'\n" +
+//                "ORDER BY P.createdAt DESC;";
+//
+//        String Query2 = "SELECT Img.productPostId, min(Img.productImageId), Img.imageUrl as firstImg\n" +
+//                "FROM ProductImage Img JOIN ProductPost PP on Img.productPostId = PP.productPostId\n" +
+//                "WHERE Img.productPostId = ?\n" +
+//                "GROUP BY Img.productPostId";
+//
+//        String Query3 = "SELECT JC.jusoName\n" +
+//                "FROM UserArea UA JOIN JusoCode JC on UA.jusoCodeId = JC.jusoCodeId\n" +
+//                "WHERE UA.userId = ?;";
+//
+//        String Query4 = "SELECT COUNT(*) AS attCount\n" +
+//                "FROM ProductAttention PA\n" +
+//                "WHERE PA.postId=?;";
+//
+//        String Query5 = "SELECT COUNT(*) AS chatCount\n" +
+//                "FROM ProductChatList PCL\n" +
+//                "WHERE PCL.postId = ?;";
+//
+//
+//        return this.jdbcTemplate.query(Query1,
+//                (rs1,rowNum1) -> new GetProductPostRes(
+//                        rs1.getString("title"),
+//                        rs1.getInt("price"),
+//                        rs1.getString("uploadTime"),
+//                        rs1.getString("state"),
+//                        this.jdbcTemplate.queryForObject(Query2,
+//                                (rs2, rowNum2) -> new String(
+//                                        rs2.getString("firstImg"))
+//                                , rs1.getInt("productPostId")),
+//                        this.jdbcTemplate.queryForObject(Query3,
+//                                (rs3, rowNum3) -> new String(
+//                                        rs3.getString("jusoName"))
+//                                ,rs1.getInt("userId")),
+//                        this.jdbcTemplate.queryForObject(Query4,
+//                                (rs4, rowNum4) -> new Integer(
+//                                        rs4.getInt("attCount"))
+//                                ,rs1.getInt("productPostId")),
+//                        this.jdbcTemplate.queryForObject(Query5,
+//                                (rs5, rowNum5) -> new Integer(
+//                                        rs5.getInt("chatCount"))
+//                                ,rs1.getInt("productPostId"))
+//                ));
+//
+//    }
+
+
+
 
 
     /**
