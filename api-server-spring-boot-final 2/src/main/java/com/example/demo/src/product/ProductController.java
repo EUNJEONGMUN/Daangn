@@ -43,21 +43,21 @@ public class ProductController {
      * [GET] /products/home
      * @return BaseResponse<List<GetProductRes>>
      */
-    @UnAuth
-    @ResponseBody
-    @GetMapping("/home") // (GET) 127.0.0.1:9000/products/home
-    public BaseResponse<List<GetProductListRes>> getProducts() throws BaseException{
-        List<GetProductListRes> getProductListRes = productProvider.getProducts();
-        return new BaseResponse<>(getProductListRes);
-    }
-//
 //    @UnAuth
 //    @ResponseBody
 //    @GetMapping("/home") // (GET) 127.0.0.1:9000/products/home
-//    public BaseResponse<List<GetProductPostRes>> getProducts() throws BaseException{
-//        List<GetProductPostRes> getProductPostRes = productProvider.getProducts();
-//        return new BaseResponse<>(getProductPostRes);
+//    public BaseResponse<List<GetProductListRes>> getProducts() throws BaseException{
+//        List<GetProductListRes> getProductListRes = productProvider.getProducts();
+//        return new BaseResponse<>(getProductListRes);
 //    }
+
+    @UnAuth
+    @ResponseBody
+    @GetMapping("/home") // (GET) 127.0.0.1:9000/products/home
+    public BaseResponse<GetProductPostRes> getProducts() throws BaseException{
+        GetProductPostRes getProductPostRes = productProvider.getProducts();
+        return new BaseResponse<>(getProductPostRes);
+    }
     /**
      * 홈 화면 카테고리별 조회 API
      * [GET] /products/home/:categoryId

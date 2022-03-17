@@ -35,6 +35,7 @@ public enum BaseResponseStatus {
     NOT_EMPTY(false, 2013, "NOT_EMPTY"),
     PATTERN(false, 2014, "PATTERN"),
     MIN_VALUE(false, 2015, "MIN"),
+    DEFAULT_ERROR(false, 2016, "DEFAULT_ERROR"),
 
     // [POST] /users
     POST_USERS_EMPTY_EMAIL(false, 2015, "이메일을 입력해주세요."),

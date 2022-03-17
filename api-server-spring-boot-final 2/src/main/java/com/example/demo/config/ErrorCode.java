@@ -3,8 +3,8 @@ package com.example.demo.config;
 import lombok.Getter;
 
 public enum ErrorCode {
-    /**
-     * 삭제해도 됨.
+    /*
+    삭제해도 됨
      */
     NOT_BLANK(false, 2012, "NOT_NULL"),
     NOT_EMPTY(false, 2013, "NOT_EMPTY"),

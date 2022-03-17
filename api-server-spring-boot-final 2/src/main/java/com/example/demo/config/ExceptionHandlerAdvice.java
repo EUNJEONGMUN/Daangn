@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static com.example.demo.config.BaseResponseStatus.*;
+
 @RestControllerAdvice //전역에서 발생할 수 있는 예외를 잡아 처리해주는 annotation
 public class ExceptionHandlerAdvice {
 
@@ -22,14 +24,13 @@ public class ExceptionHandlerAdvice {
         BaseResponse baseResponse = makeErrorResponse(e.getBindingResult());
         return new ResponseEntity<BaseResponse>(baseResponse, HttpStatus.BAD_REQUEST);
     }
+
     private BaseResponse makeErrorResponse(BindingResult bindingResult){
-        boolean isSuccess = false;
-        int code = 0;
-        String message = "";
         String detail = "";
 
         //에러가 있다면
         if(bindingResult.hasErrors()){
+
             //DTO에 설정한 meaasge값을 가져온다
             detail = bindingResult.getFieldError().getDefaultMessage();
 
@@ -38,27 +39,70 @@ public class ExceptionHandlerAdvice {
 
             switch (bindResultCode){
                 case "NotBlank":
-                    code = BaseResponseStatus.NOT_BLANK.getCode();
-                    message = BaseResponseStatus.NOT_BLANK.getMessage();
-                    break;
+                    return new BaseResponse(NOT_BLANK, detail);
                 case "NotEmpty":
-                    code = BaseResponseStatus.NOT_EMPTY.getCode();
-                    message = BaseResponseStatus.NOT_EMPTY.getMessage();
-                    break;
+                    return new BaseResponse(NOT_EMPTY, detail);
                 case "Pattern":
-                    code = BaseResponseStatus.PATTERN.getCode();
-                    message = BaseResponseStatus.PATTERN.getMessage();
-                    break;
+                    return new BaseResponse(PATTERN, detail);
                 case "Min":
-                    code = BaseResponseStatus.MIN_VALUE.getCode();
-                    message = BaseResponseStatus.MIN_VALUE.getMessage();
-                    break;
+                    return new BaseResponse(MIN_VALUE, detail);
             }
         }
+        return new BaseResponse(DEFAULT_ERROR);
 
-        return new BaseResponse(isSuccess, code, message, detail);
     }
 
+
+
+
+
+//    @ExceptionHandler(MethodArgumentNotValidException.class)
+//    public ResponseEntity<BaseResponse> methodValidException(MethodArgumentNotValidException e, HttpServletRequest request){
+//        BaseResponse baseResponse = makeErrorResponse(e.getBindingResult());
+//        return new ResponseEntity<BaseResponse>(baseResponse, HttpStatus.BAD_REQUEST);
+//    }
+//    private BaseResponse makeErrorResponse(BindingResult bindingResult){
+//        boolean isSuccess = false;
+//        int code = 0;
+//        String message = "";
+//        String detail = "";
+//
+//        //에러가 있다면
+//        if(bindingResult.hasErrors()){
+//
+//            //DTO에 설정한 meaasge값을 가져온다
+//            detail = bindingResult.getFieldError().getDefaultMessage();
+//
+//            //DTO에 유효성체크를 걸어놓은 어노테이션명을 가져온다.
+//            String bindResultCode = bindingResult.getFieldError().getCode();
+//
+//            switch (bindResultCode){
+//                case "NotBlank":
+//                    isSuccess = BaseResponseStatus.NOT_BLANK.isSuccess();
+//                    code = BaseResponseStatus.NOT_BLANK.getCode();
+//                    message = BaseResponseStatus.NOT_BLANK.getMessage();
+//                    break;
+//                case "NotEmpty":
+//                    isSuccess = BaseResponseStatus.NOT_EMPTY.isSuccess();
+//                    code = BaseResponseStatus.NOT_EMPTY.getCode();
+//                    message = BaseResponseStatus.NOT_EMPTY.getMessage();
+//                    break;
+//                case "Pattern":
+//                    isSuccess = BaseResponseStatus.PATTERN.isSuccess();
+//                    code = BaseResponseStatus.PATTERN.getCode();
+//                    message = BaseResponseStatus.PATTERN.getMessage();
+//                    break;
+//                case "Min":
+//                    isSuccess = BaseResponseStatus.MIN_VALUE.isSuccess();
+//                    code = BaseResponseStatus.MIN_VALUE.getCode();
+//                    message = BaseResponseStatus.MIN_VALUE.getMessage();
+//                    break;
+//            }
+//        }
+//
+//        return new BaseResponse(isSuccess, code, message, detail);
+//    }
+//
 
 //    @ExceptionHandler(MethodArgumentNotValidException.class)
 //    public ResponseEntity<ErrorResponse> methodValidException(MethodArgumentNotValidException e, HttpServletRequest request){

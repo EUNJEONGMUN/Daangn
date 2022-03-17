@@ -30,27 +30,27 @@ public class ProductProvider {
      * [GET] /products/home
      * @return BaseResponse<List<GetProductRes>>
      */
-    public List<GetProductListRes> getProducts() throws BaseException {
-        try{
-            List<GetProductListRes> getProductListRes = productDao.getProducts();
-            return getProductListRes;
-        } catch (Exception exception){
-            System.out.println("home provider -> "+exception);
-            exception.getStackTrace();
-            throw new BaseException(DATABASE_ERROR);
-        }
-    }
-
-//    public List<GetProductPostRes> getProducts() throws BaseException {
+//    public List<GetProductListRes> getProducts() throws BaseException {
 //        try{
-//            List<GetProductPostRes> getProductPostRes = productDao.getProducts();
-//            return getProductPostRes;
+//            List<GetProductListRes> getProductListRes = productDao.getProducts();
+//            return getProductListRes;
 //        } catch (Exception exception){
 //            System.out.println("home provider -> "+exception);
 //            exception.getStackTrace();
 //            throw new BaseException(DATABASE_ERROR);
 //        }
 //    }
+
+    public GetProductPostRes getProducts() throws BaseException {
+        try{
+            GetProductPostRes getProductPostRes = productDao.getProducts();
+            return getProductPostRes;
+        } catch (Exception exception){
+            System.out.println("home provider -> "+exception);
+            exception.getStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 
     /**
      * 홈 화면 카테고리별 조회 API

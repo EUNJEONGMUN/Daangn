@@ -7,18 +7,12 @@ import lombok.Setter;
 
 @Getter
 @Setter
+@AllArgsConstructor
 public class GetProductInfo {
 
     private String title;
     private int price;
     private String state;
     private String uploadTime;
-
-    public GetProductInfo(String title, int price, String state, String uploadTime){
-        this.title = title;
-        this.price = price;
-        this.state = state;
-        this.uploadTime = uploadTime;
-    }
 
 }

@@ -8,6 +8,8 @@ import lombok.Setter;
 import java.util.List;
 
 @Getter
+@Setter
+@AllArgsConstructor
 public class GetProductPostRes {
 
 //    private String title;
@@ -15,32 +17,17 @@ public class GetProductPostRes {
 //    private String state;
 //    private String uploadTime;
 
-    private GetProductInfo getProductInfo;
+    private List<GetProductInfo> getProductInfo;
+    private List<GetProductImg> getProductImg;
+    private List<GetProductJuso> getProductJuso;
+    private List<GetProductAttCount> getProductAttCount;
+    private List<GetProductChatCount> getProductChatCount;
 
-    private String firstImg;
-    private String jusoName;
-    private int attCount;
-    private int chatCount;
+    //    private String firstImg;
+//    private String jusoName;
+//    private int attCount;
+//    private int chatCount;
 
-    public void setGetProductInfo(GetProductInfo getProductInfo) {
-        this.getProductInfo = getProductInfo;
-    }
-
-    public void setFirstImg(String firstImg) {
-        this.firstImg = firstImg;
-    }
-
-    public void setJusoName(String jusoName) {
-        this.jusoName = jusoName;
-    }
-
-    public void setAttCount(int attCount) {
-        this.attCount = attCount;
-    }
-
-    public void setChatCount(int chatCount) {
-        this.chatCount = chatCount;
-    }
 
     // 나름 성공??
     //    private GetProductInfo getProductInfo;

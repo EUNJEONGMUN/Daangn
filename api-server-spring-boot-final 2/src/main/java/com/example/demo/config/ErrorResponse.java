@@ -6,8 +6,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ErrorResponse {
-    /**
-     * 삭제해도 됨
+    /*
+    삭제해도 됨
      */
     private boolean isSuccess;
     private int code;

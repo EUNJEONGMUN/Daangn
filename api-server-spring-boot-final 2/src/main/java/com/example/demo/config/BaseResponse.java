@@ -35,14 +35,20 @@ public class BaseResponse<T> {
         this.code = status.getCode();
     }
 
-    private String detail;
-    // DTO ERROR 코드
-    public BaseResponse(boolean isSuccess, int code, String message, String detail){
-        this.isSuccess = isSuccess;
-        this.code = code;
-        this.message = message;
-        this.detail = detail;
-    }
+//    private String detail;
+    // DTO ERROR 코드 -> success baseresponse에도 detail이 null값으로 표시됨.
+//    public BaseResponse(boolean isSuccess, int code, String message, String detail){
+//        this.isSuccess = isSuccess;
+//        this.code = code;
+//        this.message = message;
+//        this.detail = detail;
+//    }
 
+    // DTO ERROR
+    public BaseResponse(BaseResponseStatus status, String detail){
+        this.isSuccess = status.isSuccess();
+        this.message = detail;
+        this.code = status.getCode();
+    }
 }
 

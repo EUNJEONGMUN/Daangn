@@ -49,6 +49,8 @@ public class CertificationInterceptor implements HandlerInterceptor {
             Map<String, String> map = new HashMap<>();
             map.put("requestURI", "/users/sign-in?redirectURI=" + requestURI);
             String json = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(map);
+            // writeValueAsString() : class instance 변수를 json string으로 변환
+            // writerWithDefaultPrettyPrinter() : 보기 좋게 출력
 
             response.getWriter().write(json);
             return false;
