@@ -12,7 +12,7 @@ import javax.validation.constraints.NotEmpty;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TownPostCom {
+public class PatchTownPostCom {
     @NotEmpty(message="내용을 입력해주세요.")
     @Min(value=1, message="한 글자 이상 입력해주세요.")
     private String content;

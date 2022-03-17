@@ -2,7 +2,6 @@ package com.example.demo.src.product;
 
 import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponse;
-import com.example.demo.config.BaseResponseStatus;
 import com.example.demo.src.UnAuth;
 import com.example.demo.src.product.model.*;
 import com.example.demo.src.product.model.Req.*;
@@ -51,7 +50,7 @@ public class ProductController {
         List<GetProductListRes> getProductListRes = productProvider.getProducts();
         return new BaseResponse<>(getProductListRes);
     }
-
+//
 //    @UnAuth
 //    @ResponseBody
 //    @GetMapping("/home") // (GET) 127.0.0.1:9000/products/home
@@ -100,7 +99,7 @@ public class ProductController {
      */
     @ResponseBody
     @PatchMapping("/post/{postId}")
-    public BaseResponse<String> modifyProduct(HttpServletRequest request, @PathVariable int postId, @Valid @RequestBody ProductPost productPost) throws BaseException {
+    public BaseResponse<String> modifyProduct(HttpServletRequest request, @PathVariable int postId, @Valid @RequestBody PatchPost patchPost) throws BaseException {
 
         int userId = (int) request.getAttribute("userId");
 
@@ -108,9 +107,9 @@ public class ProductController {
             return new BaseResponse<>(POST_NOT_EXISTS);
         }
 
-        PatchPostReq patchPostReq = new PatchPostReq(postId, userId, productPost.getTitle(), productPost.getCategoryId(),
-                productPost.getJusoCodeId(), productPost.getIsProposal(), productPost.getContent(), productPost.getPrice(),
-                productPost.getStatus(), productPost.getIsHidden(), productPost.getIsExistence());
+        PatchPostReq patchPostReq = new PatchPostReq(postId, userId, patchPost.getTitle(), patchPost.getCategoryId(),
+                patchPost.getJusoCodeId(), patchPost.getIsProposal(), patchPost.getContent(), patchPost.getPrice(),
+                patchPost.getStatus(), patchPost.getIsHidden(), patchPost.getIsExistence());
 
         productService.modifyProduct(patchPostReq);
         String result = "";
@@ -213,18 +212,18 @@ public class ProductController {
      */
     @ResponseBody
     @PatchMapping ("/{postId}/deals/deletion")
-    public BaseResponse<String> deleteDeal(HttpServletRequest request, @PathVariable int postId, @Valid @RequestBody Deal deal) throws BaseException {
+    public BaseResponse<String> deleteDeal(HttpServletRequest request, @PathVariable int postId, @Valid @RequestBody PatchDeal patchDeal) throws BaseException {
         int userId = (int) request.getAttribute("userId");
 
         if (productProvider.checkDeal(postId) == 0) {
             return new BaseResponse<>(POST_DEAL_EMPTY);
         }
 
-        if (productProvider.checkDealUser(postId, userId).equals(deal.getStatus())){
+        if (productProvider.checkDealUser(postId, userId).equals(patchDeal.getStatus())){
             return new BaseResponse<>(POST_DEAL_DUPLICATE_STATE);
         }
 
-        PatchDealReq patchDealReq = new PatchDealReq(postId, userId, deal.getStatus());
+        PatchDealReq patchDealReq = new PatchDealReq(postId, userId, patchDeal.getStatus());
         productService.deleteDeal(patchDealReq);
         String result = "";
         return new BaseResponse<>(result);

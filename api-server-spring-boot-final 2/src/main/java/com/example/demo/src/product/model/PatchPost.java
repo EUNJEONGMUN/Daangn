@@ -11,7 +11,7 @@ import javax.validation.constraints.NotEmpty;
 @Getter
 @Setter
 @AllArgsConstructor
-public class ProductPost {
+public class PatchPost {
     // 수정 가능한 항목들
     @NotEmpty(message="제목을 입력해주세요.")
     @Min(value=5, message="제목을 5글자 이상 입력해주세요.")
@@ -33,7 +33,7 @@ public class ProductPost {
     private String isHidden;
     private String isExistence;
 
-    public ProductPost(){
+    public PatchPost(){
 
     }
 

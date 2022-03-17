@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Random;
 
 import static com.example.demo.config.BaseResponseStatus.*;
-import static com.example.demo.utils.ValidationRegex.isRegexPhoneNumber;
 
 @RestController
 @RequestMapping("/users")
@@ -146,11 +145,11 @@ public class UserController {
      */
     @ResponseBody
     @PatchMapping("")
-    public BaseResponse<String> modifyMyInfo(HttpServletRequest request, @RequestBody Myinfo myinfo) throws BaseException {
+    public BaseResponse<String> modifyMyInfo(HttpServletRequest request, @RequestBody PatchMyinfo patchMyinfo) throws BaseException {
 
         int userId = (int) request.getAttribute("userId");
 
-        PatchMyInfoReq patchMyInfoReq = new PatchMyInfoReq(userId, myinfo.getProfileImg(), myinfo.getUserName(), myinfo.getJusoCodeId());
+        PatchMyInfoReq patchMyInfoReq = new PatchMyInfoReq(userId, patchMyinfo.getProfileImg(), patchMyinfo.getUserName(), patchMyinfo.getJusoCodeId());
         userService.modifyMyInfo(patchMyInfoReq);
 
         String result = "";

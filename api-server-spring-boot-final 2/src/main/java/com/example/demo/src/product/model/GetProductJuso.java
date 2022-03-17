@@ -1,4 +1,4 @@
-package com.example.demo.src.town.model;
+package com.example.demo.src.product.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TownLiked {
-    private String status;
-
+public class GetProductJuso {
+    private String jusoName;
 }

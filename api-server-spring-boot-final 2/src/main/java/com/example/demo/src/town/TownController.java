@@ -118,7 +118,7 @@ public class TownController {
      */
     @ResponseBody
     @PatchMapping("/post/{postId}")
-    public BaseResponse<String> modifyTownPost(HttpServletRequest request, @PathVariable int postId, @Valid @RequestBody Town town) throws BaseException {
+    public BaseResponse<String> modifyTownPost(HttpServletRequest request, @PathVariable int postId, @Valid @RequestBody PatchTownPost patchTownPost) throws BaseException {
         int userId = (int) request.getAttribute("userId");
         // 글 존재여부 확인
         if (townProvider.checkPostExists(postId) == 0){
@@ -130,12 +130,12 @@ public class TownController {
         }
 
         // 상위 카테고리 확인
-        if (townProvider.checkTopCategory(town.getTownPostCategoryId())!=2){
+        if (townProvider.checkTopCategory(patchTownPost.getTownPostCategoryId())!=2){
             return new BaseResponse<>(CATEGORY_RANGE_ERROR);
         }
 
-        PatchTownPostReq patchTownPostReq = new PatchTownPostReq(postId, userId, town.getTownPostCategoryId(),
-                town.getContent(), town.getStatus());
+        PatchTownPostReq patchTownPostReq = new PatchTownPostReq(postId, userId, patchTownPost.getTownPostCategoryId(),
+                patchTownPost.getContent(), patchTownPost.getStatus());
         townService.modifyTownPost(patchTownPostReq);
         String result = "";
         return new BaseResponse<>(result);
@@ -175,7 +175,7 @@ public class TownController {
     @ResponseBody
     @PatchMapping("/{postId}/comment/{comId}")
     public BaseResponse<String> modifyTownCom(HttpServletRequest request, @PathVariable int postId, @PathVariable int comId,
-                                              @Valid @RequestBody TownPostCom townPostCom) throws BaseException {
+                                              @Valid @RequestBody PatchTownPostCom patchTownPostCom) throws BaseException {
 
         int userId = (int) request.getAttribute("userId");
 
@@ -194,7 +194,7 @@ public class TownController {
             return new BaseResponse<>(INVALID_USER_POST);
         }
 
-        PatchTownPostComReq patchTownPostComReq = new PatchTownPostComReq(postId, comId, userId, townPostCom.getContent(), townPostCom.getStatus());
+        PatchTownPostComReq patchTownPostComReq = new PatchTownPostComReq(postId, comId, userId, patchTownPostCom.getContent(), patchTownPostCom.getStatus());
         townService.modifyTownCom(patchTownPostComReq);
         String result = "";
         return new BaseResponse<>(result);
@@ -243,7 +243,7 @@ public class TownController {
      */
     @ResponseBody
     @PatchMapping("/{postId}/liked")
-    public BaseResponse<String> modifyTownPostLiked(HttpServletRequest request, @PathVariable int postId, @RequestBody TownLiked townLiked) throws BaseException {
+    public BaseResponse<String> modifyTownPostLiked(HttpServletRequest request, @PathVariable int postId, @RequestBody PatchTownLiked patchTownLiked) throws BaseException {
 
         int userId = (int) request.getAttribute("userId");
 
@@ -255,15 +255,15 @@ public class TownController {
         if (townProvider.checkLiked(postId, userId) == 0){
             return new BaseResponse<>(POST_LIKE_NOT_EXISTS);
         }
-        if (townProvider.checkPostLikeStatus(postId, userId).equals(townLiked.getStatus())){
-            if (townLiked.getStatus().equals("Y")){
+        if (townProvider.checkPostLikeStatus(postId, userId).equals(patchTownLiked.getStatus())){
+            if (patchTownLiked.getStatus().equals("Y")){
                 return new BaseResponse<>(POST_LIKE_DUPLICATED);
             }
             return new BaseResponse<>(POST_NOT_LIKE_DUPLICATED);
         }
 
 
-        PatchTownLikedReq patchTownLikedReq = new PatchTownLikedReq(postId, userId, townLiked.getStatus());
+        PatchTownLikedReq patchTownLikedReq = new PatchTownLikedReq(postId, userId, patchTownLiked.getStatus());
         townService.modifyTownPostLiked(patchTownLikedReq);
         String result = "";
         return new BaseResponse<>(result);
@@ -319,7 +319,7 @@ public class TownController {
     @ResponseBody
     @PatchMapping("/{postId}/{comId}/liked")
     public BaseResponse<String> modifyTownComLiked(HttpServletRequest request, @PathVariable int postId, @PathVariable int comId,
-                                                   @Valid @RequestBody TownComLiked townComLiked) throws BaseException {
+                                                   @Valid @RequestBody PatchTownComLiked patchTownComLiked) throws BaseException {
 
         int userId = (int) request.getAttribute("userId");
 
@@ -336,13 +336,13 @@ public class TownController {
         if (townProvider.checkComLiked(postId, comId, userId) == 0){
             return new BaseResponse<>(POST_COM_LIKE_NOT_EXISTS);
         }
-        if (townProvider.checkPostComLikeStatus(comId, userId).equals(townComLiked.getStatus())){
-            if (townComLiked.getStatus().equals("Y")){
+        if (townProvider.checkPostComLikeStatus(comId, userId).equals(patchTownComLiked.getStatus())){
+            if (patchTownComLiked.getStatus().equals("Y")){
                 return new BaseResponse<>(POST_LIKE_DUPLICATED);
             }
             return new BaseResponse<>(POST_NOT_LIKE_DUPLICATED);
         }
-        PatchTownComLikedReq patchTownComLikedReq = new PatchTownComLikedReq(postId, comId, userId, townComLiked.getStatus());
+        PatchTownComLikedReq patchTownComLikedReq = new PatchTownComLikedReq(postId, comId, userId, patchTownComLiked.getStatus());
         townService.modifyTownComLiked(patchTownComLikedReq);
         String result = "";
         return new BaseResponse<>(result);

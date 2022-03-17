@@ -11,7 +11,7 @@ import javax.validation.constraints.NotBlank;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TownComLiked {
+public class PatchTownComLiked {
     @NotBlank(message="상태 값을 입력해주세요.")
     private String status;
 }

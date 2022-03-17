@@ -7,13 +7,12 @@ import lombok.Setter;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
-import java.sql.Timestamp;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Town {
+public class PatchTownPost {
 
     @NotBlank(message="카테고리를 선택해주세요.")
     private int townPostCategoryId;

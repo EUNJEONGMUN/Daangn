@@ -8,9 +8,12 @@ import com.example.demo.src.product.model.Res.GetProductRes;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -20,6 +23,11 @@ import java.util.ListIterator;
 public class ProductDao {
 
     private JdbcTemplate jdbcTemplate;
+    private List<GetProductInfo> getProductInfo;
+    private List<GetProductImg> getProductImg;
+    private List<GetProductAttCount> getProductAttCount;
+    private List<GetProductChatCount> getProductChatCount;
+    private List<GetProductJuso> getProductJuso;
 
     @Autowired
     public void setDataSource(DataSource dataSource){
@@ -91,7 +99,7 @@ public class ProductDao {
     }
 //    public List<GetProductPostRes> getProducts() {
 //
-//        String Query1 = "SELECT P.productPostId, P.userId, P.title,P.price,\n" +
+//        String Query1 = "SELECT P.productPostId, P.title,P.price, P.userId,\n" +
 //                "       case\n" +
 //                "            when TIMESTAMPDIFF(SECOND, P.createdAt, current_timestamp())<60\n" +
 //                "                then concat(TIMESTAMPDIFF(SECOND, P.createdAt, current_timestamp()),'초 전')\n" +
@@ -112,50 +120,84 @@ public class ProductDao {
 //                "WHERE P.isExistence='Y' and P.isHidden='N'\n" +
 //                "ORDER BY P.createdAt DESC;";
 //
-//        String Query2 = "SELECT Img.productPostId, min(Img.productImageId), Img.imageUrl as firstImg\n" +
+//        String Query2 = "SELECT P.productPostId, Image.firstImg\n" +
+//                "FROM ProductPost P LEFT JOIN (SELECT Img.productPostId, min(Img.productImageId), Img.imageUrl as firstImg\n" +
 //                "FROM ProductImage Img JOIN ProductPost PP on Img.productPostId = PP.productPostId\n" +
-//                "WHERE Img.productPostId = ?\n" +
-//                "GROUP BY Img.productPostId";
+//                "GROUP BY Img.productPostId) Image ON Image.productPostId = P.productPostId\n" +
+//                "WHERE P.isExistence='Y' and P.isHidden='N'\n" +
+//                "ORDER BY P.createdAt DESC;";
 //
-//        String Query3 = "SELECT JC.jusoName\n" +
-//                "FROM UserArea UA JOIN JusoCode JC on UA.jusoCodeId = JC.jusoCodeId\n" +
-//                "WHERE UA.userId = ?;";
-//
-//        String Query4 = "SELECT COUNT(*) AS attCount\n" +
+//        String Query3 = "SELECT P.productPostId, IFNULL(Att.attCount, 0) as attCount\n" +
+//                "FROM ProductPost P LEFT JOIN (SELECT PA.postId, COUNT(*) AS attCount\n" +
 //                "FROM ProductAttention PA\n" +
-//                "WHERE PA.postId=?;";
+//                "GROUP BY PA.postId) Att ON Att.postId = P.productPostId\n" +
+//                "WHERE P.isExistence='Y' and P.isHidden='N'\n" +
+//                "ORDER BY P.createdAt DESC;";
 //
-//        String Query5 = "SELECT COUNT(*) AS chatCount\n" +
+//        String Query4 = "SELECT P.productPostId, IFNULL(Chat.chatCount, 0) as chatCount\n" +
+//                "FROM ProductPost P LEFT JOIN (SELECT PCL.postId, COUNT(*) AS chatCount\n" +
 //                "FROM ProductChatList PCL\n" +
-//                "WHERE PCL.postId = ?;";
+//                "GROUP BY PCL.postId) Chat ON Chat.postId = P.productPostId\n" +
+//                "WHERE P.isExistence='Y' and P.isHidden='N'\n" +
+//                "ORDER BY P.createdAt DESC;";
+//
+//        String Query5 = "SELECT P.productPostId, Juso.jusoName\n" +
+//                "FROM ProductPost P JOIN (SELECT UA.userId, JC.jusoName\n" +
+//                "    FROM UserArea UA\n" +
+//                "    JOIN JusoCode JC on UA.jusoCodeId = JC.jusoCodeId) Juso ON Juso.userId=P.userId\n" +
+//                "WHERE P.isExistence='Y' and P.isHidden='N'\n" +
+//                "ORDER BY P.createdAt DESC;";
+//
+//        List<String> Image = this.jdbcTemplate.query(Query2,
+//                (rs, rowNum) -> {
+//                    String image = rs.getString("firstImg");
+//                    return image;});
+//
+//        List<Integer> Att = this.jdbcTemplate.query(Query3,
+//                (rs, rowNum) -> {
+//                    int att = rs.getInt("attCount");
+//                    return att;});
+//
+//        List<Integer> Chat = this.jdbcTemplate.query(Query4,
+//                (rs, rowNum) -> {
+//                    int chat = rs.getInt("chatCount");
+//                    return chat;});
+//
+//        List<String> Juso = this.jdbcTemplate.query(Query5,
+//                (rs, rowNum) -> {
+//                    String juso = rs.getString("jusoName");
+//                    return juso;});
+//
+//        List<GetProductInfo> Info = this.jdbcTemplate.query(Query1,
+//                (rs,rowNum) -> {
+//                    String title = rs.getString("title");
+//                    int price = rs.getInt("price");
+//                    String state = rs.getString("state");
+//                    String uploadTime = rs.getString("uploadTime");
+//                    return new GetProductInfo(title, price, state, uploadTime);
+//                });
+//
+//        List<GetProductPostRes> getProductPostRes = (List<GetProductPostRes>) new GetProductPostRes();
+//        for (int i=0; i<Image.size(); i++){
+//            GetProductInfo getProductInfo = Info.get(i);
+//            String firstImg = Image.get(i);
+//            String jusoName = Juso.get(i);
+//            int attCount = Att.get(i);
+//            int chatCount = Chat.get(i);
+//
+//            //...?
+//        }
 //
 //
 //        return this.jdbcTemplate.query(Query1,
-//                (rs1,rowNum1) -> new GetProductPostRes(
-//                        rs1.getString("title"),
-//                        rs1.getInt("price"),
-//                        rs1.getString("uploadTime"),
-//                        rs1.getString("state"),
-//                        this.jdbcTemplate.queryForObject(Query2,
-//                                (rs2, rowNum2) -> new String(
-//                                        rs2.getString("firstImg"))
-//                                , rs1.getInt("productPostId")),
-//                        this.jdbcTemplate.queryForObject(Query3,
-//                                (rs3, rowNum3) -> new String(
-//                                        rs3.getString("jusoName"))
-//                                ,rs1.getInt("userId")),
-//                        this.jdbcTemplate.queryForObject(Query4,
-//                                (rs4, rowNum4) -> new Integer(
-//                                        rs4.getInt("attCount"))
-//                                ,rs1.getInt("productPostId")),
-//                        this.jdbcTemplate.queryForObject(Query5,
-//                                (rs5, rowNum5) -> new Integer(
-//                                        rs5.getInt("chatCount"))
-//                                ,rs1.getInt("productPostId"))
-//                ));
-//
+//                (rs, rowNum) -> {
+//            String title = rs.getString("title");
+//            int price = rs.getInt("price");
+//            String state = rs.getString("state");
+//            String uploadTime = rs.getString("uploadTime");
+//            return new GetProductPostRes(new GetProductInfo(title, price, state, uploadTime), Image, Att, Chat, Juso);
+//                });
 //    }
-
 
 
 
