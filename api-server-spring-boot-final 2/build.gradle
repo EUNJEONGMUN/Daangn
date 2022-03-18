@@ -54,15 +54,15 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-web')
 
     // 휴대폰 인증
-    compile('group: net.nurigo, name: javaSDK, version: 2.2')
+//    compile('group: net.nurigo, name: javaSDK, version: 2.2')
     compile( group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1')
 
 // https://mvnrepository.com/artifact/net.sf.json-lib/json-lib
-    implementation group: 'net.sf.json-lib', name: 'json-lib', version: '2.4', 'classifier': 'jdk15'
+    implementation (group: 'net.sf.json-lib', name: 'json-lib', version: '2.4', 'classifier': 'jdk15')
 // https://mvnrepository.com/artifact/net.nurigo/javaSDK
-    implementation group: 'net.nurigo', name: 'javaSDK', version: '2.2'
+    implementation (group: 'net.nurigo', name: 'javaSDK', version: '2.2')
 
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation ('org.springframework.boot:spring-boot-starter-validation')
 }
 
 test {
