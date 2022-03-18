@@ -28,7 +28,7 @@ public class ProductDao {
     }
 
     /**
-     * 홈 화면 조회 API
+     * 홈 화면 조회 API - 출력 방식은 FE와 상의
      * [GET] /products/home
      * @return BaseResponse<List<GetProductRes>>
      */
